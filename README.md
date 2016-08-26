@@ -1,10 +1,15 @@
-# mawie
+Mawie
+===========
+
 This is some random exercise
 
-# What is this project about
+What is this project about
 
-# Technologies used
+Technologies used
 
-# Architecture
+Architecture
 
-# Tests done
+Tests done
+
+
+http://docs.themoviedb.apiary.io/#reference/search/searchmovie/get
