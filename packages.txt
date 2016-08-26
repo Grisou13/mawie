@@ -1,2 +1,0 @@
-omdb
-parse-torrent-name
