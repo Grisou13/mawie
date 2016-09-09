@@ -1,4 +1,4 @@
-from rearch import research
+#from rearch import research
 
 class App:
     def boot():
