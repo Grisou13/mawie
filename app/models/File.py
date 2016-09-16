@@ -6,11 +6,11 @@ from sqlalchemy.orm import relationship
 from app.models import Movie
 
 from app.models.base import Base
-
-
-class File(Base):
-    __tablename__ = "files"
-    id = Column(Integer, primary_key=True)
+# TODO: redo models with https://github.com/mardix/active-alchemy
+from app.models import db
+class File(db.Model):
+    __tablename__ = "file"
     path = Column(Text)
     movie_id = Column(Integer, ForeignKey("movie.id"))
+    movie = relationship("Movie", backref="movie")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
