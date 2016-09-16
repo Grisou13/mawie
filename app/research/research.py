@@ -1,4 +1,4 @@
-
+from app.models.Movie import Movie
 class Searchable(object):
     """ Prototype for any searchable item """
 
@@ -21,8 +21,16 @@ class Research:
     model = Movie
     """ main research class """
     #only implement local research for films
-    def search(self, query, type, filters=None):
+    def search(self, query, filters=None):
 
+        m = self.model
+        if filters is None:
+            return m.query().filter(m.name.like("%"+query+"%"),m.desc.like("%"+query+"%"))
+        else:
+            if filter in m.columns():
+                return m.query.filter(m.columns())
+            else:
+                raise RuntimeError("Well the filter doesnt exist you know?")
         # query local db
         # query remote db
         pass
@@ -33,7 +41,5 @@ class Research:
         pass
 
 if __name__ == '__main__':
-    from app.models.Movie import Movie
-
     r = Research()
-    r.search("harry potter", Searchable(Movie))
+    r.search("The")
