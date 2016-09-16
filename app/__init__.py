@@ -1,4 +1,4 @@
-import .main
+import app.main
 
 def run():
     app = main.App()
