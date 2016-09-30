@@ -1,4 +1,6 @@
 import tkinter
+from app.gui.components.movie_frame import MovieFrame
+from app.gui.components.test import Test
 
 from app.gui.components.mainFrame import MainFrame
 from app.gui.components.movie_frame import MovieFrame
