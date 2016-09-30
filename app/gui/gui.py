@@ -1,6 +1,6 @@
 import tkinter
 from app.gui.components.movie_frame import MovieFrame
-from app.gui.components.test import Test
+from app.models.Movie import Movie
 
 from app.explorer.explorer import Explorer
 from app.helpers import SingletonMixin

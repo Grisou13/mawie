@@ -1,4 +1,6 @@
 import datetime
+
+from sqlalchemy import Boolean
 from sqlalchemy import Column, Integer, String, Text, Date, Time, schema
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
@@ -31,6 +33,7 @@ class Movie(db.Model):
     #@property
     #def columns(self):
     #    return [col for col in dir(self) if isinstance(col, db.Column)]
+    viewed= Column(Boolean, default=False)
 
 
 if __name__ == '__main__':
