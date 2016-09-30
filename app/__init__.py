@@ -1,6 +1,5 @@
 import app.main
 import sys
-from app.explorer.explorer import *
 
 def run():
     app = main.App()

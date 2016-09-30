@@ -1,43 +1,56 @@
 import os
+import sys
+from exceptions import *
+if __name__ == '__main__':
+    sys.path.append(os.path.join(os.getcwd(), "../../"))
 import PTN
 import json
-import sys
+# import sys
 #sql and shit
-from sqlalchemy.orm import
-from sqlalchemy import create_engine
 
-from app.explorer.explorer import *
+
+from app.models.File import File
+#import app.models.Movie
 
 class Explorer():
-
-    path = ""
     #database connector uses SQLAlchemy
-    databaseConnector = object()
+    movieFileMovie = object()
 
     def __init__(self, path, databaseName=".cache/main.sqlite"):
-        if (path is None) and os.path.exists(path) is True:
-            raise IsADirectoryError("Directory not found")
+
+        if (path is None) or os.path.exists(path) is False:
+            raise IsADirectoryError("Film directory not found")
+
+        if (self.checkDirIfEmpty(path)):
+            raise FileNotFoundError("No file has been found in the {} path".format(path))
+
         self.path = path
-        def initiateConnector():
-            try:
-                engine = create_engine(H.DB_PATH)
-                base.Base.metadata.create_all(engine, checkfirst=True)
-                #serve as a factory for new session objects
-                Session = sessionmaker(bind=engine)
-                #bound the db
-                return Session()
-                #use the fellow example
-                #>>> ed_user = User(name='ed', fullname='Ed Jones', password='edspassword')
-                #>>> session.add(ed_user)
-            except ValueError as e:
-                print(e)
+        self.movieFileMovie = File()
+        # r = self.movieModel.query()
+        # print(r)
 
-        self.connector = initiateConnector()
+    def checkDirIfEmpty(self, dir):
+        """ Check for file in folder and subfolder (only 1 folder of depth) """
+        #TODO need to be tested in a folder with files ONLY in subfolder
+        f = True
+        for dirpath, dirnames, files in os.walk(dir):
+            if files:
+                #Found
+                f = False
+            if not files:
+                #Not found but....
+                if dirnames:
+                    for dpath, dnames, fls in os.walk(dirpath):
+                        if fls:
+                            #Found in subfolde ! :)
+                            f = False
 
+        return f
 
     def getFolderContent(self, path=None):
         if path is None:
             path = self.path
+
         assert os.path.exists(path)
         return os.listdir(path)
 
@@ -46,20 +59,23 @@ class Explorer():
             raise TypeError("Expecting a list")
         cleanMovieList = {}
         for dirtyMovie in movieList:
-            #todo optimise REGEX parsing (PTN/patterns.py)
+            #TODO optimise REGEX parsing (PTN/patterns.py)
             parsed = PTN.parse(dirtyMovie.replace(".", " "))
-            #cleanMovieList[parsed['title']] = dirtyMovie
-
-            print(type(cleanMovieList))
-            #print(dirtyMovie)
-            #print(PTN.parse(dirtyMovie))
-            #print(type(cleanMovieList))
-            #cleanMovieList.add(PTN.parse(dirtyMovie))
+            cleanMovieList[parsed['title']] = parsed
         return cleanMovieList
 
     def addMoviesToDatabase(self, movieList):
-        assert isinstance(movieList, list)
-        self.session.add(movieList)
+        assert isinstance(movieList, dict)
+
+        for movie, data in movieList.items():
+            #what im trying here is fucked up
+            #credits to http://stackoverflow.com/questions/2553354/how-to-get-a-variable-name-as-a-string-in-python
+            print(movie, data)
+
+            sys.exit()
+
+    def getAllMoviesFromDatabase(self):
+        return self.movieFileMovie.query()
 
     def writeContentInJson(self, data, file="data.json"):
         with open(file,"w+") as outfile:
@@ -68,5 +84,22 @@ class Explorer():
 if __name__ == '__main__':
     #do stuff
     explorer = Explorer("../../stubs/FILM_a_trier")
-    explorer.writeContentInJson(explorer.nameParsing(explorer.getFolderContent()))
+    lst = explorer.nameParsing(explorer.getFolderContent())
+    #explorer.writeContentInJson(lst)
+    explorer.addMoviesToDatabase(lst)
+
     print("stuff is done")
+
+"""
+    movie data structure :
+    "MovieName": {
+        "excess": "TRUEFRENCH",
+        "title": "Les 101 Dalmatiens 2",
+        "year": 2009,
+        "quality": "DVDRip",
+        "codec": "Xvid",
+        "group": "Ac3-UTT avi",
+        "audio": "AC3"
+    },
+
+"""
