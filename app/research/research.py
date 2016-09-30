@@ -2,10 +2,15 @@ from sqlalchemy import Column
 
 from app.models.Movie import Movie
 from app.models import db
+
+from sqlalchemy import or_
+
+class FilterDoesntExist(Exception):pass
+
 class Searchable(object):
     """ Prototype for any searchable item """
 
-    def __init__(self,cls):
+    def __init__(self, cls):
         pass
 
     def search(self, query):
@@ -23,40 +28,65 @@ class SearchableItem:
 class Research:
     model = Movie
     """ main research class """
-    #only implement local research for films
-    def search(self, query, filters=None):
-
+    default_cols = ["name","desc"]
+    # only implement local research for films
+    def search(self, query, filters=None,):
+        """ :return generator"""
         m = self.model
-        if filters is None:
-            for mov in m.query().filter(m.name.like("%"+query+"%"),m.desc.like("%"+query+"%")):
-                yield mov
-        else:
-            if isinstance(filters,list):
-                for f in filters:
-                    yield self.filter(f,query)
-            else:
-                yield self.filter(filters,query)
+        cols = self.default_cols
+        if isinstance(filters, list):
+            cols.append(filters)
+        elif isinstance(filters,str):
+            new_cols = filters.replace(';',' ').replace(',',' ').replace(':',' ').split()
+            cols = list(set(cols + [x.lower() for x in new_cols]))
+        if len(cols) <=0:
+            return iter([])
+        q = self.queryModelOnColumn(*cols, query)
+        return iter(q.all())
+
         # query local db
         # query remote db
         pass
-    def getFields(self,cls):
-        _ = {}
+
+    @staticmethod
+    def getFields(cls):
+        _ = []
         for col in cls.__table__.columns:
             name = str(col).split(".")[1]
-            _[name.lower()] = name
+            _.append(name)
         return _
-    def filter(self,f,query):
-        _f = self.getFields(self.model)
-        print(_f)
-        if f.lower() in _f.keys():
-            return list(self.model.query().filter(getattr(self.model, str(_f[f.lower()])).like("%" + query + "%")))
-        else:
-            raise RuntimeError("Well the filter doesnt exist you know?")
-    async def localSearch(self):
-        pass
-    async def remoteSearch(self):
-        pass
+
+    def queryModelOnColumn(self, *args, **kwargs):
+        """
+        Querys the searchable model on specified columns.
+        Columns are either specified by arg list, and last element is used as the query : queryModelOnColumn("col1","col2","query"
+        Wither by arguments queryModelOnColumn(query="some thing to search",columns=["a","list","of","cols"])
+        Or seperated list of columns by [;,:] queryModelOnColumn(query="some thing to search",columns="a,list,of,cols")
+        Idea came from http://stackoverflow.com/a/28270753
+        Needs some optimization for complexity
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if "query" in kwargs:
+            if "columns" in kwargs and isinstance(list,kwargs["columns"]):
+                return self.model.query().filter(
+                    or_(*[getattr(self.model, name).like("%" + str(kwargs["query"]) + "%") for name in kwargs["columns"]]))
+            elif "columns" in kwargs and isinstance(str, kwargs["columns"]):
+                cols = kwargs["columns"].replace(';',' ').replace(',',' ').replace(':',' ').split()
+                return self.model.query().filter(
+                    or_(*[getattr(self.model, name).like("%" + str(kwargs["query"]) + "%") for name in
+                          cols]))
+
+        fields = list(args)[:-1]
+        authorized_fields = self.getFields(self.model)
+        return self.model.query().filter(or_(*[ getattr(self.model, name).like("%"+str(args[-1])+"%") for name in fields if name in authorized_fields ]))
+
+
 
 if __name__ == '__main__':
     r = Research()
-    print(r.search("Sayo Saruta","Actors").__next__())
+    searchable = r.search("Isabelle","actor")
+    print(searchable)
+    for s in searchable:
+        print(s)

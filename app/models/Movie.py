@@ -5,7 +5,9 @@ from sqlalchemy.orm import relationship
 
 import app.helpers
 from app.models.base import Base
-from app.models import db,File
+from app.models import db, File
+
+
 # almost all the fields are completly empty since we can't be 100% sure imdb won't just fuck us over
 class Movie(db.Model):
     __tablename__ = "movie"
@@ -21,9 +23,14 @@ class Movie(db.Model):
     poster = Column(Text, nullable=True)  # can be an image in cache or a direct url to the website
     # raings = Column(Integer,nullable=True)
     files = relationship("File")
+    def __str__(self):
+        return "Movie["+str(self.id)+"] "+self.name
+    def __repr__(self):
+        return self.__str__()
+    #@property
+    #def columns(self):
+    #    return [col for col in dir(self) if isinstance(col, db.Column)]
 
-    def columns(self):
-        return [col for col in dir(self) if isinstance(col, db.Column)]
 
 if __name__ == '__main__':
     pass
