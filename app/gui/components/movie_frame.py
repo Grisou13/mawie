@@ -1,10 +1,11 @@
 import tkinter
 from tkinter import ttk
 from PIL import Image, ImageTk
-from urllib.request import *
+from urllib import request,error
 from io import BytesIO
 import subprocess
 import os
+
 
 class MovieFrame(tkinter.Frame):
     def __init__(self,root):
@@ -14,23 +15,28 @@ class MovieFrame(tkinter.Frame):
         self.createWidget(self)
 
     def createWidget(self,frame):
+        self.size = 350, 350
         sizeFontInfoFilm=11
         lengthMaxLbl=500
         padxLblInfo=250
 
         #Create widgets
-        self.tk_img = None
+        img = self.importPosterFilm()
+        img.thumbnail(self.size)
+        self.tk_img = ImageTk.PhotoImage(img)
         self.lblImgFilm = ttk.Label(self, image=self.tk_img)
-        self.lblTitle = ttk.Label(self,font=("Arial",20))
-        self.lblScenarist = ttk.Label(self, text="Scenarist: ", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
-        self.lblDirector = ttk.Label(self, text="real", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
-        self.lblActor = ttk.Label(self, text="auteur", wraplength=lengthMaxLbl, font=("Arial", sizeFontInfoFilm))
-        self.lblRuntime = ttk.Label(self, text="runTime", wraplength=lengthMaxLbl, font=("Arial", sizeFontInfoFilm))
-        self.lblRate = ttk.Label(self, text="auteur", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
-        self.lblReleasedDate = ttk.Label(self, text="auteur", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
-        self.lblAwards = ttk.Label(self, text="auteur", wraplength=lengthMaxLbl, font=("Arial",sizeFontInfoFilm))
-        self.lblCountry = ttk.Label(self, wraplength=lengthMaxLbl, text="auteur", font=("Arial",sizeFontInfoFilm))
-        self.lblPlot = ttk.Label(self, wraplength="800",font=("Arial",sizeFontInfoFilm))
+
+        self.lblTitle = ttk.Label(self,font=("Arial",20),text="Aucun film sélectionné")
+        self.lblScenarist = ttk.Label(self, text="Scenarist: -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblDirector = ttk.Label(self, text="Réalisateur -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblActor = ttk.Label(self, text="Acteurs: -", wraplength=lengthMaxLbl, font=("Arial", sizeFontInfoFilm))
+        self.lblRuntime = ttk.Label(self, text="Durée: -", wraplength=lengthMaxLbl, font=("Arial", sizeFontInfoFilm))
+        self.lblRate = ttk.Label(self, text="Note: -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblReleasedDate = ttk.Label(self, text="Date de sortie: -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblAwards = ttk.Label(self, text="Récompenses: -", wraplength=lengthMaxLbl, font=("Arial",sizeFontInfoFilm))
+        self.lblCountry = ttk.Label(self, wraplength=lengthMaxLbl, text="Pays: -", font=("Arial",sizeFontInfoFilm))
+        self.lblPlot = ttk.Label(self, wraplength="800",font=("Arial",sizeFontInfoFilm),text="Sysnopsis: -")
+        self.lblLien = ttk.Label(self,text="Fichier(s) du film")
 
         ''' ***** V1
          elf.lblImgFilm.grid(row=1, column=0, rowspan=7)         self.lblScenarist.grid(row=1, column=1, sticky="W")
@@ -57,14 +63,12 @@ class MovieFrame(tkinter.Frame):
 
     #display/change movie info
     def updateMovie(self,movie):
-        self.size = 350, 350
-
         self.lblTitle.config(text=movie.name)
 
         #poster
-        self.img = self.importPosterFilm('http://ia.media-imdb.com/images/M/MV5BNjQ5NjEyMjU1OF5BMl5BanBnXkFtZTcwNDQ2NzI5NA@@._V1_SX300.jpg')
-        self.img.thumbnail(self.size)
-        self.tk_img = ImageTk.PhotoImage(self.img)
+        img = self.importPosterFilm(movie.poster)
+        img.thumbnail(self.size)
+        self.tk_img = ImageTk.PhotoImage(img)
         self.lblImgFilm.config(image=self.tk_img)
 
         #info movie
@@ -78,33 +82,35 @@ class MovieFrame(tkinter.Frame):
         self.lblReleasedDate.config(text="Date de sortie: "+movie.release)
         self.lblPlot.config(text="Synopsis: "+movie.desc)
 
-        #create button to open file
-        list = ["C:\\Users\Ilias\\PycharmProjects\\appScrapy\\appScrapy\\apiFilm","C:\\Users\Ilias\\documents","C:\\Users\Ilias\\documents"]
-        listFilmsPath =[]
-        row = 11
-        for idx, film in enumerate(list):
-            width = 15
-            padx=200
-            listFilmsPath.append(ttk.Button(text="Voir film",width=width, command=lambda film=film: self.openDirectory(film)))
-            listFilmsPath[idx].grid(row=row,padx=(200,idx*padx))
-            print(str(idx*width))
+        sizeFontInfoFilm = 11
+        list = ["C:\\generate_table.sql","C:\\users\\documents","c:\\SUSClientID.log"]
+        if len(list)>1:
+            self.lstBoxFiles = tkinter.Listbox(self, width=100, font=("Arial", sizeFontInfoFilm))
+            self.lstBoxFiles.grid(row=11)
+            for idx, film in enumerate(list):
+                self.lstBoxFiles.insert(tkinter.END, film)
+            ttk.Button(text="Voir film", width=100, command=self.openDirectory ).grid()
+
 
     #import the poster of the film, can be a local path or a url
-    def importPosterFilm(self,path):
+    def importPosterFilm(self,path=''):
         try:
-            html=urlopen(path)
+            html= request.urlopen(path)
+            print(html)
             file = BytesIO(html.read())
         except ValueError:  # local path
-            if  os.path.isfile(path):
-                file = open(path)
-            else:
-                print("can't import poster")
-                return False
+            if  os.path.isfile(os.path.dirname(__file__)+path):
+                file = os.path.dirname(__file__)+path
+                print("file exists")
+            else :
+                print(os.path.dirname(__file__)+path)
+                print("file doesn't exist")
+                file = os.path.dirname(__file__)+'\..\..\..\.cache\\noPoster.jpg'
         image = Image.open(file)
         return image
-
-    def openDirectory(self,path):
-        if os.path.isdir(path):
+    def openDirectory(self):
+        path = self.lstBoxFiles.get(self.lstBoxFiles.curselection())
+        if os.path.isfile(path):
             subprocess.Popen(r'explorer /select,"'+path+'"')
         else:
             print(path +"<- doesn't exist")
