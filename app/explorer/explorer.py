@@ -5,9 +5,7 @@ if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
 import PTN
 import json
-# import sys
-#sql and shit
-
+import re
 
 from app.models.File import File
 #import app.models.Movie
@@ -25,7 +23,8 @@ class Explorer():
             raise FileNotFoundError("No file has been found in the {} path".format(path))
 
         self.path = path
-        self.movieFileMovie = File()
+        self.movieFileConnector = File
+
         # r = self.movieModel.query()
         # print(r)
 
@@ -55,6 +54,7 @@ class Explorer():
         return os.listdir(path)
 
     def nameParsing(self, movieList):
+        #TODO in folder, return the files in it and not the folder !
         if not (isinstance(movieList, list)):
             raise TypeError("Expecting a list")
         cleanMovieList = {}
@@ -66,29 +66,54 @@ class Explorer():
 
     def addMoviesToDatabase(self, movieList):
         assert isinstance(movieList, dict)
-
+        #TODO add the path of te movie :)))))
+        #WITH NORMAL SLASH
         for movie, data in movieList.items():
-            #what im trying here is fucked up
-            #credits to http://stackoverflow.com/questions/2553354/how-to-get-a-variable-name-as-a-string-in-python
-            print(movie, data)
+            # useless data from the parser
+            if("episodeName" in data):
+                del data["episodeName"]
+            if("proper" in data):
+                del data["proper"]
+            """try:
+                k = data["title"]
+            except (IndexError, KeyError):
+                print(data)
+                sys.exit("decomment that ")"""
+            # replace any list in the data by an arrray (['FRENCH', 'BDRip'] => 'FRENCH, BDRip')
+            for k,v in data.items():
+                if(isinstance(v, list)):
+                    # yeah i know, python is weird sometimes
+                    data[k] = ", ".join(v)
+                elif(not isinstance(v, str) and not isinstance(v, int)):
+                    raise TypeError("Movie data format not conform")
+            #print data if you want to know why i used the **kwargs
 
-            sys.exit()
+            moveFile = self.movieFileConnector(**data).save()
+
 
     def getAllMoviesFromDatabase(self):
-        return self.movieFileMovie.query()
+        return self.movieFileConnector.query()
 
     def writeContentInJson(self, data, file="data.json"):
         with open(file,"w+") as outfile:
             json.dump(data, outfile)
 
 if __name__ == '__main__':
-    #do stuff
+    # get stuff done
     explorer = Explorer("../../stubs/FILM_a_trier")
     lst = explorer.nameParsing(explorer.getFolderContent())
-    #explorer.writeContentInJson(lst)
-    explorer.addMoviesToDatabase(lst)
+    #explorer.addMoviesToDatabase(lst)
 
-    print("stuff is done")
+    fromdb = explorer.getAllMoviesFromDatabase()
+    for movie in fromdb:
+        print(movie.path)
+
+        """
+        if(movie.title is None):
+            print(movie.updated_at)
+            print([attribute for attribute in dir(movie) if attribute[0].islower()])
+        print(movie.updated_at)"""
+    sys.exit("OUIIII")
 
 """
     movie data structure :
