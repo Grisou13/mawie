@@ -12,7 +12,6 @@ def get_films():
         films = _raw["Search"]
         for f in films:
             film = omdb.imdbid(f["imdbID"])
-
             yield dict( (k.lower(), (None if v == 'N/A' else v)) for k,v in film.items() )
 
 db.drop_all() # clear the database you know?

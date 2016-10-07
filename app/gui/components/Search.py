@@ -7,35 +7,43 @@ import itertools
 
 from app.models import db
 from app.models.Movie import Movie
-from app.research.research import  Research
+from app.research.research import Research
+import types
+
 
 class AutocompleteCombobox(tkinter.ttk.Combobox):
     def __init__(self, *arg, **kwargs):
         super(AutocompleteCombobox, self).__init__(*arg, **kwargs)
         self.r = Research()
+        self._elements = []
+        self.matchFunc = kwargs["match_func"] if "match_func" in kwargs else self.match
 
     def set_completion_list(self, completion_list):
         """Use our completion list as our drop down selection menu, arrows move through menu."""
 
         self._completion_list = completion_list  # Work with a sorted list
+        # self._elements = [] if isinstance(completion_list,types.GeneratorType) else completion_list
         self._hits = []
         self._hit_index = 0
         self.position = 0
         self.bind('<KeyRelease>', self.handle_keyrelease)
-        self['values'] = self._completion_list  # Setup our popup menu
+        self.bind('<Return>', (lambda e: print(e)))
+        self['values'] = [] if isinstance(completion_list,
+                                          types.GeneratorType) else completion_list  # Setup our popup menu
+
     @staticmethod
-    def match(value,inputValue):
-        if isinstance(value,db.Model):
+    def match(value, inputValue):
+        if isinstance(value, db.Model):
             return str(value).lower().startswith(inputValue.lower())
         return value.lower().startswith(inputValue.lower())
+
     def autocomplete(self, delta=0):
         """autocomplete the Combobox, delta may be 0/1/-1 to cycle through possible hits"""
         # reset the completion list to the selected value
         self._completion_list = self.r.search(self.get())
         # make them visible in the combo dropdown
         first = [x for _, x in zip(range(3), self._completion_list)]
-        self['values'] = [self.get()] + first
-        print(self['values'])
+        # self['values'] = [self.get()] + first
         if delta:  # need to delete selection otherwise we would fix the current position
             self.delete(self.position, tkinter.END)
         else:  # set position to end so selection starts where textentry ended
@@ -43,7 +51,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
         # collect hits
         _hits = []
         for element in self._completion_list:
-            if self.match(element,self.get()):  # Match case insensitively
+            if self.matchFunc(element, self.get()):  # Match case insensitively
                 _hits.append(element)
         # if we have a new hit list, keep this in mind
         if _hits != self._hits:
@@ -57,6 +65,11 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
             self.delete(0, tkinter.END)
             self.insert(0, self._hits[self._hit_index])
             self.select_range(self.position, tkinter.END)
+            print(self._hits[0].id)
+            print(self.position)
+            print(self._hit_index)
+            self['values'] = self._hits
+
     def handle_keyrelease(self, event):
         """event handler for the keyrelease event on this widget"""
         if event.keysym == "BackSpace":
@@ -67,7 +80,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
                 self.delete(self.position, tkinter.END)
             else:
                 self.position = self.position - 1  # delete one character
-                self.delete(self.position, tkinter.END)
+                # self.delete(self.position, tkinter.END)
         if event.keysym == "Right":
             self.position = self.index(tkinter.END)  # go to end (no selection)
         if len(event.keysym) == 1:
@@ -75,28 +88,42 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
             # No need for up/down, we'll jump to the popup
             # list at the position of the autocompletion
 
+
 class SearchWidget(AutocompleteCombobox):
-    pass
-#must complete with the research autocomplete
+    def __init__(self, root, *arg, **kwargs):
+        self.root = root
+
+        super(SearchWidget, self).__init__(tkinter.Frame(root),*arg,**kwargs)
+
+        self.pack()
+        self.focus_set()
+        self.set_completion_list([])
+
+
+# must complete with the research autocomplete
 class SearchListWidget(tkinter.Listbox):
     pass
+
+
 if __name__ == '__main__':
     root = tkinter.Tk(className=' AutocompleteEntry demo')
-    root.minsize(400,400)
+    root.minsize(400, 400)
 
 
     def on_field_change(index, value, op):
         print("combobox updated to ", s.get())
+
+
     v = tkinter.StringVar()
     v.trace('w', on_field_change)
     s = SearchWidget(root, textvar=v)
     l = [m.name for m in Movie.query(Movie.name).order_by(desc(Movie.created_at)).limit(5).all()]
-    s.set_completion_list([]) # get the last 5 moviews
+    s.set_completion_list([])  # get the last 5 moviews
     s.pack()
     s.focus_set()
     root.mainloop()
 
-    #TODO
+    # TODO
     """
     I have an idea
     Use combobox list to get the item index
