@@ -12,6 +12,7 @@ class SearchableItem:
         :param model:
         :param defaultColumn:
         :type model: ActiveAlchemy.Model
+        :type defaultColumn: str
         """
         self._raw = model
     def __str__(self):
