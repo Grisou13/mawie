@@ -82,7 +82,7 @@ class Research:
         raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
 if __name__ == '__main__':
     r = Research()
-    searchable = r.search("WWE")
+    searchable = r.search("")
     print(searchable)
     for s in searchable:
-        print(s.files)
+        print(s)

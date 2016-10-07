@@ -17,7 +17,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
         self.r = Research()
         self._elements = []
         self.matchFunc = kwargs["match_func"] if "match_func" in kwargs else self.match
-
+        self._autocomplete = kwargs["autocomplete"] if "autocomplete" in kwargs else (lambda el: print(el))
     def set_completion_list(self, completion_list):
         """Use our completion list as our drop down selection menu, arrows move through menu."""
 
@@ -42,7 +42,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
         # reset the completion list to the selected value
         self._completion_list = self.r.search(self.get())
         # make them visible in the combo dropdown
-        first = [x for _, x in zip(range(3), self._completion_list)]
+
         # self['values'] = [self.get()] + first
         if delta:  # need to delete selection otherwise we would fix the current position
             self.delete(self.position, tkinter.END)
@@ -81,8 +81,9 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
             else:
                 self.position = self.position - 1  # delete one character
                 # self.delete(self.position, tkinter.END)
-        if event.keysym == "Right":
+        if event.keysym == "Right" or event.keysym == "Return":
             self.position = self.index(tkinter.END)  # go to end (no selection)
+            self._autocomplete(self._hits[self._hit_index])
         if len(event.keysym) == 1:
             self.autocomplete()
             # No need for up/down, we'll jump to the popup
@@ -90,14 +91,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
 
 
 class SearchWidget(AutocompleteCombobox):
-    def __init__(self, root, *arg, **kwargs):
-        self.root = root
-
-        super(SearchWidget, self).__init__(tkinter.Frame(root),*arg,**kwargs)
-
-        self.pack()
-        self.focus_set()
-        self.set_completion_list([])
+    pass
 
 
 # must complete with the research autocomplete
@@ -105,8 +99,23 @@ class SearchListWidget(tkinter.Listbox):
     pass
 
 
+class SearchFrame(tkinter.Frame):
+    def __init__(self, *arg, **kwargs):
+        super(SearchFrame, self).__init__(*arg, **kwargs)
+        self.grid()
+        self.search_bar = SearchWidget(self)
+        self.search_bar.pack()
+        self.search_bar.focus_set()
+
+        self.result_list = SearchListWidget(self)
+        self.result_list.pack()
+        #self.result_list.focus_set()
+
 if __name__ == '__main__':
-    root = tkinter.Tk(className=' AutocompleteEntry demo')
+    from app.gui.gui import Gui
+    g = Gui.instance()
+    g.start()
+    """root = tkinter.Tk(className=' AutocompleteEntry demo')
     root.minsize(400, 400)
 
 
@@ -121,7 +130,7 @@ if __name__ == '__main__':
     s.set_completion_list([])  # get the last 5 moviews
     s.pack()
     s.focus_set()
-    root.mainloop()
+    root.mainloop()"""
 
     # TODO
     """
@@ -130,3 +139,123 @@ if __name__ == '__main__':
     Get the generator till index
     Gets the movie element and runs the MovieFrame component with the movie
     """
+"""
+import tkinter
+from tkinter import ttk
+from PIL import Image, ImageTk
+from urllib import request,error
+from io import BytesIO
+import subprocess
+import os
+
+
+class MovieFrame(tkinter.Frame):
+    def __init__(self,root):
+        super(MovieFrame, self).__init__(root)
+        self.grid()
+        self.columnconfigure(0,weight=0)
+        self.createWidget(self)
+
+    def createWidget(self,frame):
+        self.size = 350, 350
+        sizeFontInfoFilm=11
+        lengthMaxLbl=500
+        padxLblInfo=250
+
+        #Create widgets
+        img = self.importPosterFilm()
+        img.thumbnail(self.size)
+        self.tk_img = ImageTk.PhotoImage(img)
+        self.lblImgFilm = ttk.Label(self, image=self.tk_img)
+
+        self.lblTitle = ttk.Label(self,font=("Arial",20),text="Aucun film sélectionné")
+        self.lblScenarist = ttk.Label(self, text="Scenarist: -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblDirector = ttk.Label(self, text="Réalisateur -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblActor = ttk.Label(self, text="Acteurs: -", wraplength=lengthMaxLbl, font=("Arial", sizeFontInfoFilm))
+        self.lblRuntime = ttk.Label(self, text="Durée: -", wraplength=lengthMaxLbl, font=("Arial", sizeFontInfoFilm))
+        self.lblRate = ttk.Label(self, text="Note: -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblReleasedDate = ttk.Label(self, text="Date de sortie: -", wraplength=lengthMaxLbl,font=("Arial",sizeFontInfoFilm))
+        self.lblAwards = ttk.Label(self, text="Récompenses: -", wraplength=lengthMaxLbl, font=("Arial",sizeFontInfoFilm))
+        self.lblCountry = ttk.Label(self, wraplength=lengthMaxLbl, text="Pays: -", font=("Arial",sizeFontInfoFilm))
+        self.lblPlot = ttk.Label(self, wraplength="800",font=("Arial",sizeFontInfoFilm),text="Sysnopsis: -")
+        self.lblLien = ttk.Label(self,text="Fichier(s) du film")
+
+        ''' ***** V1
+         elf.lblImgFilm.grid(row=1, column=0, rowspan=7)         self.lblScenarist.grid(row=1, column=1, sticky="W")
+         self.lblDirector.grid(row=2, column=1, sticky="W")
+         self.lblActor.grid(row=3, column=1,sticky="W")
+         self.lblRate.grid(row=4, column=1, sticky="W")
+         self.lblAwards.grid(row=6, column=1, sticky="W")
+         self.lblCountry.grid(row=7, column=1, sticky="W")
+         self.lblReleasedDate.grid(row=5, column=1, sticky="W")
+         self.lblPlot.grid( row=8, column=0, columnspan=2,sticky="W")'''
+
+        #place widgets
+        self.lblTitle.grid(row=0, column=0, columnspan=3, sticky="W", padx=4)
+        self.lblImgFilm.grid(row=1, column=0,rowspan=9, sticky="W")
+        self.lblScenarist.grid(row=1, column=0,sticky="W", padx=(padxLblInfo,0))
+        self.lblDirector.grid(row=2, column=0,sticky="W", padx=(padxLblInfo,0))
+        self.lblActor.grid(row=3, column=0,sticky="W", padx=(padxLblInfo,0))
+        self.lblRuntime.grid(row=4, column=0, sticky="W", padx=(padxLblInfo, 0))
+        self.lblRate.grid(row=5, column=0,sticky="W", padx=(padxLblInfo,0))
+        self.lblAwards.grid(row=7, column=0,sticky="W",padx=(padxLblInfo,0))
+        self.lblCountry.grid(row=8, column=0, sticky="W", padx=(padxLblInfo,0))
+        self.lblReleasedDate.grid(row=9, column=0, sticky="W", padx=(padxLblInfo,0))
+        self.lblPlot.grid(row=10, column=0, columnspan=2, stick="W", pady=2)
+
+    #display/change movie info
+    def updateMovie(self,movie):
+        self.lblTitle.config(text=movie.name)
+
+        #poster
+        img = self.importPosterFilm(movie.poster)
+        img.thumbnail(self.size)
+        self.tk_img = ImageTk.PhotoImage(img)
+        self.lblImgFilm.config(image=self.tk_img)
+
+        #info movie
+        self.lblTitle.config(text=movie.name)
+        self.lblScenarist.config(text="Scénariste: "+movie.writer)
+        self.lblDirector.config(text="Réalisateur: "+movie.directors)
+        self.lblActor.config(text="Acteur: "+movie.actors)
+        #self.lblRate.config(text="Note: "+movie.rate)
+        #self.lblAwards.config(text="Récompense: "+movie.)
+        #self.lblCountry.config(text="Pays: "+movie.)
+        self.lblReleasedDate.config(text="Date de sortie: "+movie.release)
+        self.lblPlot.config(text="Synopsis: "+movie.desc)
+
+        sizeFontInfoFilm = 11
+        list = ["C:\\generate_table.sql","C:\\users\\documents","c:\\SUSClientID.log"]
+        if len(list)>1:
+            self.lstBoxFiles = tkinter.Listbox(self, width=100, font=("Arial", sizeFontInfoFilm))
+            self.lstBoxFiles.grid(row=11)
+            for idx, film in enumerate(list):
+                self.lstBoxFiles.insert(tkinter.END, film)
+            ttk.Button(text="Voir film", width=100, command=self.openDirectory ).grid()
+
+
+    #import the poster of the film, can be a local path or a url
+    def importPosterFilm(self,path=''):
+        try:
+            html= request.urlopen(path)
+            print(html)
+            file = BytesIO(html.read())
+        except ValueError:  # local path
+            if  os.path.isfile(os.path.dirname(__file__)+path):
+                file = os.path.dirname(__file__)+path
+                print("file exists")
+            else :
+                print(os.path.dirname(__file__)+path)
+                print("file doesn't exist")
+                file = os.path.dirname(__file__)+'\..\..\..\.cache\\noPoster.jpg'
+        image = Image.open(file)
+        return image
+    def openDirectory(self):
+        path = self.lstBoxFiles.get(self.lstBoxFiles.curselection())
+        if os.path.isfile(path):
+            subprocess.Popen(r'explorer /select,"'+path+'"')
+        else:
+            print(path +"<- doesn't exist")
+            return False
+
+"""

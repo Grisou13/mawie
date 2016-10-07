@@ -116,6 +116,7 @@ class AutocompleteEntry(Entry):
 
 
 if __name__ == '__main__':
+    pass
     autocompleteList = ['Dora Lyons (7714)', 'Hannah Golden (6010)', 'Walker Burns (9390)', 'Dieter Pearson (6347)',
                         'Allen Sullivan (9781)', 'Warren Sullivan (3094)', 'Genevieve Mayo (8427)',
                         'Igor Conner (4740)', 'Ulysses Shepherd (8116)', 'Imogene Bullock (6736)',
