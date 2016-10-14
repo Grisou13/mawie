@@ -2,3 +2,5 @@ omdb
 sqlalchemy
 urllib3
 timestring
+active_alchemy
+pillow

@@ -5,19 +5,14 @@ import timestring as timestring
 import app.models.Movie as m
 import app.models.File as f
 from app.models import db
-import app.helpers as H
-import json
+import omdb
 def get_films():
-    with open(os.path.join(H.CACHE_PATH, "films.json"),"w+") as f:
-        _raw = urllib.request.urlopen("http://www.omdbapi.com/?s=The+H&y=&plot=short&r=json").read()
-        f.write(_raw.decode("utf-8"))
-        j = json.loads(_raw.decode("utf-8"))
-        if "Search" in j.keys():
-            films = j["Search"]
-            for f in films:
-                _raw = urllib.request.urlopen("http://www.omdbapi.com/?i="+f["imdbID"]).read()
-                film = json.loads(_raw.decode("utf-8"),"utf-8")
-                yield dict( (k.lower(), (None if v == 'N/A' else v)) for k,v in film.items() )
+    _raw = omdb.request(s="The H", plot="short", r="json").json()
+    if "Search" in _raw:
+        films = _raw["Search"]
+        for f in films:
+            film = omdb.imdbid(f["imdbID"])
+            yield dict( (k.lower(), (None if v == 'N/A' else v)) for k,v in film.items() )
 
 db.drop_all() # clear the database you know?
 db.create_all() # and redo it aha
@@ -26,7 +21,7 @@ for l in get_films():
     m1.name     = l["title"]
     m1.desc     = l["plot"]
     m1.actors   = l["actors"]
-    m1.imdb_id  = l["imdbid"]
+    m1.imdb_id  = l["imdb_id"]
     m1.poster   = l["poster"]
     m1.runtime  = l["runtime"]
     m1.release  = (datetime.strptime(l["released"],"%d %b %Y") if l["released"] is not None else None)

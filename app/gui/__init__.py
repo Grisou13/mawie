@@ -17,5 +17,6 @@ def run():
     m = MovieInfo(g.root,movieInfo)
     g.root.mainloop()
 if __name__ == '__main__':
-    run()
+    #run()
+    pass
 
