@@ -1,6 +1,6 @@
 import os
 import sys
-from exceptions import *
+#from exceptions import *
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
 import PTN
