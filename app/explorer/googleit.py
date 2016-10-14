@@ -1,27 +1,52 @@
-import urllib.request
-import json
-from apiclient.discovery import build
+import sys
+import os
+if __name__ == '__main__':
+    sys.path.append(os.path.join(os.getcwd(), "../../"))
+from app.research import duckduckgoapi
+
+q = "very bad trip"+" :imdb"
+
+
+res = duckduckgoapi.query(q)
+print(dir(res))
+print(res.related)
+# print(res.related[0])
+for i in res.results:
+    print(i.url)
+sys.exit()
+# from google.appengine.api import search
 
 # https://developers.google.com/api-client-library/python/samples/simple_api_cmd_line_books.py
 # https://developers.google.com/api-client-library/python/start/get_started#simple
 
 class googleIt():
     def __init__(self):
-        self.service = build('mawie', 'v1', developerKey='AIzaSyBwMtM1gMtMi-92SLUsmwoWUj9X_e8SV4g')
+        api_key = 'AIzaSyB5T9oBbyEfTNnhN3G2faflnE2-69YpXS0'
+        self.service = build('customsearch', 'v1', developerKey=api_key)
 
     def letsGoogleThatMovie(self, searchfor):
-        if not type(searchfor, str):
+
+        res = self.service.cse().list(
+            q='lectures',
+            cx='017576662512468239146:omuauf_lfve',
+        ).execute()
+        pprint.pprint(res)
+
+        """
+        if not type(searchfor) is str:
             raise QueryFormatNotValide("Search item must be a string")
         print(searchfor)
-        request = service.volumes().list(source='public', q=searchfor)
+        request = self.service.PageMaps().list(source='public', q=searchfor)
         response = request.execute()
         print(json_loads(response))
+        """
 
     def getIntoLink(self):
         pass
 
     def getIDFromURL(self):
         pass
+
 gogogo = googleIt()
 gogogo.letsGoogleThatMovie("harry potter")
 
