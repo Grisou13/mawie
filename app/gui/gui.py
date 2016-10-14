@@ -1,6 +1,8 @@
 import tkinter
 from app.gui.components.movie_frame import MovieFrame
+from app.gui.components.MovieList import MovieListFrame
 from app.models.Movie import Movie
+from app.models.File import File
 
 from app.explorer.explorer import Explorer
 from app.helpers import SingletonMixin
