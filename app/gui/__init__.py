@@ -7,5 +7,6 @@ def run():
 
     g.root.mainloop()
 if __name__ == '__main__':
-    run()
+    #run()
+    pass
 

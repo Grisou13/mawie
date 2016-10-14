@@ -4,52 +4,42 @@ from app.gui.components.MovieList import MovieListFrame
 from app.models.Movie import Movie
 from app.models.File import File
 
-class Gui():
+from app.helpers import SingletonMixin
+import weakref
+from app.gui.components.Search import SearchFrame
+from app.gui.components import GuiComponent
+
+
+class NotAComponent(Exception):
+    pass
+
+
+class Gui(SingletonMixin):
+
     def __init__(self):
-        root = tkinter.Tk()
-        movieFrame= MovieFrame(root)
-        movies = []
+        self.root = tkinter.Tk()
 
-# to test movie_frame-- 1st film searched *******************************************
-        movie = Movie()
-        movie.name = "A Walk Through H: The Reincarnation of an Ornithologist"
-        movie.imdb_id = "124135"
-        movie.genre = "documentaire"
-        movie.desc = "lorem sfsadfs fsad fsadf sadf asfsad fas fasd fdas fdas fdas fdas fdasf dasf das fdas fdas fdasf sdfsdifsj kls fsdjklfjsklfj sfssdf asf dasf das fdas fjdfk jsflkjsimf3lkjklsjfsd"
-        movie.release = "1979"
-        movie.runtime = "1:30"
-        movie.actors = "Brad Double u pitt"
-        movie.directors = "Steven Alpichberg"
-        movie.writer = "Steven Hawkins"
-        movie.poster = "http://ia.media-imdb.com/images/M/MV5BNjQ5NjEyMjU1OF5BMl5BanBnXkFtZTcwNDQ2NzI5NA@@._V1_SX300.jpg"
-        #movie.poster = '/../filmImg2.jpg' #be aware, need / before path
-        movie.files = [File.get(1)]
-        movies.append()
-        movieFrame.updateMovie(movie)
+        self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
+        SearchFrame(self)
 
-#****** 2nd film searched *************************************************************
+    def start(self):
+        self.root.mainloop()
 
-        movie = Movie()
-        movie.name = "Wallah c'est pas moi"
-        movie.imdb_id = "124135"
-        movie.genre = "documentaire"
-        movie.desc = "lorem sfsadfs fsad fsadf sadf asfsad fas fasd fdas fdas fdas fdas fdasf dasf das fdas fdas fdasf sdfsdifsj kls fsdjklfjsklfj sfssdf asf dasf das fdas fjdfk jsflkjsimf3lkjklsjfsd"
-        movie.release = "1980"
-        movie.runtime = "1:30"
-        movie.actors = "Samir Benboudaoud"
-        movie.directors = "Mohammed alix"
-        movie.writer = "Mohammed Arafat"
-        movie.poster = "http://ia.media-imdb.com/images/M/MV5BNjQ5NjEyMjU1OF5BMl5BanBnXkFtZTcwNDQ2NzI5NA@@._V1_SX300.jpg"
-        #movie.poster = '/../filmImg2.jpg' #be aware, need / before path
-        movie.files = [File.get(1),File.get(2)]
-        movieFrame.updateMovie(movie)
+    def register_listener(self, cls):
+        if not isinstance(cls, GuiComponent):
+            raise NotAComponent("The class "+str(cls)+" should be extending GuiComponent")
+        self.listeners[cls] = 1
 
-        movies.append(movie)
+    def dispatchAction(self, actionName, actionData):
+        for l in self.listeners.keys():
+            l.handleAction(actionName, actionData)
 
-#*****Movie List
-        movieListFrame= MovieListFrame(root)
-        movieListFrame.updateWidget(movies)
+    def requestAction(self, originClass, actionName):
+        for l in self.listeners.keys():
+            if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless
+            originClass.handleAction("request_" + actionName, l.requestAction("request_" + actionName))
 
-        root.mainloop()
+
 if __name__ == '__main__':
-     gui = Gui()
+    g = Gui.instance()
+    g.start()
