@@ -23,7 +23,7 @@ class Movie(db.Model):
     directors = Column(String, nullable=True)
     writer = Column(String, nullable=True)
     poster = Column(Text, nullable=True)  # can be an image in cache or a direct url to the website
-    rate = Colum(String, nullable=True)
+    rate = Column(String, nullable=True)
     # raings = Column(Integer,nullable=True)
     files = relationship("File")
     viewed= Column(Boolean, default=False)
@@ -31,6 +31,7 @@ class Movie(db.Model):
         return self.name
         return self.__str__()
     def __repr__(self):
+        pass
 
 
 if __name__ == '__main__':
