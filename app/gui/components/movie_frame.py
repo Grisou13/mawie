@@ -3,22 +3,17 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from urllib import request
 from io import BytesIO
-
-
 import os
 
-
 class MovieFrame(tkinter.Frame):
-    def __init__(self,root):
-
-
-        super(MovieFrame, self).__init__(root)
+    def __init__(self,parent, controller):
+        super(MovieFrame, self).__init__(parent)
         self.grid(column=0,row=1)
         self.columnconfigure(0,weight=0)
-        self.createWidget(self)
+        self.createWidget()
 
 
-    def createWidget(self,frame):
+    def createWidget(self):
         self.flagLstBoxDisplayed = False
         self.size = 400,400
         bgFrame = "#1E1E1F"
@@ -42,18 +37,30 @@ class MovieFrame(tkinter.Frame):
         self.tk_img = ImageTk.PhotoImage(img)
         self.lblImgFilm = tkinter.Label(self, image=self.tk_img)
 
-        self.lblTitle = tkinter.Label(self,bg=bgFrame,fg=colorFont,font=("Arial",20),text="Aucun film sélectionné")
-        self.lblScenarist = tkinter.Label(self, text="Scenarist: -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblDirector = tkinter.Label(self, text="Réalisateur -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblActor = tkinter.Label(self, text="Acteurs: -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont, font=("Arial", sizeFontInfoFilm))
-        self.lblRuntime = tkinter.Label(self, text="Durée: -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont, font=("Arial", sizeFontInfoFilm))
-        self.lblRate = tkinter.Label(self, text="Note: -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblReleasedDate = tkinter.Label(self, text="Date de sortie: -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblAwards = tkinter.Label(self, text="Récompenses: -", wraplength=lengthMaxLbl,bg=bgFrame,fg=colorFont, font=("Arial",sizeFontInfoFilm))
-        self.lblCountry = tkinter.Label(self, wraplength=lengthMaxLbl, text="Pays: -",bg=bgFrame,fg=colorFont, font=("Arial",sizeFontInfoFilm))
-        self.lblPlot = tkinter.Label(self, wraplength="800",bg=bgFrame,fg=colorFont, justify=tkinter.LEFT,font=("Arial",sizeFontInfoFilm),text="Sysnopsis: -")
-        self.lstBoxFiles = tkinter.Listbox(self, width=100,bg=lstColor,fg=colorFont , selectbackground=lstSelectColor, activestyle="none", font=("Arial", sizeFontInfoFilm),xscrollcommand=self.scrollBarLstBoxH.set)
-        self.btnGotoFile = tkinter.Button(self,text="Voir film", width=50, bg=btnColor, fg=colorFont, font=("Arial",sizeFontInfoFilm),command=self.openDirectory)
+        self.lblTitle = tkinter.Label(self,bg=bgFrame,fg=colorFont,font=("Arial",20),
+                                      text="Aucun film sélectionné")
+        self.lblScenarist = tkinter.Label(self, text="Scenarist: -", wraplength=lengthMaxLbl,
+                                          bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
+        self.lblDirector = tkinter.Label(self, text="Réalisateur -", wraplength=lengthMaxLbl,
+                                         bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
+        self.lblActor = tkinter.Label(self, text="Acteurs: -", wraplength=lengthMaxLbl,
+                                      bg=bgFrame,fg=colorFont, font=("Arial", sizeFontInfoFilm))
+        self.lblRuntime = tkinter.Label(self, text="Durée: -", wraplength=lengthMaxLbl,
+                                        bg=bgFrame,fg=colorFont, font=("Arial", sizeFontInfoFilm))
+        self.lblRate = tkinter.Label(self, text="Note: -", wraplength=lengthMaxLbl,
+                                     bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
+        self.lblReleasedDate = tkinter.Label(self, text="Date de sortie: -", wraplength=lengthMaxLbl,
+                                             bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
+        self.lblAwards = tkinter.Label(self, text="Récompenses: -", wraplength=lengthMaxLbl,
+                                       bg=bgFrame,fg=colorFont, font=("Arial",sizeFontInfoFilm))
+        self.lblCountry = tkinter.Label(self, wraplength=lengthMaxLbl, text="Pays: -",bg=bgFrame,
+                                        fg=colorFont, font=("Arial",sizeFontInfoFilm))
+        self.lblPlot = tkinter.Label(self, wraplength="800",bg=bgFrame,fg=colorFont,
+                                     justify=tkinter.LEFT,font=("Arial",sizeFontInfoFilm),text="Sysnopsis: -")
+        self.lstBoxFiles = tkinter.Listbox(self, width=100,bg=lstColor,fg=colorFont ,
+                                           selectbackground=lstSelectColor, activestyle="none", font=("Arial", sizeFontInfoFilm),xscrollcommand=self.scrollBarLstBoxH.set)
+        self.btnGotoFile = tkinter.Button(self,text="Voir film", width=50, bg=btnColor, fg=colorFont,
+                                          font=("Arial",sizeFontInfoFilm),command=self.openDirectory)
         self.scrollBarLstBoxH.config(command=self.lstBoxFiles.xview,width=120,troughcolor=bgFrame)
 
 
