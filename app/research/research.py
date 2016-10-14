@@ -1,3 +1,4 @@
+
 from sqlalchemy import or_
 
 from app.models import db
@@ -64,11 +65,12 @@ class Research:
             yield [] #return an empty iterator
         q = self.queryModelOnColumn(*cols, query, m)
         for res in q.all():
+            print(res)
             yield res
 
     @staticmethod
     def get_fields(cls):
-        if not isinstance(cls, db.Model):
+        if not hasattr(cls,'__table__'):
             raise NotAModel("The class "+str(cls)+" is not an instance of a ActiveAlchemy model")
         _ = []
         for col in cls.__table__.columns:
@@ -94,7 +96,7 @@ class Research:
         model = kwargs["model"] if "model" in kwargs else args[-1]
         query = kwargs["query"] if "query" in kwargs else args[-2]
         fields = kwargs["columns"] if "columns" in kwargs else list(args)[:-2]
-        if isinstance(str, fields):
+        if isinstance(fields, str):
             fields = fields.replace(';', ' ').replace(',', ' ').replace(':', ' ').split()
         try:
             authorized_fields = self.get_fields(model)

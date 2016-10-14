@@ -11,12 +11,15 @@ from app.research.research import Research
 import types
 from app.gui.components import GuiComponent
 
-class AutocompleteCombobox(tkinter.ttk.Combobox):
+class AutocompleteCombobox(tkinter.ttk.Entry):
     def __init__(self, *arg, **kwargs):
 
-        self.r = Research()
+        """
 
-        self._elements = []
+        :param arg:
+        :param kwargs:
+        """
+        self.r = Research()
         if "match_func" in kwargs:
             self.matchFunc = kwargs["match_func"]
             del kwargs["match_func"]
@@ -25,7 +28,9 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
         if "autocomplete" in kwargs:
             self._autocomplete = kwargs["autocomplete"]
             del kwargs["autocomplete"]
-
+        if "autocomplete_list" in kwargs:
+            self._autocompleteList = kwargs["autocomplete_list"]
+            del kwargs["autocomplete_list"]
         super(AutocompleteCombobox, self).__init__(*arg, **kwargs)
 
 
@@ -34,14 +39,15 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
         """Use our completion list as our drop down selection menu, arrows move through menu."""
 
         self._completion_list = completion_list  # Work with a sorted list
+
         # self._elements = [] if isinstance(completion_list,types.GeneratorType) else completion_list
         self._hits = []
         self._hit_index = 0
         self.position = 0
         self.bind('<KeyRelease>', self.handle_keyrelease)
         self.bind('<Return>', (lambda e: print(e)))
-        self['values'] = [] if isinstance(completion_list,
-                                          types.GeneratorType) else completion_list  # Setup our popup menu
+        #self['values'] = [] if isinstance(completion_list,
+        #                                  types.GeneratorType) else completion_list  # Setup our popup menu
 
     @staticmethod
     def match(value, inputValue):
@@ -53,6 +59,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
         """autocomplete the Combobox, delta may be 0/1/-1 to cycle through possible hits"""
         # reset the completion list to the selected value
         self._completion_list = self.r.search(self.get())
+        self._autocompleteList(self._completion_list)
         # make them visible in the combo dropdown
 
         # self['values'] = [self.get()] + first
@@ -80,7 +87,6 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
             #self.onAutocompleteFunc(self._hits[self._hit_index])
             print(self.position)
             print(self._hit_index)
-            self['values'] = self._hits
 
     def handle_keyrelease(self, event):
         """event handler for the keyrelease event on this widget"""
@@ -117,8 +123,8 @@ class SearchFrame(tkinter.Frame, GuiComponent):
         self.gui.register_listener(self)
         super(SearchFrame, self).__init__(gui.root, *arg, **kwargs)
         self.grid()
-        self.search_bar = SearchWidget(self, autocomplete=self.onAutoComplete)
-
+        self.search_bar = SearchWidget(self, autocomplete=self.onAutoComplete, autocomplete_list=self.onList)
+        self.search_bar.set_completion_list([])
         self.search_bar.pack()
         self.search_bar.focus_set()
 
@@ -126,7 +132,13 @@ class SearchFrame(tkinter.Frame, GuiComponent):
         self.result_list.pack()
         self.pack()
         #self.result_list.focus_set()
+    def onList(self,gen):
+        self.result_list.delete(0, tkinter.END)
+        for i in gen:
+            self.result_list.insert(tkinter.END, str(i))
     def onAutoComplete(self,i):
+        self.result_list.delete(0, tkinter.END )
+        self.result_list.insert(tkinter.END,str(i))
         self.gui.dispatchAction("search_selected",i)
     def handleAction(self,name,data):
         pass

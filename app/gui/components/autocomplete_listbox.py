@@ -46,6 +46,7 @@ class AutocompleteEntry(Entry):
 
         self.var.trace('w', self.changed)
         self.bind("<Right>", self.selection)
+        self.bind("<Return>",self.selection)
         self.bind("<Up>", self.moveUp)
         self.bind("<Down>", self.moveDown)
 
