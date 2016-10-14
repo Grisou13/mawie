@@ -18,7 +18,7 @@ sys.exit()
 
 # https://developers.google.com/api-client-library/python/samples/simple_api_cmd_line_books.py
 # https://developers.google.com/api-client-library/python/start/get_started#simple
-
+http://api.duckduckgo.com/?d=0&o=json&no_html=1&kp=1&q=very+bad+trip+%3Aimdb&no_redirect=1
 class googleIt():
     def __init__(self):
         api_key = 'AIzaSyB5T9oBbyEfTNnhN3G2faflnE2-69YpXS0'
