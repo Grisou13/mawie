@@ -9,15 +9,27 @@ from app.models import db
 from app.models.Movie import Movie
 from app.research.research import Research
 import types
-
+from app.gui.components import GuiComponent
 
 class AutocompleteCombobox(tkinter.ttk.Combobox):
     def __init__(self, *arg, **kwargs):
-        super(AutocompleteCombobox, self).__init__(*arg, **kwargs)
+
         self.r = Research()
+
         self._elements = []
-        self.matchFunc = kwargs["match_func"] if "match_func" in kwargs else self.match
-        self._autocomplete = kwargs["autocomplete"] if "autocomplete" in kwargs else (lambda el: print(el))
+        if "match_func" in kwargs:
+            self.matchFunc = kwargs["match_func"]
+            del kwargs["match_func"]
+        else:
+            self.matchFunc = self.match
+        if "autocomplete" in kwargs:
+            self._autocomplete = kwargs["autocomplete"]
+            del kwargs["autocomplete"]
+
+        super(AutocompleteCombobox, self).__init__(*arg, **kwargs)
+
+
+
     def set_completion_list(self, completion_list):
         """Use our completion list as our drop down selection menu, arrows move through menu."""
 
@@ -65,7 +77,7 @@ class AutocompleteCombobox(tkinter.ttk.Combobox):
             self.delete(0, tkinter.END)
             self.insert(0, self._hits[self._hit_index])
             self.select_range(self.position, tkinter.END)
-            print(self._hits[0].id)
+            #self.onAutocompleteFunc(self._hits[self._hit_index])
             print(self.position)
             print(self._hit_index)
             self['values'] = self._hits
@@ -99,18 +111,27 @@ class SearchListWidget(tkinter.Listbox):
     pass
 
 
-class SearchFrame(tkinter.Frame):
-    def __init__(self, *arg, **kwargs):
-        super(SearchFrame, self).__init__(*arg, **kwargs)
+class SearchFrame(tkinter.Frame, GuiComponent):
+    def __init__(self, gui, *arg, **kwargs):
+        self.gui = gui
+        self.gui.register_listener(self)
+        super(SearchFrame, self).__init__(gui.root, *arg, **kwargs)
         self.grid()
-        self.search_bar = SearchWidget(self)
+        self.search_bar = SearchWidget(self, autocomplete=self.onAutoComplete)
+
         self.search_bar.pack()
         self.search_bar.focus_set()
 
         self.result_list = SearchListWidget(self)
         self.result_list.pack()
+        self.pack()
         #self.result_list.focus_set()
-
+    def onAutoComplete(self,i):
+        self.gui.dispatchAction("search_selected",i)
+    def handleAction(self,name,data):
+        pass
+    def requestAction(self,name):
+        pass
 if __name__ == '__main__':
     from app.gui.gui import Gui
     g = Gui.instance()

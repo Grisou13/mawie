@@ -22,5 +22,5 @@ class SingletonMixin(object):
         if not cls.__singleton_instance:
             with cls.__singleton_lock:
                 if not cls.__singleton_instance:
-                    cls.__singleton_instance = object.__new__(cls)
+                    cls.__singleton_instance = cls()#object.__new__(cls)
         return cls.__singleton_instance
