@@ -30,14 +30,26 @@ class Explorer():
         self.path = path
         self.movieFileConnector = File
 
-        self._cleanList = []
         self._dirtyList = []
 
-        self._movieCache = []
-
+        self._cacheList = []
         # r = self.movieModel.query()
         # print(r)
+    @property
+    def files(self):
+        return self._list
 
+    @files.setter
+    def updateList(self, newList):
+        self._cacheList.append(self._list)
+        self._list = newList
+    @property
+    def nonParsedFiles(self):
+        return self._dirtyList
+    @property
+    def initialList(self):
+        assert len(self._cacheList) < 1, "You should use getFolderContent first, or populate the .files property"
+        return self._cacheList[0] # return the first element of the cache list
     def checkDirIfEmpty(self, dir):
         """ Check for file in folder and subfolder (only 1 folder of depth) """
         # TODO need to be tested in a folder with files ONLY in subfolder
@@ -58,7 +70,6 @@ class Explorer():
     def extractFilesIn(self, path):
         assert os.path.exists(path) #just check it okey
         files = []
-
         for r, dirs, files in os.walk(path, topdown=False):  # don't car about order
             for f in files:
                 files.append(self._parseFromPath(f))
@@ -67,7 +78,7 @@ class Explorer():
         return files
 
     def _parseFromPath(self, filepath):
-        path, filename = os.path.basename(filepath)
+        path, filename = os.path.split(filepath)
         data = self._parseName(filename)
         data["path"] = filepath
         data["parsed"] = True
@@ -85,8 +96,7 @@ class Explorer():
 
         data = self._parseFromPath(filepath)
         if rename:
-            os.rename(data["path"], os.path.join(os.path.basename(data["path"], data[
-                "title"])))  # rename the file on insert to something more readable with only the title
+            os.rename(data["path"], os.path.join(os.path.basename(data["path"], data["title"])))  # rename the file on insert to something more readable with only the title
         if ("episodeName" in data):
             del data["episodeName"]
         if ("proper" in data):
@@ -116,7 +126,8 @@ class Explorer():
         assert os.path.exists(path)
         files = self.extractFilesIn(path)
         self._list = filter(lambda f:f["parsed"]==True,files)
-        return files,filter(lambda f:f["parsed"]==False,files)
+        self._dirtyList = filter(lambda f:f["parsed"]==False,files)
+        return self._list, self._dirtyList
 
     def _parseName(self, movName):
         m = PTN.parse(movName.replace(".", " "))
@@ -135,7 +146,6 @@ class Explorer():
         for dirtyMovie in movieList:
             # TODO optimise REGEX parsing (PTN/patterns.py)
             parsed = PTN.parse(dirtyMovie.replace(".", " "))
-            print(dirtyMovie)
             cleanMovieList[parsed['title']] = parsed
         return cleanMovieList
 
@@ -176,7 +186,8 @@ class Explorer():
 if __name__ == '__main__':
     # get stuff done
     explorer = Explorer("../../stubs/FILM_a_trier")
-    lst = explorer.nameParsing(explorer.getFolderContent())
+    print(explorer.getFolderContent())
+    #lst = explorer.nameParsing(explorer.getFolderContent())
 
     # explorer.addMoviesToDatabase(lst)
     sys.exit("end of normal execution")
