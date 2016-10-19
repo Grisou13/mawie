@@ -1,6 +1,8 @@
 import os
 import sys
+from functools import reduce
 
+import Levenshtein.StringMatcher as lev
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
 import PTN
@@ -9,30 +11,32 @@ import re
 
 from app.models.File import File
 
-
 # import app.models.Movie
 
 class Explorer():
     # database connector uses SQLAlchemy
     movieFileMovie = object()
-
+    maxRatio = 20
     def __init__(self, path=None):
-
-        if (path is not None) and os.path.exists(path) is False:
-            raise IsADirectoryError("Film directory '{}' not found".format(path))
-        else:
-            self._list = None  # no list by default, unless a path is supplied
-            self.getFolderContent(path)
-
-        if (self.checkDirIfEmpty(path)):
-            raise FileNotFoundError("No file has been found in the {} path".format(path))
-
-        self.path = path
         self.movieFileConnector = File
 
-        self._dirtyList = []
+
 
         self._cacheList = []
+        self._ratios = []  # allows to calulate the average for all movie filename rations
+        self._list = []
+        self._dirtyList = []
+        self._cleanList = []
+        self.path = None
+        if path is not None :
+            assert os.path.exists(path), 'The path does not exist'
+            if (self.checkDirIfEmpty(path)):
+                raise FileNotFoundError("No file has been found in the {} path".format(path))
+            self.path = path
+            self.getFolderContent(path) #directly parse the directory
+
+
+
         # r = self.movieModel.query()
         # print(r)
     @property
@@ -44,12 +48,18 @@ class Explorer():
         self._cacheList.append(self._list)
         self._list = newList
     @property
+    def parsedFiles(self):
+        return self._cleanList
+    @property
     def nonParsedFiles(self):
         return self._dirtyList
     @property
     def initialList(self):
         assert len(self._cacheList) < 1, "You should use getFolderContent first, or populate the .files property"
         return self._cacheList[0] # return the first element of the cache list
+    @property
+    def avgFilenameRatio(self):
+        return (reduce(lambda x, y: x + y, self._ratios) / len(self._ratios))
     def checkDirIfEmpty(self, dir):
         """ Check for file in folder and subfolder (only 1 folder of depth) """
         # TODO need to be tested in a folder with files ONLY in subfolder
@@ -67,25 +77,35 @@ class Explorer():
                             f = False
         return f
 
-    def extractFilesIn(self, path):
+    def _extractFilesIn(self, path):
         assert os.path.exists(path) #just check it okey
         files = []
-        for r, dirs, files in os.walk(path, topdown=False):  # don't car about order
-            for f in files:
-                files.append(self._parseFromPath(f))
+        for r, dirs, _files in os.walk(path, topdown=False):  # don't car about order
+            for f in _files:
+                files.append(self._parseFromPath(os.path.join(r,f)))
             for d in dirs:
-                files.extend(self.extractFilesIn(d))  # recursion bitch
+                files.extend(self._extractFilesIn(os.path.join(r, d)))  # recursion bitch
         return files
 
     def _parseFromPath(self, filepath):
+        assert filepath == os.path.realpath(filepath), "need full path of file, use os.path.realpath from root"
         path, filename = os.path.split(filepath)
         data = self._parseName(filename)
         data["path"] = filepath
-        data["parsed"] = True
+        r = lev.ratio(data["title"], filename) * 100 #allows to get in percent...easier to understand
+        self._ratios.append(r)
+        data["ratio"] = r
         # dumb if to implement later or directly assign it to dict
-        if False is True:  # TODO implement levenstein verification if the title is almost the same as filename, then consider it parsed or not
+        if r > self.maxRatio: # if the name is far from the filename, we can consider it parsed
+            #we try to construct the most plosible title with the filename, the parsed name, and a few iterations of the filename
+            t = data["title"]
+            data["oldTitle"] = t #just get it, maybe we need it
+            data["title"] = lev.median_improve(t,[t,filename,PTN.ptn.excess_raw,t.strip(),t.lower()]) # TODO async this, since they are very processor heavy operations
+            data["parsed"] = True
+        else:
             data["parsed"] = False
 
+        print(data["title"],":",data["ratio"],"[",data["oldTitle"] if data["parsed"] else "not-parsed","]", " ----- ", filename)
         return data
 
     def commit(self, rename=False):
@@ -97,15 +117,12 @@ class Explorer():
         data = self._parseFromPath(filepath)
         if rename:
             os.rename(data["path"], os.path.join(os.path.basename(data["path"], data["title"])))  # rename the file on insert to something more readable with only the title
+        #delete unnecessary data
         if ("episodeName" in data):
             del data["episodeName"]
         if ("proper" in data):
             del data["proper"]
-        """try:
-            k = data["title"]
-        except (IndexError, KeyError):
-            print(data)
-            sys.exit("decomment that ")"""
+
         # replace any list in the data by an array (['FRENCH', 'BDRip'] => 'FRENCH, BDRip')
         for k, v in data.items():
             if (isinstance(v, list)):
@@ -122,12 +139,19 @@ class Explorer():
     def getFolderContent(self, path=None):
         if path is None:
             path = self.path
+
         # check if exists
         assert os.path.exists(path)
-        files = self.extractFilesIn(path)
-        self._list = filter(lambda f:f["parsed"]==True,files)
-        self._dirtyList = filter(lambda f:f["parsed"]==False,files)
-        return self._list, self._dirtyList
+
+        path = os.path.realpath(path)
+        self.path = path
+        files = self._extractFilesIn(path)
+
+        self._list = files
+        self._cleanList = list(filter(lambda f:f["parsed"]==True,files))
+        self._dirtyList = list(filter(lambda f:f["parsed"]==False,files))
+
+        return self._list, self._cleanList, self._dirtyList
 
     def _parseName(self, movName):
         m = PTN.parse(movName.replace(".", " "))
@@ -186,7 +210,9 @@ class Explorer():
 if __name__ == '__main__':
     # get stuff done
     explorer = Explorer("../../stubs/FILM_a_trier")
-    print(explorer.getFolderContent())
+
+    print(explorer.avgFilenameRatio)
+
     #lst = explorer.nameParsing(explorer.getFolderContent())
 
     # explorer.addMoviesToDatabase(lst)
