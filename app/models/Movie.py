@@ -1,4 +1,6 @@
 import datetime
+
+from sqlalchemy import Boolean
 from sqlalchemy import Column, Integer, String, Text, Date, Time, schema
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
@@ -21,15 +23,15 @@ class Movie(db.Model):
     directors = Column(String, nullable=True)
     writer = Column(String, nullable=True)
     poster = Column(Text, nullable=True)  # can be an image in cache or a direct url to the website
+    rate = Column(String, nullable=True)
     # raings = Column(Integer,nullable=True)
     files = relationship("File")
+    viewed= Column(Boolean, default=False)
     def __str__(self):
         return self.name
-    def __repr__(self):
         return self.__str__()
-    #@property
-    #def columns(self):
-    #    return [col for col in dir(self) if isinstance(col, db.Column)]
+    def __repr__(self):
+        pass
 
 
 if __name__ == '__main__':
