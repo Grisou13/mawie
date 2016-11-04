@@ -5,9 +5,15 @@ from urllib import request
 from io import BytesIO
 import os
 
-class MovieFrame(tkinter.Frame):
-    def __init__(self,parent, controller):
+from app.gui.components import GuiComponent
+
+
+class MovieFrame(tkinter.Frame, GuiComponent):
+    def __init__(self, parent, gui, *arg, **kwargs):
+        self.gui =gui
+        gui.register_listener(self)
         super(MovieFrame, self).__init__(parent)
+
         self.grid(column=0,row=1)
         self.columnconfigure(0,weight=0)
         self.createWidget()
@@ -27,7 +33,7 @@ class MovieFrame(tkinter.Frame):
 
         sizeFontInfoFilm=11
         lengthMaxLbl=500
-        padxLblInfo=280
+        padxLblInfo=300
 
         self.config(bg=bgFrame)
 
@@ -124,6 +130,7 @@ class MovieFrame(tkinter.Frame):
             self.lstBoxFiles.grid()
             self.flagLstBoxDisplayed = True
 
+        print(len(self.files))
     #import the poster of the film, can be a local path or a url
     def importPosterFilm(self,path=''):
         flagNoPoster = True
@@ -158,3 +165,8 @@ class MovieFrame(tkinter.Frame):
         else:
             print(path)
             messagebox.showerror("Fichier inexistant","Il semblerait que le fichier sélectionné ("+path+") n'existe plus")
+    def handleAction(self,name,data):
+        if name == 'update_movie_info':
+            self.updateMovie(data)
+    def requestAction(self,name):
+        pass

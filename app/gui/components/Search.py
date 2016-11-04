@@ -115,16 +115,16 @@ class SearchFrame(tkinter.Frame, GuiComponent):
     def __init__(self, gui, *arg, **kwargs):
         self.gui = gui
         self.gui.register_listener(self)
-        super(SearchFrame, self).__init__(gui.root, *arg, **kwargs)
+        super(SearchFrame, self).__init__(gui.root_tkinter, *arg, **kwargs)
         self.grid()
         self.search_bar = SearchWidget(self, autocomplete=self.onAutoComplete)
 
-        self.search_bar.pack()
+        self.search_bar.grid()
         self.search_bar.focus_set()
 
         self.result_list = SearchListWidget(self)
-        self.result_list.pack()
-        self.pack()
+        self.result_list.grid()
+        self.grid()
         #self.result_list.focus_set()
     def onAutoComplete(self,i):
         self.gui.dispatchAction("search_selected",i)
