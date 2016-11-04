@@ -1,4 +1,6 @@
 import tkinter
+
+from app.gui.components.mainFrame import MainFrame
 from app.gui.components.movie_frame import MovieFrame
 from app.gui.components.MovieList import MovieListFrame
 from app.models.Movie import Movie
@@ -38,12 +40,16 @@ class Gui(SingletonMixin):
 
     def dispatchAction(self, actionName, actionData):
         for l in self.listeners.keys():
+            print("from gui")
+            print(l.__class__)
+            print(id(l))
+            print()
             l.handleAction(actionName, actionData)
 
     def requestAction(self, originClass, actionName):
         for l in self.listeners.keys():
             if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless
-            originClass.handleAction("request_" + actionName, l.requestAction("request_" + actionName))
+            originClass.handleAction("request_" + actionName, l.requestAction(actionName))
 
 
 if __name__ == '__main__':
