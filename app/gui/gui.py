@@ -1,5 +1,6 @@
 import tkinter
 
+from app.explorer.explorer import Explorer
 from app.helpers import SingletonMixin
 import weakref
 from app.gui.components.Search import SearchFrame
@@ -14,11 +15,16 @@ class Gui(SingletonMixin):
 
     def __init__(self):
         self.root = tkinter.Tk()
-
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
-        SearchFrame(self)
+        self.components = weakref.WeakValueDictionary()
 
+    def addComponent(self, cls):
+        self.components[cls.__class__.__name__] = cls
+    def getShitDone(self):
+        self.addComponent(SearchFrame(self))
+        self.addComponent(Explorer(self))
     def start(self):
+
         self.root.mainloop()
 
     def register_listener(self, cls):
