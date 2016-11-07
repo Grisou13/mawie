@@ -43,7 +43,6 @@ class Explorer():
                         if fls:
                             #Found in subfolde ! :)
                             f = False
-
         return f
 
     def getFolderContent(self, path=None):
@@ -87,7 +86,7 @@ class Explorer():
                 elif(not isinstance(v, str) and not isinstance(v, int)):
                     raise TypeError("Movie data format not conform")
             #print data if you want to know why i used the **kwargs
-
+            
             moveFile = self.movieFileConnector(**data).save()
 
 
@@ -102,8 +101,9 @@ if __name__ == '__main__':
     # get stuff done
     explorer = Explorer("../../stubs/FILM_a_trier")
     lst = explorer.nameParsing(explorer.getFolderContent())
-    #explorer.addMoviesToDatabase(lst)
 
+    #explorer.addMoviesToDatabase(lst)
+    sys.exit("end of normal execution")
     fromdb = explorer.getAllMoviesFromDatabase()
     for movie in fromdb:
         print(movie.path)
