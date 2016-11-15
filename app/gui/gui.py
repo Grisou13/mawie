@@ -40,10 +40,10 @@ class Gui(SingletonMixin):
 
     def dispatchAction(self, actionName, actionData):
         for l in self.listeners.keys():
-            print("from gui")
-            print(l.__class__)
-            print(id(l))
-            print()
+            #print("from gui")
+            #print(l.__class__)
+            #print(id(l))
+            #print()
             l.handleAction(actionName, actionData)
 
     def requestAction(self, originClass, actionName):

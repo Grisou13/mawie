@@ -1,4 +1,5 @@
 import tkinter
+
 from app.gui.components import GuiComponent
 
 
@@ -9,23 +10,34 @@ class MovieListFrame(tkinter.Frame, GuiComponent):
         self.gui =gui
         gui.register_listener(self)
         super(MovieListFrame, self).__init__(parent)
-        self.grid()
         self.createWidget()
+        self.grid()
+
 
     def createWidget(self):
-        bgFrame = "#1E1E1F"
-        colorFont = "#CBC9CF"
-        btnColor = "#191919"
-        lstColor="#191919"
-        lstSelectColor="#39393B"
-        sizeFontInfoFilm = 11
-        lengthMaxLbl = 500
-        self.lblTitle= tkinter.Label(self, text="test").grid()
+        self.lblTitle= tkinter.Label(self, text="test")
+        self.lstFilm = tkinter.Listbox(self,width=100)
+        self.btnChange = tkinter.Button(self,text="Ouvrir",command=self.showMovieInfo)
 
-        self.btnChange = tkinter.Button(self,text="CHANGE FRAME",command=lambda : self.gui.dispatchAction("test","")).grid()
+        self.lblTitle.grid()
+        self.lstFilm.grid()
+        self.btnChange.grid()
+
+    def updateWidget(self,data):
+        self.lstFilm.delete(0,tkinter.END)
+        self.lstObjFilm = []
+        for i in data:
+            self.lstFilm.insert(tkinter.END, i)
+            self.lstObjFilm.append(i)
 
     def handleAction(self, name, data):
-        pass
+        if name == 'list_result_search':
+            self.updateWidget(data)
+
+    def showMovieInfo(self):
+        idxFilmList = self.lstFilm.curselection() #idxFilmList  is the position of the film in the list of movies
+        film = self.lstObjFilm[int(idxFilmList[0])] # film is the object movie of the film selected
+        self.gui.dispatchAction("search_selected",film)
 
 
     def requestAction(self, name):

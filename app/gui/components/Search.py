@@ -127,9 +127,11 @@ class SearchFrame(tkinter.Frame, GuiComponent):
         self.search_bar.set_completion_list([])
         self.search_bar.pack()
         self.search_bar.focus_set()
+        self.search_bar.grid()
 
-        self.result_list = SearchListWidget(self)
-        self.result_list.grid()
+
+        #self.result_list = SearchListWidget(self)
+        #self.result_list.grid()
         self.grid()
         #self.result_list.focus_set()
     def onList(self,gen):

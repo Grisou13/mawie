@@ -44,28 +44,28 @@ class MovieFrame(tkinter.Frame, GuiComponent):
         self.lblImgFilm = tkinter.Label(self, image=self.tk_img)
 
         self.lblTitle = tkinter.Label(self,bg=bgFrame,fg=colorFont,font=("Arial",20),
-                                      text="Aucun film sélectionné")
-        self.lblScenarist = tkinter.Label(self, text="Scenarist: -", wraplength=lengthMaxLbl,
+                                      text="Aucun film sélectionné",wraplength=lengthMaxLbl+300)
+        self.lblScenarist = tkinter.Label(self, text="Writer: -", wraplength=lengthMaxLbl,
                                           bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblDirector = tkinter.Label(self, text="Réalisateur -", wraplength=lengthMaxLbl,
+        self.lblDirector = tkinter.Label(self, text="Producer -", wraplength=lengthMaxLbl,
                                          bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblActor = tkinter.Label(self, text="Acteurs: -", wraplength=lengthMaxLbl,
+        self.lblActor = tkinter.Label(self, text="Actors: -", wraplength=lengthMaxLbl,
                                       bg=bgFrame,fg=colorFont, font=("Arial", sizeFontInfoFilm))
-        self.lblRuntime = tkinter.Label(self, text="Durée: -", wraplength=lengthMaxLbl,
+        self.lblRuntime = tkinter.Label(self, text="Runtime: -", wraplength=lengthMaxLbl,
                                         bg=bgFrame,fg=colorFont, font=("Arial", sizeFontInfoFilm))
         self.lblRate = tkinter.Label(self, text="Note: -", wraplength=lengthMaxLbl,
                                      bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblReleasedDate = tkinter.Label(self, text="Date de sortie: -", wraplength=lengthMaxLbl,
+        self.lblReleasedDate = tkinter.Label(self, text="Release: -", wraplength=lengthMaxLbl,
                                              bg=bgFrame,fg=colorFont,font=("Arial",sizeFontInfoFilm))
-        self.lblAwards = tkinter.Label(self, text="Récompenses: -", wraplength=lengthMaxLbl,
+        self.lblAwards = tkinter.Label(self, text="Awards: -", wraplength=lengthMaxLbl,
                                        bg=bgFrame,fg=colorFont, font=("Arial",sizeFontInfoFilm))
-        self.lblCountry = tkinter.Label(self, wraplength=lengthMaxLbl, text="Pays: -",bg=bgFrame,
+        self.lblCountry = tkinter.Label(self, wraplength=lengthMaxLbl, text="Country: -",bg=bgFrame,
                                         fg=colorFont, font=("Arial",sizeFontInfoFilm))
         self.lblPlot = tkinter.Label(self, wraplength="800",bg=bgFrame,fg=colorFont,
-                                     justify=tkinter.LEFT,font=("Arial",sizeFontInfoFilm),text="Sysnopsis: -")
+                                     justify=tkinter.LEFT,font=("Arial",sizeFontInfoFilm),text="Plot: -")
         self.lstBoxFiles = tkinter.Listbox(self, width=100,bg=lstColor,fg=colorFont ,
                                            selectbackground=lstSelectColor, activestyle="none", font=("Arial", sizeFontInfoFilm),xscrollcommand=self.scrollBarLstBoxH.set)
-        self.btnGotoFile = tkinter.Button(self,text="Voir film", width=50, bg=btnColor, fg=colorFont,
+        self.btnGotoFile = tkinter.Button(self,text="Watch movie", width=50, bg=btnColor, fg=colorFont,
                                           font=("Arial",sizeFontInfoFilm),command=self.openDirectory)
         self.scrollBarLstBoxH.config(command=self.lstBoxFiles.xview,width=120,troughcolor=bgFrame)
 
@@ -96,30 +96,45 @@ class MovieFrame(tkinter.Frame, GuiComponent):
 
     #display/change movie info
     def updateMovie(self,movie):
+        # for i in movie:
+        #     if hasattr(movie, i[0]):
+        #         setattr(movie,i[0],"-")
         self.files = movie.files
         if self.flagLstBoxDisplayed is True:
             self.lstBoxFiles.grid()
             self.scrollBarLstBoxH.grid()
             self.flagLstBoxDisplayed = False
         self.lstBoxFiles.delete(0)
-        self.lblTitle.config(text=movie.name)
+        self.lblTitle.config(text=getattr(movie,"name","-"))
 
         #poster
-        img = self.importPosterFilm(movie.poster)
+        if movie.poster is not None:
+            img = self.importPosterFilm(movie.poster)
+        else:
+            img = self.importPosterFilm()
         img.thumbnail(self.size)
         self.tk_img = ImageTk.PhotoImage(img)
         self.lblImgFilm.config(image=self.tk_img)
 
         #info movie
-        self.lblTitle.config(text=movie.name)
-        self.lblScenarist.config(text="Scénariste: "+movie.writer)
-        self.lblDirector.config(text="Réalisateur: "+movie.directors)
-        self.lblActor.config(text="Acteur: "+movie.actors)
-        #self.lblRate.config(text="Note: "+movie.rate)
-        #self.lblAwards.config(text="Récompense: "+movie.)
-        #self.lblCountry.config(text="Pays: "+movie.)
-        self.lblReleasedDate.config(text="Date de sortie: "+movie.release)
-        self.lblPlot.config(text="Synopsis: "+movie.desc)
+        if movie.name is not None:
+            self.lblTitle.config(text=movie.name)
+        if movie.writer is not None:
+            self.lblScenarist.config(text="Writer: "+movie.writer)
+        if movie.directors is not None:
+            self.lblDirector.config(text="Director: "+movie.directors)
+        if movie.actors is not None:
+            self.lblActor.config(text="Actors: "+movie.actors)
+        if movie.rate is not None:
+            self.lblRate.config(text="IMDb rating: "+movie.rate)
+        if movie.runtime is not None:
+            self.lblRuntime.config(text="Runtime: "+movie.runtime)
+        #self.lblAwards.config(text="Awards: "+movie.)
+        #self.lblCountry.config(text="Country: "+movie.)
+        if movie.release is not None:
+            self.lblReleasedDate.config(text="Release: "+str(movie.release))
+        if movie.desc is not None:
+            self.lblPlot.config(text="Plot: "+movie.desc or '-')
 
         if len(self.files)>1:
             self.lstBoxFiles.grid(row=11)
@@ -166,7 +181,11 @@ class MovieFrame(tkinter.Frame, GuiComponent):
             print(path)
             messagebox.showerror("Fichier inexistant","Il semblerait que le fichier sélectionné ("+path+") n'existe plus")
     def handleAction(self,name,data):
-        if name == 'update_movie_info':
+        if name == 'search_selected':
             self.updateMovie(data)
     def requestAction(self,name):
         pass
+if __name__ == '__main__':
+    from app.gui.gui import Gui
+    g = Gui.instance()
+    g.start()

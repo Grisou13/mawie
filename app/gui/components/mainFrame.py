@@ -11,9 +11,10 @@ class MainFrame(tkinter.Frame, GuiComponent):
         gui.register_listener(self)
         super(MainFrame,self).__init__(gui.root_tkinter)
         self.grid()
-        test = [MovieListFrame,MovieFrame]#list all frame that MainFrame have to display here
+        listFrames = [MovieListFrame,MovieFrame]#list all frame that MainFrame have to display here
         self.frames = {}
-        for F in test:
+
+        for F in listFrames:
             frameName = (F.__name__)
             frame = F(parent=self, gui=self.gui)
             self.frames[frameName] = frame
@@ -30,7 +31,8 @@ class MainFrame(tkinter.Frame, GuiComponent):
     def handleAction(self,name,data):
         if name == 'search_selected':
             self.showFrame("MovieFrame")
-            self.gui.dispatchAction("update_movie_info", data)
+        if name == 'list_result_search':
+            self.showFrame("MovieListFrame")
     def requestAction(self,name):
         pass
 

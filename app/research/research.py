@@ -34,9 +34,6 @@ class FilterableList:
     filters = []
 
 
-
-
-
 class Research:
     """ main research class """
     default_cols = ["name", "desc"]
