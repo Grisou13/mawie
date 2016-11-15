@@ -24,7 +24,7 @@ class Movie(db.Model):
     writer = Column(String, nullable=True)
     poster = Column(Text, nullable=True)  # can be an image in cache or a direct url to the website
     rate = Column(String, nullable=True)
-    # raings = Column(Integer,nullable=True)
+    #raings = Column(Integer,nullable=True)
     files = relationship("File")
     viewed= Column(Boolean, default=False)
     def __str__(self):

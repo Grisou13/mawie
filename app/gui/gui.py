@@ -24,7 +24,7 @@ class Gui(SingletonMixin):
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
         SearchFrame(self)
 
-        #self.root = MainFrame(self)
+        self.root = MainFrame(self)
 
 
     def start(self):
@@ -37,10 +37,10 @@ class Gui(SingletonMixin):
 
     def dispatchAction(self, actionName, actionData):
         for l in self.listeners.keys():
-            print("from gui")
-            print(l.__class__)
-            print(id(l))
-            print()
+            #print("from gui")
+            #print(l.__class__)
+            #print(id(l))
+            #print()
             l.handleAction(actionName, actionData)
 
     def requestAction(self, originClass, actionName):

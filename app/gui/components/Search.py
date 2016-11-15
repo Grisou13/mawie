@@ -123,19 +123,21 @@ class SearchFrame(tkinter.Frame, GuiComponent):
         self.gui.register_listener(self)
         super(SearchFrame, self).__init__(gui.root_tkinter, *arg, **kwargs)
         self.grid()
-        self.search_bar.grid()
         self.search_bar = SearchWidget(self, autocomplete=self.onAutoComplete, autocomplete_list=self.onList)
         self.search_bar.set_completion_list([])
         self.search_bar.focus_set()
+        self.search_bar.grid()
 
-        self.result_list = SearchListWidget(self)
-        self.result_list.grid()
+
+        #self.result_list = SearchListWidget(self)
+        #self.result_list.grid()
         self.grid()
         #self.result_list.focus_set()
     def onList(self,gen):
-        self.result_list.delete(0, tkinter.END)
-        for i in gen:
-            self.result_list.insert(tkinter.END, str(i))
+        self.gui.dispatchAction("list_result_search",gen)
+        #self.result_list.delete(0, tkinter.END)
+        #for i in gen:
+        #    self.result_list.insert(tkinter.END, str(i))
     def onAutoComplete(self,i):
         self.result_list.delete(0, tkinter.END )
         self.result_list.insert(tkinter.END,str(i))
