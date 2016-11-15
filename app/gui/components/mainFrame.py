@@ -13,14 +13,15 @@ class MainFrame(tkinter.Frame, GuiComponent):
         self.grid()
         listFrames = [MovieListFrame,MovieFrame]#list all frame that MainFrame have to display here
         self.frames = {}
-
         for F in listFrames:
-            frameName = (F.__name__)
-            frame = F(parent=self, gui=self.gui)
-            self.frames[frameName] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-            self.showFrame("MovieListFrame")
+            self.addFrame(F)
 
+        self.showFrame("MovieListFrame")
+    def addFrame(self,cls):
+        frameName = (cls.__name__)
+        frame = cls(parent=self, gui=self.gui)
+        self.frames[frameName] = frame
+        frame.grid(row=0, column=0, sticky="nsew")
 
     def showFrame(self,frameName):
         frame = self.frames[frameName]
@@ -29,6 +30,10 @@ class MainFrame(tkinter.Frame, GuiComponent):
 
 
     def handleAction(self,name,data):
+        if name == "change_frame":
+            self.showFrame(data)
+        if name == "add_frame":
+            self.addFrame(data)
         if name == 'search_selected':
             self.showFrame("MovieFrame")
         if name == 'list_result_search':
