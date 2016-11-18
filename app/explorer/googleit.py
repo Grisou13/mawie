@@ -1,125 +1,78 @@
-
-
-'''
-    PLEASE READ HERE FIRST
-
-    the duckduckgo api that I'm using doesn't handle the "non obvious queries"
-    I still need to have a look at it. We might use another research api.
-
-    RTM here
-    https://api.duckduckgo.com/api
-    and have a live example (that doesn't work (that's the point...))
-    https://duckduckgo.com/?q=very%20bad%20trip%3Aimdb&format=json
-
-    HF !
-'''
-
-
+from py_bing_search import PyBingWebSearch
+import re
 import sys
-import requests
-import os
-import urllib
-from bs4 import BeautifulSoup
-#do a pip install PyExecJS
-#import execjs
-
-
-# -*- coding: utf-8 -*-
-import scrapy
-
-
-class SpiderDuck(scrapy.Spider):
-    name = "SpiderDuck"
-
-    def makeRequest(self, url):
-        #assert type(url) is str
-        return scrapy.Request(url, self.parse)
-
-    def parse(self, response):
-
-        for link in response.xpath("result__a").extract():
-            item = dict()
-            item['url'] = link.xpath("@href"),extract_first()
-            yield item
-
-
-movieName = "Harry Potter"
-movieName.replace(" ", "%20")
-url = "http://duckduckgo.com/?q="+movieName+" %3Aimdb"
-
-
-sp = SpiderDuck()
-links = sp.makeRequest(url)
-
-print(links)
-
-"""
-def spider(url):
-    page = urllib.request(url)
-    #source_code = requests.get(url)
-    #plain_text = source_code.text
-    convert_data = BeautifulSoup(page)
-
-    print(convert_data)
-"""
-
-"""
-from bs4 import BeautifulSoup
-import requests
-import sys
-class googleIt:
-    def getMovie(self, movieName):
-        movieName.replace(" ", "%20")
-        url = "http://duckduckgo.com/?q="+movieName+" %3Aimdb"
-
-        src = requests.get(url)
-        plain = src.text
-
-        soup = BeautifulSoup(plainSrc)
-
-        print(soup)
-
-        #for link in soup.findAll("a", {'class': 'result__a'}):
-        for link in soup.findAll("a"):
-            print("hey !")
-            print(link)
-            #print(title)
-
-
-crawler = googleIt()
-crawler.getMovie("Harry potter")
-"""
-#http://api.duckduckgo.com/?q=x&format=json
-
-# mv = "very bad trip"
-# q = "http://duckduckgo.com/?q="+mv+"+%3Aimdb&format=json"
-#
-# webURL = urllib.request.urlopen(q)
-# data = webURL.read()
-# encoding = webURL.info().get_content_charset('utf-8')
-# print(data)
-# print("oooo")
-# json.loads(data.decode(encoding))
-#
-
-'''
 class googleIt():
 
+    BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
+    domainSearch = ""
 
-    # toCheck
-    # it fails when you set @property here
-    def getAMove(self, movieTitle):
-        q = self.formatUrlForQuery(movieTitle)
-        print(q)
+    def __init__(self, domainSearch = "imdb"):
+        self.domainSearch = domainSearch
 
-    def formatUrlForQuery(self, movieTitle, website="imdb", format="json"):
-        movieTitle = movieTitle.replace(" ", "%20")
-        return "http://duckduckgo.com/?q=" + movieTitle + "+%3A" + website + "&format=" + format
+    def _makeSearchTerm(self, movieName):
+        return movieName +" :" +self.domainSearch
+        # bing advanced search doesn't work w our request soooo.....
+        #return "site:" + self.domainSearch + " " + movieName
+
+    def _GetMovieResearch(self, term, limit=50, format='json'):
+        bing = PyBingWebSearch(self.BING_API_KEY, term, web_only=False)
+        return bing.search(limit, format)
+
+    def _findImdbLinks(self, researchResults):
+        # get all the links that contains the domainSearch name (imdb by default)
+        for link in researchResults:
+
+            if(re.search(self.domainSearch, link.url)):
+                yield link.url
+                #imdblist.append(link.url)
 
 
-    def getFirstWebsite(self, jsonResult):
-        pass
+    def getMovieID(self, movieTitle):
+        assert isinstance(movieTitle, str)
+        # get the fifty firsts results of a research
+        researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
+        # find all the links from imdb
+        imDBlinks = self._findImdbLinks(researchResults)
 
-    def checkWebsiteURl(self, url, website="imdb"):
-        pass
-'''
+        # TODO make pattern to find the imdb main url (ex: http://www.imdb.com/title/tt0330373/)
+        # check http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+        # pattern = re.compile(r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))')
+
+        # if you give the format as http://www.imdb.com/title/tt0330373/, return the id
+        # mess up if incorrect url. This is why we need a regex here
+        movieId =  next(imDBlinks).split("title/")[1][:-1]
+
+        # check wether the id is only made of min letters and digit
+        assert(re.match("^[a-z0-9]*$", movieId))
+        # and if it matches the right size (all id have the same size)
+        assert(len(movieId) == 9)
+
+        return movieId
+
+
+    def getMovieInfo(self, movieId = "", movieTitle = ""):
+        print(not not movieId)
+        #assert (not movieId) or (not movieTitle)
+
+
+
+googleItPutain = googleIt()
+#myId = google.getMovieID("Harry potter 4")
+
+myFalseId = "tt0330373"
+googleItPutain.getMovieInfo(movieId = myFalseId)
+googleItPutain.getMovieInfo(movieTitle = "Harry potter")
+googleItPutain.getMovieInfo(movieId = myFalseId, movieTitle = "Harry potter")
+
+"""
+# pip install imdbpie
+
+from imdbpie import Imdb
+imdb = Imdb()
+imdb = Imdb(anonymize=True) # to proxy requests
+
+res = imdb.search_for_title("Very bad trip 2")
+print("Pr out")
+print(res)
+
+"""
