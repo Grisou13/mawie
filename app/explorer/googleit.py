@@ -1,11 +1,15 @@
+# pip install py_bing_search
 from py_bing_search import PyBingWebSearch
 import re
 import sys
+from imdbpie import Imdb
+
+
 class googleIt():
 
-    BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
+    BING_API_KEY = "your api key here"
     domainSearch = ""
-
+    imd
     def __init__(self, domainSearch = "imdb"):
         self.domainSearch = domainSearch
 
@@ -15,6 +19,7 @@ class googleIt():
         #return "site:" + self.domainSearch + " " + movieName
 
     def _GetMovieResearch(self, term, limit=50, format='json'):
+
         bing = PyBingWebSearch(self.BING_API_KEY, term, web_only=False)
         return bing.search(limit, format)
 
@@ -51,7 +56,9 @@ class googleIt():
 
 
     def getMovieInfo(self, movieId = "", movieTitle = ""):
-        print(not not movieId)
+
+        assert(movieId or movieTitle)
+
         #assert (not movieId) or (not movieTitle)
 
 
@@ -63,6 +70,7 @@ myFalseId = "tt0330373"
 googleItPutain.getMovieInfo(movieId = myFalseId)
 googleItPutain.getMovieInfo(movieTitle = "Harry potter")
 googleItPutain.getMovieInfo(movieId = myFalseId, movieTitle = "Harry potter")
+googleItPutain.getMovieInfo()
 
 """
 # pip install imdbpie
