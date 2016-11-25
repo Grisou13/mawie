@@ -65,13 +65,38 @@ class googleIt():
 
     def getMovieInfo(self, movieId = "", movieTitle = ""):
         """
-            Return the IMDB's info of a movie
+            Return information about a movie
+            Movie ID (string) can be found for example in a imdb url
+            Movie Title (string) is simply the move Title
+            Only one parameter is required. With both parameters, we'll do a double check ♥
+            !! Note that using the ID return only one movie, but the Title may return many
 
-            movieId (string) is the IMDB id (can be found in a IMDB url)
-            movieTitle (sting) is simple the movie
-            Only one parameter is required.
-            If both are given, we'll  check if movieId correspond to the movieTitle
+            Returned movie object properties :
+            movie.imdb_id
+            movie.title
+            movie.type
+            movie.year
+            movie.tagline
+            movie.plots
+            movie.plot_outline
+            movie.rating
+            movie.genres
+            movie.votes
+            movie.runtime
+            movie.poster_url
+            movie.cover_url
+            movie.release_date
+            movie.certification
+            movie.trailer_image_urls
+            movie.directors_summary
+            movie.creators
+            movie.cast_summary
+            movie.writers_summary
+            movie.credits
+            movie.trailers
+
         """
+
         def _hasNumber(inputStr):
             """
                 Check if given sting contains any number (1-9).
@@ -80,37 +105,49 @@ class googleIt():
             """
             return any(char.isdigit() for char in inputStr)
 
-        assert(movieId or movieTitle)
+        try:
+            assert(movieId or movieTitle)
+        except AssertionError:
+            return False
+
         assert isinstance(movieTitle, str)
         movieTitle = movieTitle.lower()
 
-        if movieTitle:
+        if movieTitle and movieId:
+            """if(movieId == l.get("imdb_id")):
+                theChosenOne = self.imdb.search_for_title(movieId)
+                print(theChosenOne)
+                print("welcome to the grind")
+                print(theChosenOne.title)
+                print(theChosenOne.type)
+                print(theChosenOne.year)
+                print(theChosenOne.genres)
+                print(theChosenOne.trailers)
+                print(theChosenOne.poster_url)
 
-            foundMovieInfo = self.imdb.search_for_title(movieTitle)
-            print(foundMovieInfo)
-            print(type(foundMovieInfo))
-            sys.exit("")
 
-            if isinstance(foundMovieInfo, list):
-                pass
-                
-            #print(foundMovieInfo)
-            for l in foundMovieInfo:
+            sys.exit("fuck tamère")"""
+        elif movieTitle:
+            foundMovie =  self.imdb.search_for_title(movieTitle)
+            # if many movies found
+            if(isinstance(foundMovie, list)):
 
-                print(l)
+                def generator(movieList):
+                    for l in movieList:
+                        yield self.imdb.get_title_by_id(l.get("imdb_id"))
 
-                #print(type(self.getMovieInfo(l.get("imdb_id"))))
-                #print(l.get("imdb_id"))
-                #print(self.getMovieInfo(l.get))
-                #print(self.imdb.get_title_by_id(l.get("imdb_id")))
+                for m in generator(foundMovie):
+                    print(m)
+                    print(m.title)
+                    print(m.type)
+                    print(m.year)
+
+                return "nique ta mère"
 
         elif movieId:
-            foundMovieTitle = self.imdb.get_title_by_id(movieId)
-            foundMovieInfo = self.imdb.search_for_title()
+            return self.imdb.get_title_by_id(movieId)
 
-            print()
 
-            foundMovieTitle = foundMovieInfo.title.lower()
             """
             # check if found movie correspond to the given one (if one given)
             if movieTitle:
@@ -122,9 +159,6 @@ class googleIt():
                     if Levenshtein.distance(foundMovieTitle, movieTitle) > 3:
                         raise ValueError("Given movie title doesn't match the id.")
             """
-            return foundMovieInfo
-
-        # if no given id, then try to find with title
 
         else:
             #wtf
@@ -139,10 +173,10 @@ if __name__ == "__main__":
     myFalseId = "tt0330373"
     DonnotSpeakAboutIt = "tt0137523"
 
-    #googleItPutain.getMovieInfo(movieId = myFalseId)
+    #googleItPutain.getMovieInfo(movieId = DonnotSpeakAboutIt)
     googleItPutain.getMovieInfo(movieTitle = "Harry potter")
     #googleItPutain.getMovieInfo(movieId = DonnotSpeakAboutIt, movieTitle = "Fight CLUB")
-    googleItPutain.getMovieInfo()
+    #googleItPutain.getMovieInfo()
 
 """
 # pip install imdbpie
