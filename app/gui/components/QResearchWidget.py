@@ -26,7 +26,7 @@ class ResearchFrame(QWidget):
         grid = QGridLayout(self)
         self.lbl = QLabel("Please enter a resarch", self)
         self.inputSearch = QLineEdit(self)
-        self.inputSearch.setFixedWidth(300)
+        self.inputSearch.setFixedWidth(200)
         self.completer = QCompleter()
 
         self.inputSearch.setCompleter(self.completer)

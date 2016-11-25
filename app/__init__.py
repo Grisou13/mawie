@@ -1,9 +1,9 @@
-import app.main
+# coding=utf-8
+
 import sys
 
 def run():
-    app = main.App()
+    pass
+    #app = main.App()
 
     #only for test the explorer class with original path (mawie file)
-
-    # coding=utf-8
