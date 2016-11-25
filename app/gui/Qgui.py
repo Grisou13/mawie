@@ -17,10 +17,13 @@ class NotAComponent(Exception):
     pass
 
 class Gui(QWidget,SingletonMixin):
-    def __init__(self):
-        self._components = []
+    def __init__(self,parent=None):
+        super(Gui, self).__init__(parent)
+        self._components = {}
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
-
+        stackWidget = QStackedWidget(self)
+        stackWidget.setMinimumSize(700, 700)
+        self.componentArea = stackWidget
     def initUI(self):
         content = QGridLayout(self)
 
@@ -30,17 +33,15 @@ class Gui(QWidget,SingletonMixin):
         add = AddFilesWidget(self)
         self.setWindowTitle('Find My movie')
 
-        stackWidget = QStackedWidget(self)
-        stackWidget.setMinimumSize(700,700)
 
-        listMovie = ResearchListFrame(stackWidget)
-        movie = MovieFrame(stackWidget)
 
-        stackWidget.addWidget(movie)
-        stackWidget.addWidget(listMovie)
-        stackWidget.setCurrentWidget(listMovie)
-        self.componentArea = stackWidget
-        content.addWidget(stackWidget,1,0)
+        listMovie = ResearchListFrame(self.componentArea)
+        movie = MovieFrame(self.componentArea)
+
+        self.componentArea.addWidget(movie)
+        self.componentArea.addWidget(listMovie)
+        self.componentArea.setCurrentWidget(listMovie)
+        content.addWidget(self.componentArea,1,0)
         content.addWidget(recherche, 0, 0)
         content.addWidget(add, 0, 1)
         #self.componentArea = content
@@ -68,14 +69,14 @@ class Gui(QWidget,SingletonMixin):
             raise NotAComponent("The class " + str(cls) + " should be extending GuiComponent")
         self.listeners[cls] = 1
 
-    def dispatchAction(self, actionName, actionData):
+    def dispatchAction(self, actionName, actionData = None):
+        print("dispatching action : "+actionName )
         for l in self.listeners.keys():
             # print("from gui")
             # print(l.__class__)
             # print(id(l))
             # print()
             l.handleAction(actionName, actionData)
-
     def requestAction(self, originClass, actionName):
         for l in self.listeners.keys():
             if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless

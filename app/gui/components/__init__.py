@@ -3,9 +3,7 @@ class NotImplemented(Exception): pass
 
 class GuiComponent(object):
     def __init__(self):
-        from app.gui.Qgui import Gui
-        print(self)
-        Gui.instance().addComponent(self)
+        pass
     def requestAction(self, actionName):
         raise NotImplemented("You need to implement the method requestAction in your gui component object")
 
