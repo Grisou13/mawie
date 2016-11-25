@@ -30,12 +30,12 @@ class Movie(db.Model):
     def __str__(self):
         return self.name
         return self.__str__()
-<<<<<<< HEAD
+
     def __repr__(self):
         pass
-=======
+
     viewed= Column(Boolean, default=False)
->>>>>>> develop
+
 
 
 if __name__ == '__main__':

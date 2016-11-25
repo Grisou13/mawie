@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 
 class MovieFrame(QWidget):
-    def __init__(self,parent):
+    def __init__(self,parent, gui):
         super().__init__(parent)
         self.initFrame()
 

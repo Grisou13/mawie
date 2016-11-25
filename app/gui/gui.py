@@ -6,8 +6,7 @@ from app.gui.components.MovieList import MovieListFrame
 from app.models.Movie import Movie
 from app.models.File import File
 
-<<<<<<< HEAD
-=======
+
 from app.gui.components.mainFrame import MainFrame
 from app.gui.components.movie_frame import MovieFrame
 from app.gui.components.MovieList import MovieListFrame
@@ -15,7 +14,7 @@ from app.models.Movie import Movie
 from app.models.File import File
 
 from app.explorer.explorer import Explorer
->>>>>>> develop
+
 from app.helpers import SingletonMixin
 import weakref
 from app.gui.components.Search import SearchFrame
@@ -29,26 +28,25 @@ class NotAComponent(Exception):
 class Gui(SingletonMixin):
 
     def __init__(self):
-<<<<<<< HEAD
+
         self.root_tkinter = tkinter.Tk()
 
-=======
+
         self.root = tkinter.Tk()
->>>>>>> develop
+
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
-<<<<<<< develop
+
         self.components = weakref.WeakValueDictionary()
-=======
+
         SearchFrame(self)
 
         self.root = MainFrame(self)
 
-<<<<<<< HEAD
+
 
     def start(self):
         self.root_tkinter.mainloop()
-=======
->>>>>>> movie_frame -Change label value from french to english (réalisateur->director) -Display "-" if the movie attribut value is null MainFrame -change the name of the list of frame which was a bidon name Gui.py -comment lines which was used to debug
+
 
     def addComponent(self, cls):
         self.components[cls.__class__.__name__] = cls
@@ -58,7 +56,6 @@ class Gui(SingletonMixin):
     def start(self):
 
         self.root.mainloop()
->>>>>>> develop
 
     def register_listener(self, cls):
         if not isinstance(cls, GuiComponent):

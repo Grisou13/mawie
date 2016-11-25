@@ -134,23 +134,17 @@ class SearchFrame(tkinter.Frame, GuiComponent):
         self.grid()
         #self.result_list.focus_set()
     def onList(self,gen):
-<<<<<<< HEAD
-=======
-<<<<<<< develop
+
         self.gui.dispatchAction("search_list",gen)
         self.result_list.delete(0, tkinter.END)
         for i in gen:
             self.result_list.insert(tkinter.END, str(i))
-=======
->>>>>>> develop
+
         self.gui.dispatchAction("list_result_search",gen)
         #self.result_list.delete(0, tkinter.END)
         #for i in gen:
         #    self.result_list.insert(tkinter.END, str(i))
-<<<<<<< HEAD
-=======
->>>>>>> movie_frame -Change label value from french to english (réalisateur->director) -Display "-" if the movie attribut value is null MainFrame -change the name of the list of frame which was a bidon name Gui.py -comment lines which was used to debug
->>>>>>> develop
+
     def onAutoComplete(self,i):
         self.result_list.delete(0, tkinter.END )
         self.result_list.insert(tkinter.END,str(i))
