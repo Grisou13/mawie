@@ -3,6 +3,11 @@ import sys
 from functools import reduce
 
 import Levenshtein.StringMatcher as lev
+
+from app.models.Movie import Movie
+import mimetypes
+import urllib.request
+mimetypes.init()
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
 import PTN
@@ -17,6 +22,7 @@ class Explorer():
     # database connector uses SQLAlchemy
     movieFileMovie = object()
     maxRatio = 20
+    allowedData=["path"]
     def __init__(self, path=None):
         self.movieFileConnector = File
 
@@ -50,9 +56,16 @@ class Explorer():
     @property
     def parsedFiles(self):
         return self._cleanList
+    @parsedFiles.setter
+    def s(self,val):
+        self._cleanList = val
     @property
     def nonParsedFiles(self):
         return self._dirtyList
+
+    @parsedFiles.setter
+    def s(self, val):
+        self._dirtyList = val
     @property
     def initialList(self):
         assert len(self._cacheList) < 1, "You should use getFolderContent first, or populate the .files property"
@@ -76,15 +89,27 @@ class Explorer():
                             # Found in subfolde ! :)
                             f = False
         return f
-
+    def _checkFileIsVideo(self,path):
+        url = urllib.request.pathname2url(path)
+        mime = mimetypes.guess_type(url)
+        if not 0 in mime:
+            return False
+        print(mime[0])
+        print(path)
+        return "video" in mime[0]
     def _extractFilesIn(self, path):
         assert os.path.exists(path) #just check it okey
         files = []
         for r, dirs, _files in os.walk(path, topdown=False):  # don't car about order
-            for f in _files:
-                files.append(self._parseFromPath(os.path.join(r,f)))
+
+            for f in _files :
+                path = os.path.join(r,f)
+                if self._checkFileIsVideo(path):
+                    files.append(self._parseFromPath(path))
             for d in dirs:
-                files.extend(self._extractFilesIn(os.path.join(r, d)))  # recursion bitch
+                path = os.path.join(r, d)
+                print(path)
+                files.extend(self._extractFilesIn(path))  # recursion bitch
         return files
 
     def _parseFromPath(self, filepath):
@@ -105,24 +130,36 @@ class Explorer():
         else:
             data["parsed"] = False
 
-        print(data["title"],":",data["ratio"],"[",data["oldTitle"] if data["parsed"] else "not-parsed","]", " ----- ", filename)
+        #print(data["title"],":",data["ratio"],"[",data["oldTitle"] if data["parsed"] else "not-parsed","]", " ----- ", filename)
         return data
 
-    def commit(self, rename=False):
-        for f in self._list:
-            self._addFile(f, rename)
+    def commit(self,list=[], rename=False):
+        for f in self.parsedFiles if len(list) <=0 else list:
 
-    def _addFile(self, filepath, rename):
+            self._addFile(data=f, rename=rename)
+    def _searchMovie(self,title):
+        print("searching movie with title",title)
+        return Movie.get(1) #append to n1 movie
+    def _addFile(self, data = None, filepath = None, rename = False):
+        if filepath is not None:
+            print(filepath)
+            data = self._parseFromPath(filepath)
+        elif data is not None:
+            data = data
+        else:
+            raise Exception("You didnt provide any data to add to database")
+        if "title" not in data:
+            raise Exception("the file must contain a title")
+        if "path" not in data:
+            raise Exception("the file must contain a path")
 
-        data = self._parseFromPath(filepath)
         if rename:
             os.rename(data["path"], os.path.join(os.path.basename(data["path"], data["title"])))  # rename the file on insert to something more readable with only the title
-        #delete unnecessary data
-        if ("episodeName" in data):
-            del data["episodeName"]
-        if ("proper" in data):
-            del data["proper"]
-
+        movie = self._searchMovie(data["title"])
+        # delete unnecessary data
+        for el in data.copy():
+            if el not in self.allowedData:
+                del data[el]
         # replace any list in the data by an array (['FRENCH', 'BDRip'] => 'FRENCH, BDRip')
         for k, v in data.items():
             if (isinstance(v, list)):
@@ -131,10 +168,13 @@ class Explorer():
             elif (not isinstance(v, str) and not isinstance(v, int)):
                 raise TypeError("Movie data format not conform")
         # check if the path isn't already in the db
-        if len(self.movieFileConnector.query(self.movieFileConnector.path.distinct()).filter(
-                        self.movieFileConnector.path == data["path"]).all()) > 0:
-            raise Exception("The file already exists")
-        return self.movieFileConnector.create(**data)
+        # if len(self.movieFileConnector.query(self.movieFileConnector.path.distinct()).filter(
+        #                 self.movieFileConnector.path == data["path"]).all()) > 0:
+        #     raise Exception("The file already exists")
+        data["movie"] = movie
+        file = self.movieFileConnector(**data)
+        print(file)
+        return file.save()
 
     def getFolderContent(self, path=None):
         if path is None:
