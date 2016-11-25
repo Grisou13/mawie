@@ -133,6 +133,7 @@ class SearchFrame(tkinter.Frame, GuiComponent):
         self.pack()
         #self.result_list.focus_set()
     def onList(self,gen):
+        self.gui.dispatchAction("search_list",gen)
         self.result_list.delete(0, tkinter.END)
         for i in gen:
             self.result_list.insert(tkinter.END, str(i))
