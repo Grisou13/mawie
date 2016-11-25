@@ -7,13 +7,15 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 from PyQt5.uic.properties import QtGui, QtCore
 
+from app.gui.components import GuiComponent
 from app.research.research import Research
 import re
 
-class ResearchFrame(QWidget):
+class ResearchFrame(QWidget, GuiComponent):
     def __init__(self,parent):
         super().__init__(parent)
         self.gui = parent
+        self.gui.register_listener(self)
         self.search = Research()
         self.initFrame()
 
@@ -49,7 +51,10 @@ class ResearchFrame(QWidget):
         self.setLayout(grid)
     def _showMovieList(self,*args,**kwargs):
         self.gui.dispatchAction("show-frame","MovieList")
-
+    def handleAction(self, actionName, data):
+        pass
+    def requestAction(self,name):
+        pass
 if __name__ == '__main__':
     from app.gui.Qgui import Gui
     Gui.start()

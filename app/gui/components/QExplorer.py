@@ -13,9 +13,10 @@ from app.gui.components import GuiComponent
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
 class AddFilesWidget(QWidget, GuiComponent):
-    def __init__(self,parent):
+    def __init__(self, parent):
         super(AddFilesWidget,self).__init__(parent)
         self.gui = parent
+        self.gui.register_listener(self)
         self.initWidget()
         self.show()
         self.explorer = Explorer()
