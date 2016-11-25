@@ -37,8 +37,31 @@ class googleIt():
                 yield link.url
                 #imdblist.append(link.url)
 
+    def _matchIDInFoundMovie(self, movieId, movieList):
+
+        assert isinstance(movieId, str)
+        #assert isinstance(movieTitle, list)
+
+        #foundMovie =  self.imdb.search_for_title(movieTitle)
+
+        if isinstance(foundMovie, list):
+            for l in foundMovie:
+                if movieId == l.get("imdb_id"):
+                    return True
+        elif isinstance(foundMovie, object):
+            return movieId == foundMovie.imdb_id
+        else:
+            return False
+
 
     def getMovieID(self, movieTitle):
+        """
+            Find a movie id based on the title
+            movieTitle (string) is simply the movieTitle.
+            Try to not use # number (ex : Harry potter 4)
+
+
+        """
         assert isinstance(movieTitle, str)
         # get the fifty firsts results of a research
         researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
@@ -62,8 +85,8 @@ class googleIt():
     def getMovieImage(self, movieId = "", movieTitle = ""):
         pass
 
-
     def getMovieInfo(self, movieId = "", movieTitle = ""):
+        
         """
             Return information about a movie
             Movie ID (string) can be found for example in a imdb url
@@ -113,20 +136,20 @@ class googleIt():
         assert isinstance(movieTitle, str)
         movieTitle = movieTitle.lower()
 
+        print(movieTitle)
+        print(movieId)
+        ### BASED ON THE TITLE AND ID ###
         if movieTitle and movieId:
-            """if(movieId == l.get("imdb_id")):
-                theChosenOne = self.imdb.search_for_title(movieId)
-                print(theChosenOne)
-                print("welcome to the grind")
-                print(theChosenOne.title)
-                print(theChosenOne.type)
-                print(theChosenOne.year)
-                print(theChosenOne.genres)
-                print(theChosenOne.trailers)
-                print(theChosenOne.poster_url)
+
+            foundMovie =  self.imdb.search_for_title(movieTitle)
+            if self._matchIDInFoundMovie(movieId, foundMovie):
+                print("yeee")
+                return foundMovie
+            else:
+                return False
 
 
-            sys.exit("fuck tamère")"""
+        ### BASED ON THE TITLE ###
         elif movieTitle:
             foundMovie =  self.imdb.search_for_title(movieTitle)
             # if many movies found
@@ -137,15 +160,19 @@ class googleIt():
                         yield self.imdb.get_title_by_id(l.get("imdb_id"))
 
                 for m in generator(foundMovie):
-                    print(m)
-                    print(m.title)
-                    print(m.type)
-                    print(m.year)
+                    yield m
 
-                return "nique ta mère"
-
+            return foundMovie
+        ### BASED ON THE ID ###
         elif movieId:
-            return self.imdb.get_title_by_id(movieId)
+            # Getting a movie object by ID (should) only return one element
+            foundMovie = self.imdb.get_title_by_id(movieId)
+            try:
+                assert isinstance(foundMovie, object)
+            except AssertionError:
+                return False
+
+            return foundMovie
 
 
             """
@@ -161,21 +188,24 @@ class googleIt():
             """
 
         else:
-            #wtf
+            # wtf
             return False
 
 
 
 if __name__ == "__main__":
+
     googleItPutain = googleIt()
     #myId = google.getMovieID("Harry potter 4")
 
     myFalseId = "tt0330373"
-    DonnotSpeakAboutIt = "tt0137523"
+    donnotSpeakAboutIt = "tt0137523"
+    googleItPutain.getMovieInfo()
 
     #googleItPutain.getMovieInfo(movieId = DonnotSpeakAboutIt)
-    googleItPutain.getMovieInfo(movieTitle = "Harry potter")
-    #googleItPutain.getMovieInfo(movieId = DonnotSpeakAboutIt, movieTitle = "Fight CLUB")
+    #googleItPutain.getMovieInfo(movieTitle = "Harry potter")
+    googleItPutain.getMovieInfo(movieId = donnotSpeakAboutIt, movieTitle = "Fight CLUB")
+
     #googleItPutain.getMovieInfo()
 
 """
