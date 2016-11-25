@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$" />
 <<<<<<< develop
 <<<<<<< develop
+<<<<<<< develop
     <orderEntry type="jdk" jdkName="Python 3.5.2 (C:\bin\Python3\python.exe)" jdkType="Python SDK" />
 =======
     <orderEntry type="jdk" jdkName="Python 3.5.2 (C:\Users\ilias.goujgali\AppData\Local\Programs\Python\Python35-32\python.exe)" jdkType="Python SDK" />
@@ -11,6 +12,9 @@
 =======
     <orderEntry type="jdk" jdkName="Python 3.5.2 (C:\Users\ilias.goujgali\AppData\Local\Programs\Python\Python35-32\python.exe)" jdkType="Python SDK" />
 >>>>>>> init
+=======
+    <orderEntry type="jdk" jdkName="Python 3.5.2 (C:\bin\Python3\python.exe)" jdkType="Python SDK" />
+>>>>>>> added SearchWidget autocomplete
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">

@@ -26,6 +26,7 @@ class Movie(db.Model):
     rate = Column(String, nullable=True)
     #raings = Column(Integer,nullable=True)
     files = relationship("File")
+    viewed= Column(Boolean, default=False)
     def __str__(self):
         return self.name
     def __repr__(self):

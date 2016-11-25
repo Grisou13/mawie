@@ -35,7 +35,11 @@ class Gui(QWidget):
         grid.addWidget(stackWidget)
         self.setLayout(grid)
         self.show()
-
+    @staticmethod
+    def start():
+        app = QApplication(sys.argv)
+        ex = Gui()
+        sys.exit(app.exec_())
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
