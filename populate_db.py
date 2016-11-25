@@ -27,7 +27,11 @@ for l in get_films():
     m1.release  = (datetime.strptime(l["released"],"%d %b %Y") if l["released"] is not None else None)
     m1.genre    = l["genre"]
     f1 = f.File()
+<<<<<<< HEAD
     f1.path="stubs/"+l["title"]+".avi"
+=======
+    f1.path=os.path.realpath("stubs/"+l["title"]+".avi")
+>>>>>>> develop
 
     m1.files.append(f1)
     f1.save()
