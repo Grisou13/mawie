@@ -1,5 +1,6 @@
 import sys
 
+from PyQt5.QtCore import QRect
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QListWidget
@@ -12,8 +13,9 @@ from app.gui.components import GuiComponent
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
 class AddFilesWidget(QWidget, GuiComponent):
-    def __init__(self,parent = None):
+    def __init__(self,parent):
         super(AddFilesWidget,self).__init__(parent)
+        self.gui = parent
         self.initWidget()
         self.show()
         self.explorer = Explorer()

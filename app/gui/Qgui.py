@@ -59,10 +59,11 @@ class Gui(QWidget,SingletonMixin):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
     def addComponent(self, cls):
-        if isinstance(cls,GuiComponent):
-            self._components[cls.__class__.__name__] = cls
-            if isinstance(cls,QWidget):
-                self.componentArea.addWidget(cls)
+        c = cls(self)
+        if isinstance(c,GuiComponent):
+            self._components[c.__class__.__name__] = c
+            if isinstance(c,QWidget):
+                self.componentArea.addWidget(c)
 
     def register_listener(self, cls):
         if not isinstance(cls, GuiComponent):
