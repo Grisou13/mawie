@@ -36,7 +36,7 @@ class FilterableList:
 
 class Research:
     """ main research class """
-    default_cols = ["name", "desc"]
+    default_cols = ["name"]
     default_model = Movie
 
     def _aggregate_results(self):
