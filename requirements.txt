@@ -4,3 +4,4 @@ urllib3
 timestring
 active_alchemy
 pillow
+pyqt5
