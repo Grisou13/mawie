@@ -1,3 +1,4 @@
+import os
 
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 from PyQt5.QtGui import QPixmap,QImage
@@ -122,7 +123,7 @@ class ResultRow(QWidget):
 
     def importPosterFilm(self,path=''):
         image = QImage()
-        pixMap = QPixmap("noPoster.jpg")
+        pixMap = QPixmap(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
         if path is "":
             return pixMap
         try:

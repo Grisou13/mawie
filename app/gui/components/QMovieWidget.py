@@ -1,3 +1,4 @@
+import os
 import sys
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
 from PyQt5.QtGui import QPixmap,QFont,QImage
@@ -138,7 +139,7 @@ class MovieFrame(QWidget, GuiComponent):
         pass
     def importPosterFilm(self, path=''):
         image = QImage()
-        pixMap = QPixmap("noPoster.jpg")
+        pixMap = QPixmap(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
         if path is '':
             return pixMap
         try:
