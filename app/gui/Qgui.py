@@ -33,8 +33,6 @@ class Gui(QWidget,SingletonMixin):
         recherche = ResearchFrame(self)
         add = AddFilesWidget(self)
         self.setWindowTitle('Find My movie')
-
-
         content.addWidget(self.componentArea,1,0)
         content.addWidget(recherche, 0, 0)
         content.addWidget(add, 0, 1)

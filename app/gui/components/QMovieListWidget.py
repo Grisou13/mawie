@@ -3,16 +3,18 @@ import os
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
-from app.gui.components import GuiComponent
+from app.gui.components import GuiComponent, Downloader
 from app.models.Movie import Movie
 from urllib import request
 import asyncio
+
 class MovieListFrame(QWidget, GuiComponent):
 
     def __init__(self,parent=None,gui=None):
         super().__init__(parent)
         self.gui = gui
         self.gui.register_listener(self)
+
         self.initFrame()
 
     def initFrame(self):
@@ -61,6 +63,7 @@ class ResultRow(QWidget):
         # self.gui = gui
         # self.gui.register_listener(self)
         self.film = data
+        self.downloader = Downloader()
         self.initRow(data)
         #self.setGeometry(QRect(0,0,700,160))
         #self.setMinimumSize(650,160)
@@ -74,12 +77,12 @@ class ResultRow(QWidget):
         grid = QGridLayout()
 
         lblImg = QLabel(self)
-        if data.poster is not None:
-            poster = self.importPosterFilm(data.poster)
-        else :
-            poster = self.importPosterFilm()
-        lblImg.setPixmap(poster)
-
+        # if data.poster is not None:
+        #     self.importPosterFilm(data.poster)
+        # else :
+        self.importPosterFilm(data.poster)
+        #lblImg.setPixmap(poster)
+        self.image = lblImg
         if data.name is not None:
             if data.genre is not None:
                 lblProducer = QLabel(data.name+"("+data.genre+")", self)
@@ -124,17 +127,23 @@ class ResultRow(QWidget):
     def seeFilm(self):
         print(self.film.name)
 
-    def importPosterFilm(self,path=''):
-        image = QImage()
-        pixMap = QPixmap(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
-        if path is "":
-            return pixMap
+    def importPosterFilm(self,path=None):
+        downloader = self.downloader
+        if path is None:
+            path = "file://"+os.path.realpath(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
         try:
-            html = request.urlopen(path)
-            data = html.read()
-            flag = False
-            image.loadFromData(data)
-            pixMap = QPixmap(image)
+            # html = request.urlopen(path)
+            # data = html.read()
+            # image.loadFromData(data)
+            downloader.downloaded.connect(self.updateImage)
+            downloader.doDownload(path)
         except request.URLError: #in case there isn't the internet or the url gives 404 error or bad url
             print("a problem with the connection or the url has occurred")
-        return pixMap
+
+    def updateImage(self):
+        image = QPixmap()
+        image.loadFromData(self.downloader.downloadedData())
+        self.image.setPixmap(image)
+if __name__ == '__main__':
+    from app.gui.Qgui import Gui
+    Gui.start()
