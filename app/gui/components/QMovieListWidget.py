@@ -1,23 +1,17 @@
 
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QVBoxLayout,QListWidget,QListWidgetItem
-from PyQt5.QtGui import QPixmap,QFont,QImage
-from PyQt5.QtCore import QRect,Qt
+from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
+from PyQt5.QtGui import QPixmap,QImage
+from PyQt5.QtCore import QRect,pyqtSignal
 from app.gui.components import GuiComponent
 from app.models.Movie import Movie
-import os
 from urllib import request
-from io import BytesIO
 
+class MovieListFrame(QWidget, GuiComponent):
 
-
-
-class ResearchListFrame(QWidget,GuiComponent):
-    def __init__(self,parent, gui, *arg, **kwargs):
-        super().__init__(parent, gui, *arg, **kwargs)
-
+    def __init__(self,parent=None,gui=None):
+        super().__init__(parent)
         self.gui = gui
         self.gui.register_listener(self)
-
         self.initFrame()
 
     def initFrame(self):
@@ -28,39 +22,52 @@ class ResearchListFrame(QWidget,GuiComponent):
 
         self.listWidgets = QListWidget(self)
         self.listWidgets.setMinimumSize(670,700)
-
-        for film in Movie.query():
-            item = QListWidgetItem(self.listWidgets)
-            print(film.name)
-            itemW= ResultRow(self,film)
-            item.setSizeHint(itemW.sizeHint())
-            self.listWidgets.setItemWidget(item, itemW)
+        self.updateWidgets(Movie.query())
+        # for film in Movie.query():
+        #     item = QListWidgetItem(self.listWidgets)
+        #     itemW= ResultRow(self,film,self.gui)
+        #     item.setSizeHint(itemW.sizeHint())
+        #     self.listWidgets.setItemWidget(item, itemW)
 
         self.setLayout(grid)
     def updateWidgets(self,data):
         self.listWidgets.clear()
         for film in data:
-            item = QListWidgetItem(self.listWidgets)
-            print(film.name)
-            itemW = ResultRow(self, film)
-            item.setSizeHint(itemW.sizeHint())
-            self.listWidgets.setItemWidget(item, itemW)
+            t =film
+            try:
+                item = QListWidgetItem(self.listWidgets)
+                itemW= ResultRow(self,film,self.gui)
+                item.setSizeHint(itemW.sizeHint())
+                self.listWidgets.setItemWidget(item, itemW)
+                itemW.btnSee.clicked.connect(lambda ignore, x = film : self.clickedSee(x))
+
+            except Exception as e:
+                print(e)
+
+    def clickedSee(self,film):
+        self.gui.dispatchAction("show-info-film",film)
     def handleAction(self,name,data):
-        pass
+        if name == "search-results":
+            self.updateWidgets(data)
     def requestAction(self,name):
         pass
 
 class ResultRow(QWidget):
-    def __init__(self,parent,data):
+    selectedMovie = pyqtSignal()
+
+    def __init__(self,parent,data,gui):
         super().__init__(parent)
+        # self.gui = gui
+        # self.gui.register_listener(self)
+        self.film = data
         self.initRow(data)
-        self.setGeometry(QRect(0,0,700,160))
-        # self.setMinimumSize(650,160)
-        # self.setSizePolicy(650,160)
+        #self.setGeometry(QRect(0,0,700,160))
+        #self.setMinimumSize(650,160)
+        #self.setSizePolicy(650,160)
 
     def initRow(self,data):
         self.createWidgets(data)
-        self.show()
+        #self.show()
 
     def createWidgets(self,data):
         grid = QGridLayout()
@@ -73,11 +80,7 @@ class ResultRow(QWidget):
         lblImg.setPixmap(poster)
 
         if data.name is not None:
-            if data.release is not None:
-                lblProducer = QLabel("Title: "+data.name, self)
-            else:
-                lblProducer = QLabel("Title: "+data.name, self)
-
+            lblProducer = QLabel("Title: "+data.name, self)
         else:
             lblProducer = QLabel("Title: -", self)
         if data.actors is not None:
@@ -88,7 +91,7 @@ class ResultRow(QWidget):
             lblRating = QLabel("IMDb Rating: "+data.rate,self)
         else:
             lblRating = QLabel("IMDb Rating: -", self)
-        btnSee = QPushButton("See info",self)
+        self.btnSee = QPushButton("See info",self)
 
         lblActors.setFixedWidth(400)
         lblProducer.setFixedWidth(400)
@@ -108,12 +111,15 @@ class ResultRow(QWidget):
         grid.addWidget(lblProducer,0,2)
         grid.addWidget(lblRating, 1, 2)
         grid.addWidget(lblActors, 2, 2)
-        grid.addWidget(btnSee, 0, 3,3,2)
+        grid.addWidget(self.btnSee, 0, 3,3,2)
 
 
-        btnSee.clicked.connect(print("NTM"))
 
         self.setLayout(grid)
+
+    def seeFilm(self):
+        print(self.film.name)
+
     def importPosterFilm(self,path=''):
         image = QImage()
         pixMap = QPixmap("noPoster.jpg")
@@ -128,4 +134,3 @@ class ResultRow(QWidget):
         except request.URLError: #in case there isn't the internet or the url gives 404 error or bad url
             print("a problem with the connection or the url has occurred")
         return pixMap
-
