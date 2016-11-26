@@ -20,7 +20,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
         super().__init__(parent)
         self.gui = parent
         self.gui.register_listener(self)
-        self.setMinimumSize(700, 700)
+        self.setMinimumSize(680, 700)
         self.initWidget()
     def initWidget(self):
         self.listMovie = MovieListFrame(self, self.gui)

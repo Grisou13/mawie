@@ -81,7 +81,10 @@ class ResultRow(QWidget):
         lblImg.setPixmap(poster)
 
         if data.name is not None:
-            lblProducer = QLabel("Title: "+data.name, self)
+            if data.genre is not None:
+                lblProducer = QLabel(data.name+"("+data.genre+")", self)
+            else:
+                lblProducer = QLabel("Title: " + data.name, self)
         else:
             lblProducer = QLabel("Title: -", self)
         if data.actors is not None:
