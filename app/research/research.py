@@ -62,7 +62,6 @@ class Research:
             yield [] #return an empty iterator
         q = self.queryModelOnColumn(*cols, query, m)
         for res in q.all():
-            print(res)
             yield res
 
     @staticmethod

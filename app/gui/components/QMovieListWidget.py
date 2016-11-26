@@ -6,7 +6,7 @@ from PyQt5.QtCore import QRect,pyqtSignal
 from app.gui.components import GuiComponent
 from app.models.Movie import Movie
 from urllib import request
-
+import asyncio
 class MovieListFrame(QWidget, GuiComponent):
 
     def __init__(self,parent=None,gui=None):
