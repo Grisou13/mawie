@@ -66,7 +66,6 @@ class Downloader(QObject):
         # prior _downloadedData is now garbage collectable
         assert isinstance(self._downloadedData, QByteArray)
         reply.deleteLater()  # schedule for delete from main event loop
-        # print("emitted")
         self.downloaded.emit()
 
     '''
@@ -87,6 +86,4 @@ class Downloader(QObject):
         Call this only after receiving signal 'downloaded'.
         Copy result before calling doDownload() again.
         '''
-
-
         return self._downloadedData

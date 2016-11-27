@@ -1,5 +1,6 @@
 import os
 
+from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
@@ -108,7 +109,7 @@ class ResultRow(QWidget):
         lblProducer.setWordWrap(True)
         lblRating.setWordWrap(True)
 
-        lblImg.setFixedSize(100,160)
+        lblImg.setMinimumSize(100,160)
         lblImg.setScaledContents(True)  # fit image to label
 
         grid.addWidget(lblImg,0,0,3,2)
@@ -130,8 +131,16 @@ class ResultRow(QWidget):
     def importPosterFilm(self,path=None):
         downloader = self.downloader
         if path is None:
-            path = "file://"+os.path.realpath(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
+            path = "qrc:///no-poster"
+            # self.image.setPixmap(QPixmap(":/no-poster"))
+            # return True
+            # if os.path.exists(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg")):
+            #     path = "file://"+os.path.realpath(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
+            # elif os.path.exists(os.path.join(os.path.realpath(__file__),"../","noPoster.jpg")):
+            #     path = "file://"+os.path.realpath(os.path.join(os.path.realpath(__file__),"../","noPoster.jpg"))
+
         try:
+            path = QUrl(path)
             # html = request.urlopen(path)
             # data = html.read()
             # image.loadFromData(data)
