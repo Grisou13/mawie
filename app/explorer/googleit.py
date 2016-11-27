@@ -4,10 +4,10 @@ import re
 from py_bing_search import PyBingWebSearch
 #from py_bing_search import PyBingWebSearch
 from imdbpie import Imdb
-import Levenshtein
+# import Levenshtein
 import re
 import sys
-
+import urllib.request
 
 class googleIt():
 
@@ -19,13 +19,23 @@ class googleIt():
         self.domainSearch = domainSearch
         self.imdb = Imdb()
 
+        def _doWeHaveInternet():
+            try:
+                req = urllib.request.Request('http://216.58.192.142')
+                urllib.request.urlopen(req, timeout=1)
+                return True
+            except urllib.error.URLError as err:
+                return False
+
+        if not _doWeHaveInternet():
+            raise ConnectionError("No internet connection !")
+
     def _makeSearchTerm(self, movieName):
         return movieName +" :" +self.domainSearch
         # bing advanced search doesn't work w our request soooo.....
         #return "site:" + self.domainSearch + " " + movieName
 
     def _GetMovieResearch(self, term, limit=50, format='json'):
-
         bing = PyBingWebSearch(self.BING_API_KEY, term, web_only=False)
         return bing.search(limit, format)
 
@@ -37,32 +47,18 @@ class googleIt():
                 yield link.url
                 #imdblist.append(link.url)
 
-    def _matchIDInFoundMovie(self, movieId, movieList):
-
-        assert isinstance(movieId, str)
-        #assert isinstance(movieTitle, list)
-
-        #foundMovie =  self.imdb.search_for_title(movieTitle)
-
-        if isinstance(foundMovie, list):
-            for l in foundMovie:
-                if movieId == l.get("imdb_id"):
-                    return True
-        elif isinstance(foundMovie, object):
-            return movieId == foundMovie.imdb_id
-        else:
-            return False
-
-
     def getMovieID(self, movieTitle):
         """
             Find a movie id based on the title
             movieTitle (string) is simply the movieTitle.
             Try to not use # number (ex : Harry potter 4)
-
+            return the id as a string (ex : tt0330373)
 
         """
-        assert isinstance(movieTitle, str)
+
+        if not isinstance(movieTitle, str):
+            raise TypeError("Movie title must be a string")
+
         # get the fifty firsts results of a research
         researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
         # find all the links from imdb
@@ -82,17 +78,18 @@ class googleIt():
 
         return movieId
 
-    def getMovieImage(self, movieId = "", movieTitle = ""):
-        pass
 
     def getMovieInfo(self, movieId = "", movieTitle = ""):
-        
+        print("we are getting info...   ")
+
         """
             Return information about a movie
             Movie ID (string) can be found for example in a imdb url
             Movie Title (string) is simply the move Title
-            Only one parameter is required. With both parameters, we'll do a double check ♥
-            !! Note that using the ID return only one movie, but the Title may return many
+
+            Only one parameter is required. With both parameters, we'll do a double check (but will take more time) ♥
+            !! Note that using the ID return only one movie, but the Title may return many in a generator
+            Prefer using a the id instead of the title
 
             Returned movie object properties :
             movie.imdb_id
@@ -124,7 +121,8 @@ class googleIt():
             """
                 Check if given sting contains any number (1-9).
                 Return boolean
-                Do you really need more details ?
+
+                Do you really need more details ? (this method is not used yet but migh be in ameliorations)
             """
             return any(char.isdigit() for char in inputStr)
 
@@ -133,36 +131,47 @@ class googleIt():
         except AssertionError:
             return False
 
-        assert isinstance(movieTitle, str)
+        if not isinstance(movieTitle, str):
+            raise TypeError("Movie title must be a string")
+
         movieTitle = movieTitle.lower()
 
-        print(movieTitle)
-        print(movieId)
         ### BASED ON THE TITLE AND ID ###
         if movieTitle and movieId:
+            # we search the movies with both id and title
+            foundById = self.imdb.get_title_by_id(movieId)
+            foundByTitle = self.imdb.search_for_title(movieTitle)
 
-            foundMovie =  self.imdb.search_for_title(movieTitle)
-            if self._matchIDInFoundMovie(movieId, foundMovie):
-                print("yeee")
-                return foundMovie
-            else:
+            # by title might return a list, so we iterate through it
+            if isinstance(foundByTitle, list):
+                for byTitle in foundByTitle:
+                    # then we try to find the one that match the movie found by id
+                    if byTitle.get("imdb_id") == foundById.imdb_id:
+                        return foundById
                 return False
-
+            # if only one movie is found by id, then we compare it directly
+            elif isinstance(foundByTitle, object):
+                if foundById.imdb_id == foundByTitle.imdb_id:
+                    return foundById
+                else:
+                    return False
+            return False
 
         ### BASED ON THE TITLE ###
         elif movieTitle:
             foundMovie =  self.imdb.search_for_title(movieTitle)
             # if many movies found
             if(isinstance(foundMovie, list)):
-
                 def generator(movieList):
                     for l in movieList:
                         yield self.imdb.get_title_by_id(l.get("imdb_id"))
+                return generator(foundMovie)
 
-                for m in generator(foundMovie):
-                    yield m
+            elif isinstance(foundMovie, object):
+                return foundMovie
 
-            return foundMovie
+            return False
+
         ### BASED ON THE ID ###
         elif movieId:
             # Getting a movie object by ID (should) only return one element
@@ -174,19 +183,6 @@ class googleIt():
 
             return foundMovie
 
-
-            """
-            # check if found movie correspond to the given one (if one given)
-            if movieTitle:
-                # if the given movie name contains a #, we won't do a Levenshtein
-                # Harry Potter 4 === Harry Potter and the Goblet of Fire
-                if not _hasNumber(movieTitle):
-                    # If no # in it, we'd do a little Levenshtein distance mesure
-                    # both movies name are in lowercase
-                    if Levenshtein.distance(foundMovieTitle, movieTitle) > 3:
-                        raise ValueError("Given movie title doesn't match the id.")
-            """
-
         else:
             # wtf
             return False
@@ -195,27 +191,17 @@ class googleIt():
 
 if __name__ == "__main__":
 
-    googleItPutain = googleIt()
-    #myId = google.getMovieID("Harry potter 4")
+    #googleItPutain = googleIt()
 
-    myFalseId = "tt0330373"
-    donnotSpeakAboutIt = "tt0137523"
-    googleItPutain.getMovieInfo()
+    #HarryPotter4ID = "tt0330373"
+    #fightClubID = "tt0137523"
 
-    #googleItPutain.getMovieInfo(movieId = DonnotSpeakAboutIt)
-    #googleItPutain.getMovieInfo(movieTitle = "Harry potter")
-    googleItPutain.getMovieInfo(movieId = donnotSpeakAboutIt, movieTitle = "Fight CLUB")
-
+    # without parameters
     #googleItPutain.getMovieInfo()
-
-"""
-# pip install imdbpie
-
-from imdbpie import Imdb
-imdb = Imdb()
-imdb = Imdb(anonymize=True) # to proxy requests
-
-res = imdb.search_for_title("Very bad trip 2")
-print("Pr out")
-print(res)
-"""
+    # with MOVIE ID
+    #r = googleItPutain.getMovieInfo(movieId = fightClubID)
+    # with MOVIE TITLE
+    #r = googleItPutain.getMovieInfo(movieTitle = "Harry potter")
+    # with MOVIE ID and MOVIE TITLE
+    #r = googleItPutain.getMovieInfo(movieId = fightClubID, movieTitle = "Fight CLUB")
+    pass
