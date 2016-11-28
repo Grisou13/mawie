@@ -1,5 +1,6 @@
 .idea
 .cache/*
+!.cache/noPoster.jpg
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -89,3 +90,4 @@ ENV/
 # Rope project settings
 .ropeproject
 nltk/
+.cache/

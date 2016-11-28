@@ -25,9 +25,10 @@ class Gui(QWidget,SingletonMixin):
         self._components = {}
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
         self.componentArea = ComponentArea(self)
+
         resources =QResource()
-        print(os.path.realpath(os.path.join("../../","conf/images.rcc")))
-        resources.registerResource(os.path.realpath(os.path.join("../../","conf/images.rcc")))
+        print(os.path.realpath(os.path.join("../../","conf/images.qrc")))
+        resources.registerResource(os.path.realpath(os.path.join("../../","conf/images.qrc")))
         print(resources.data())
     def initUI(self):
         content = QGridLayout(self)

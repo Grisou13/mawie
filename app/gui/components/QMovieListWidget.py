@@ -109,7 +109,7 @@ class ResultRow(QWidget):
         lblProducer.setWordWrap(True)
         lblRating.setWordWrap(True)
 
-        lblImg.setMinimumSize(100,160)
+        #lblImg.setMaximumWidth(100)
         lblImg.setScaledContents(True)  # fit image to label
 
         grid.addWidget(lblImg,0,0,3,2)
@@ -141,9 +141,7 @@ class ResultRow(QWidget):
 
         try:
             path = QUrl(path)
-            # html = request.urlopen(path)
-            # data = html.read()
-            # image.loadFromData(data)
+
             downloader.downloaded.connect(self.updateImage)
             downloader.doDownload(path)
         except request.URLError: #in case there isn't the internet or the url gives 404 error or bad url
@@ -151,6 +149,9 @@ class ResultRow(QWidget):
 
     def updateImage(self):
         image = QPixmap()
+        image.scaledToHeight(160)
+        image.scaledToWidth(100)
+
         image.loadFromData(self.downloader.downloadedData())
         self.image.setPixmap(image)
 if __name__ == '__main__':
