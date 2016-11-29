@@ -1,8 +1,7 @@
 import sys
-
 from PyQt5.QtCore import QStringListModel
 from PyQt5.QtWidgets import QCompleter
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QVBoxLayout
+from PyQt5.QtWidgets import QWidget,QLabel,QLineEdit,QPushButton,QGridLayout
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 from PyQt5.uic.properties import QtGui, QtCore

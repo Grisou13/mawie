@@ -11,6 +11,7 @@ from app.gui.components.QExplorer import AddFilesWidget
 from app.gui.components.QMovieListWidget import MovieListFrame
 from app.gui.components.QMovieWidget import MovieFrame
 from app.gui.components.QResearchWidget import  ResearchFrame
+from app.gui.components.QExplorer import AddFilesWidget
 from app.helpers import SingletonMixin
 
 
@@ -25,10 +26,13 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def initWidget(self):
         self.listMovie = MovieListFrame(self, self.gui)
         self.movie = MovieFrame(self, self.gui)
+        self.explorer = AddFilesWidget(self, self.gui)
 
         self.addWidget(self.movie)
         self.addWidget(self.listMovie)
-        self.setCurrentWidget(self.listMovie)
+        self.addWidget(self.explorer)
+        self.setCurrentWidget(self.explorer)
+
     def handleAction(self, name, data):
         if name == "show-frame":
             print("showing frame "+str(data))

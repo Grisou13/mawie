@@ -31,13 +31,13 @@ class Gui(QWidget,SingletonMixin):
         self.setFixedSize(700,800)
         self.center()
         recherche = ResearchFrame(self)
-        add = AddFilesWidget(self)
-        self.setWindowTitle('Find My movie')
+
+        self.setWindowTitle('')
 
 
         content.addWidget(self.componentArea,1,0)
         content.addWidget(recherche, 0, 0)
-        content.addWidget(add, 0, 1)
+
         #self.componentArea = content
 
         self.setLayout(content)
