@@ -1,5 +1,11 @@
 # helper.py
 import os
+
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QPixmap
+
+from app.gui.components import Downloader
+
 _dir = os.path.dirname(os.path.realpath(__file__))
 
 BASE_PATH = os.path.join(_dir,"../")
@@ -25,3 +31,4 @@ class SingletonMixin(object):
                 if not cls.__singleton_instance:
                     cls.__singleton_instance = cls()#object.__new__(cls)
         return cls.__singleton_instance
+

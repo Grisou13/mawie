@@ -2,6 +2,7 @@ import copy
 import sys
 import weakref
 
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
@@ -21,7 +22,17 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.gui = parent
         self.gui.register_listener(self)
         self.setMinimumSize(680, 700)
+        self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()
+
+    def addWidget(self,widget):
+        widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        super(ComponentArea, self).addWidget(widget)
+    def onCurrentChange(self,index):
+        w = self.widget(index)
+        w.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        w.adjustSize()
+        self.adjustSize()
     def initWidget(self):
         self.listMovie = MovieListFrame(self, self.gui)
         self.movie = MovieFrame(self, self.gui)

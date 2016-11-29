@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap,QFont,QImage
 from PyQt5.QtCore import QRect,Qt
 from urllib import request
 from app.gui.components import GuiComponent
+from app.gui.components.QPoster import QPoster
 from app.models.Movie import Movie
 
 class MovieFrame(QWidget, GuiComponent):
@@ -16,21 +17,20 @@ class MovieFrame(QWidget, GuiComponent):
 
     def initFrame(self):
         self.createWidgets()
-        self.updateWidgets(Movie.get(7))
+        #self.updateWidgets(Movie.get(7))
         self.show()
 
     def createWidgets(self):
         grid = QGridLayout()
         fontTitle = QFont('Arial',20)
         fontInfo = QFont('Arial',8)
-        imgPix = QPixmap('noPoster.jpg')
 
-        self.lblImg = QLabel(self)
+        self.lblImg = QPoster(self) #QLabel(self)
         self.lblImg.setFixedSize(300, 465)
         self.lblImg.setScaledContents(True)
 
         self.lblTitle = QLabel("*No Title*",self)
-        self.lblImg.setPixmap(imgPix)
+        #self.lblImg.setPixmap(imgPix)
         self.lblScenarist = QLabel("Writer : -", self)
         self.lblDirector = QLabel("Director: -", self)
         self.lblActors = QLabel("Actor(s): -",self)
@@ -82,11 +82,9 @@ class MovieFrame(QWidget, GuiComponent):
         grid.addWidget(btnLauchnFilm,11,0,2,2)
         self.setLayout(grid)
     def updateWidgets(self,film):
-        if film.poster is not None:
-            poster = self.importPosterFilm(film.poster)
-        else :
-            poster = self.importPosterFilm()
-        self.lblImg.setPixmap(poster)
+
+        self.lblImg.updateUrl(film.poster)
+        #self.lblImg.setPixmap(poster)
         if film.name is not None:
             self.lblTitle.setText(film.name)
         else:
@@ -159,3 +157,6 @@ class MovieFrame(QWidget, GuiComponent):
 
     def requestAction(self, name):
         pass
+if __name__ == '__main__':
+    from app.gui.Qgui import Gui
+    Gui.start()

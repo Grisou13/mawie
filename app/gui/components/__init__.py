@@ -52,6 +52,7 @@ class Downloader(QObject):
         super(Downloader, self).__init__()  # !!! init QObject
         # private
         self._webController = QNetworkAccessManager()
+
         self._downloadedData = None
 
         # connect asynchronous result, when a request finishes

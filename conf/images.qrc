@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file alias="no-poster">.resources/noPoster.jpg</file>
+<qresource prefix="/images">
+    <file alias="no-poster">../resources/noPoster.png</file>
 </qresource>
 </RCC>

@@ -16,6 +16,8 @@ from app.gui.components.QResearchWidget import  ResearchFrame
 from app.gui.components.QStackedWidget import ComponentArea
 from app.helpers import SingletonMixin
 
+import app.gui.resources.images
+
 class NotAComponent(Exception):
     pass
 
@@ -30,10 +32,11 @@ class Gui(QWidget,SingletonMixin):
         print(os.path.realpath(os.path.join("../../","conf/images.qrc")))
         resources.registerResource(os.path.realpath(os.path.join("../../","conf/images.qrc")))
         print(resources.data())
+
     def initUI(self):
         content = QGridLayout(self)
 
-        self.setFixedSize(700,800)
+        self.setMinimumSize(700,800)
         self.center()
         recherche = ResearchFrame(self)
         add = AddFilesWidget(self)
@@ -49,8 +52,15 @@ class Gui(QWidget,SingletonMixin):
     def start():
         app = QApplication(sys.argv)
         ex = Gui()
-        ex.initUI()
-        sys.exit(app.exec_())
+        try:
+            ex.initUI()
+            c = app.exec_()
+            sys.exit(c)
+        except SystemExit as s:
+            sys.exit()
+        except Exception as e:
+            print(e)
+
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()

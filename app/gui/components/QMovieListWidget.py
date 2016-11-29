@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,Q
 from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
 from app.gui.components import GuiComponent, Downloader
+from app.gui.components.QPoster import QPoster
 from app.models.Movie import Movie
 from urllib import request
 import asyncio
@@ -37,12 +38,12 @@ class MovieListFrame(QWidget, GuiComponent):
     def updateWidgets(self,data):
         self.listWidgets.clear()
         for film in data:
-            t =film
             try:
                 item = QListWidgetItem(self.listWidgets)
                 itemW= ResultRow(self,film,self.gui)
                 item.setSizeHint(itemW.sizeHint())
                 self.listWidgets.setItemWidget(item, itemW)
+                #itemW.show.connect(lambda x: self.clickedSee(film))
                 itemW.btnSee.clicked.connect(lambda ignore, x = film : self.clickedSee(x))
 
             except Exception as e:
@@ -57,40 +58,32 @@ class MovieListFrame(QWidget, GuiComponent):
         pass
 
 class ResultRow(QWidget):
-    selectedMovie = pyqtSignal()
+    show = pyqtSignal()
 
     def __init__(self,parent,data,gui):
-        super().__init__(parent)
-        # self.gui = gui
-        # self.gui.register_listener(self)
+        super(ResultRow,self).__init__(parent)
         self.film = data
-        self.downloader = Downloader()
         self.initRow(data)
         #self.setGeometry(QRect(0,0,700,160))
         #self.setMinimumSize(650,160)
         #self.setSizePolicy(650,160)
-
+        #self.setMinimumHeight(200)
     def initRow(self,data):
         self.createWidgets(data)
         #self.show()
 
     def createWidgets(self,data):
-        grid = QGridLayout()
+        grid = QGridLayout(self)
+        lblImg = QPoster(self, data.poster)
+        #self.importPosterFilm(data.poster)
 
-        lblImg = QLabel(self)
-        # if data.poster is not None:
-        #     self.importPosterFilm(data.poster)
-        # else :
-        self.importPosterFilm(data.poster)
-        #lblImg.setPixmap(poster)
-        self.image = lblImg
         if data.name is not None:
             if data.genre is not None:
-                lblProducer = QLabel(data.name+"("+data.genre+")", self)
+                lblTitle = QLabel(data.name + "(" + data.genre + ")", self)
             else:
-                lblProducer = QLabel("Title: " + data.name, self)
+                lblTitle = QLabel("Title: " + data.name, self)
         else:
-            lblProducer = QLabel("Title: -", self)
+            lblTitle = QLabel("Title: -", self)
         if data.actors is not None:
             lblActors = QLabel("Actor(s): "+data.actors,self)
         else:
@@ -100,60 +93,25 @@ class ResultRow(QWidget):
         else:
             lblRating = QLabel("IMDb Rating: -", self)
         self.btnSee = QPushButton("See info",self)
-
+        #self.btnSee.clicked.connect(lambda x : self.show.emit(self.film))
         lblActors.setFixedWidth(400)
-        lblProducer.setFixedWidth(400)
+        lblTitle.setFixedWidth(400)
+        lblTitle.setMinimumHeight(70)
         lblRating.setFixedWidth(400)
 
         lblActors.setWordWrap(True)
-        lblProducer.setWordWrap(True)
+        lblTitle.setWordWrap(True)
         lblRating.setWordWrap(True)
 
-        #lblImg.setMaximumWidth(100)
-        lblImg.setScaledContents(True)  # fit image to label
-
         grid.addWidget(lblImg,0,0,3,2)
-
-
         grid.addWidget(lblImg,0,0,3,2)
-        grid.addWidget(lblProducer,0,2)
+        grid.addWidget(lblTitle, 0, 2)
         grid.addWidget(lblRating, 1, 2)
         grid.addWidget(lblActors, 2, 2)
         grid.addWidget(self.btnSee, 0, 3,3,2)
-
-
-
         self.setLayout(grid)
-
     def seeFilm(self):
         print(self.film.name)
-
-    def importPosterFilm(self,path=None):
-        downloader = self.downloader
-        if path is None:
-            path = "qrc:///no-poster"
-            # self.image.setPixmap(QPixmap(":/no-poster"))
-            # return True
-            # if os.path.exists(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg")):
-            #     path = "file://"+os.path.realpath(os.path.join(os.path.realpath(__file__),"../../../../",".cache","noPoster.jpg"))
-            # elif os.path.exists(os.path.join(os.path.realpath(__file__),"../","noPoster.jpg")):
-            #     path = "file://"+os.path.realpath(os.path.join(os.path.realpath(__file__),"../","noPoster.jpg"))
-
-        try:
-            path = QUrl(path)
-
-            downloader.downloaded.connect(self.updateImage)
-            downloader.doDownload(path)
-        except request.URLError: #in case there isn't the internet or the url gives 404 error or bad url
-            print("a problem with the connection or the url has occurred")
-
-    def updateImage(self):
-        image = QPixmap()
-        image.scaledToHeight(160)
-        image.scaledToWidth(100)
-
-        image.loadFromData(self.downloader.downloadedData())
-        self.image.setPixmap(image)
 if __name__ == '__main__':
     from app.gui.Qgui import Gui
     Gui.start()
