@@ -79,7 +79,8 @@ class Downloader(QObject):
         request = QNetworkRequest(url)
         self._webController.get(request)
         # asynchronous, does not wait, execution continues
-
+    def resetDownloadData(self):
+        self._downloadedData = None
     def downloadedData(self):
         '''
         QByteArray that was downloaded.

@@ -15,8 +15,13 @@ DB_PATH=r"sqlite:///"+DB_FILE
 
 
 import threading
-
-
+#http://stackoverflow.com/questions/2682745/how-to-create-a-constant-in-python
+def constant(f):
+    def fset(self, value):
+        raise TypeError
+    def fget(self):
+        return f()
+    return property(fget, fset)
 # Based on tornado.ioloop.IOLoop.instance() approach.
 # See https://github.com/facebook/tornado
 #tooken from https://gist.github.com/werediver/4396488

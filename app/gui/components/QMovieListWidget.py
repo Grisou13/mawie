@@ -4,11 +4,16 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
+
+import app
 from app.gui.components import GuiComponent, Downloader
 from app.gui.components.QPoster import QPoster
 from app.models.Movie import Movie
 from urllib import request
 import asyncio
+
+from app.research.research import Research
+
 
 class MovieListFrame(QWidget, GuiComponent):
 
@@ -27,7 +32,7 @@ class MovieListFrame(QWidget, GuiComponent):
 
         self.listWidgets = QListWidget(self)
         self.listWidgets.setMinimumSize(670,700)
-        self.updateWidgets(Movie.query())
+        self.updateWidgets(Research().search(""))
         # for film in Movie.query():
         #     item = QListWidgetItem(self.listWidgets)
         #     itemW= ResultRow(self,film,self.gui)
@@ -76,7 +81,6 @@ class ResultRow(QWidget):
         grid = QGridLayout(self)
         lblImg = QPoster(self, data.poster)
         #self.importPosterFilm(data.poster)
-
         if data.name is not None:
             if data.genre is not None:
                 lblTitle = QLabel(data.name + "(" + data.genre + ")", self)

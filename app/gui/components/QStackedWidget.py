@@ -22,11 +22,12 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.gui = parent
         self.gui.register_listener(self)
         self.setMinimumSize(680, 700)
+
         self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()
 
     def addWidget(self,widget):
-        widget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         super(ComponentArea, self).addWidget(widget)
     def onCurrentChange(self,index):
         w = self.widget(index)
