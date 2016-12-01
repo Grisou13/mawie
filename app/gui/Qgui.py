@@ -29,11 +29,6 @@ class Gui(QWidget,SingletonMixin):
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
         self.componentArea = ComponentArea(self)
 
-        resources =QResource()
-        print(os.path.realpath(os.path.join("../../","conf/images.qrc")))
-        resources.registerResource(os.path.realpath(os.path.join("../../","conf/images.qrc")))
-        print(resources.data())
-
     def initUI(self):
         content = QGridLayout(self)
 
@@ -45,10 +40,10 @@ class Gui(QWidget,SingletonMixin):
         content.addWidget(self.componentArea,1,0)
         content.addWidget(recherche, 0, 0)
         content.addWidget(add, 0, 1)
-        #self.componentArea = content
 
         self.setLayout(content)
         self.show()
+
     @staticmethod
     def start():
         app = QApplication(sys.argv)
@@ -67,6 +62,7 @@ class Gui(QWidget,SingletonMixin):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
     def addComponent(self, cls):
         c = cls(self)
         if isinstance(c,GuiComponent):
@@ -75,24 +71,16 @@ class Gui(QWidget,SingletonMixin):
                 self.componentArea.addWidget(c)
 
     def register_listener(self, cls):
-        if not isinstance(cls, GuiComponent):
-            raise NotAComponent("The class " + str(cls) + " should be extending GuiComponent")
         self.listeners[cls] = 1
 
     def dispatchAction(self, actionName, actionData = None):
         print("dispatching action : "+actionName )
         for l in self.listeners.keys():
-            # print("from gui")
-            # print(l.__class__)
-            # print(id(l))
-            # print()
             l.handleAction(actionName, actionData)
     def requestAction(self, originClass, actionName):
         for l in self.listeners.keys():
             if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless
             originClass.handleAction("request_" + actionName, l.requestAction(actionName))
-
-
 
 if __name__ == '__main__':
     Gui.start()
