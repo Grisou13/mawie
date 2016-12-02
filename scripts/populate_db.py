@@ -1,6 +1,8 @@
 import os
 import urllib.request
 from datetime import datetime
+
+import re
 import timestring as timestring
 import app.models.Movie as m
 import app.models.File as f
@@ -17,6 +19,7 @@ def populate():
     db.drop_all()  # clear the database you know?
     db.create_all()  # and redo it aha
     for l in get_films():
+        title = re.sub('[^\w_.)( -]', '', l["title"])
         m1 = m.Movie()
         m1.name = l["title"]
         m1.desc = l["plot"]
@@ -27,11 +30,11 @@ def populate():
         m1.release = (datetime.strptime(l["released"], "%d %b %Y") if l["released"] is not None else None)
         m1.genre = l["genre"]
         f1 = f.File()
-        f1.path = os.path.realpath("stubs/" + l["title"] + ".avi")
+        f1.path = os.path.realpath("../stubs/" + title + ".avi")
         m1.files.append(f1)
         f1.save()
         m1.save()
-
+        with open(f1.path,"a+") as s:pass
 
 if __name__ == '__main__':
     populate()
