@@ -7,5 +7,5 @@ pillow
 python-Levenshtein
 py-bing-search
 imdbpie
-
 pyqt5
+qtawesome

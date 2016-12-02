@@ -3,6 +3,7 @@ import os
 from urllib.parse import urlparse
 
 from PyQt5.QtCore import QRect
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QInputDialog
@@ -15,6 +16,8 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 from PyQt5.uic.properties import QtGui
 from PyQt5.QtWidgets import QFileDialog
+import qtawesome as qta
+from six import unichr
 
 from app.explorer.explorer import Explorer
 from app.gui.components import GuiComponent
@@ -55,16 +58,16 @@ class AddFilesWidget(QWidget, GuiComponent):
         content.addWidget(self.lblLstNotParseFile,3,0)
         content.addWidget(self.lstFileParse,4,0)
 
+
         self.setLayout(content)
 
         self.btnOpenDir.clicked.connect(self.chooseDir)
         self.btnScan.clicked.connect(self.scanDir)
     def scanDir(self):
         if  self.dirPath is not None:
-            explo = Explorer(self.dirPath)
-            explo.getFolderContent()
-            data=["c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","C:\Program Files (x86)\Apple Software Update\SoftwareUpdate.Resources\\fr.lproj[ www.CpasBien.cm ] The.Walking.Dead.S06E15.PROPER.VOSTFR.WEB-DL.XviD-SDTEAM.avi"]
-
+            lst, lstParsed, lstNotParsed = self.explorer.getFolderContent(self.dirPath)
+            data=["c:/test/film2mer.de111","c:/test/film2mer.de222","c:/test/test33","c:/test/film2mer.de444","c:/test/film2mer.de55","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","C:\Program Files (x86)\Apple Software Update\SoftwareUpdate.Resources\\fr.lproj[ www.CpasBien.cm ] The.Walking.Dead.S06E15.PROPER.VOSTFR.WEB-DL.XviD-SDTEAM.avi"]
+            print(len(lstParsed))
             self.lstFileNotParse.clear()
             for file in data:
                 fPath = file
@@ -73,7 +76,8 @@ class AddFilesWidget(QWidget, GuiComponent):
                     itemW = FileNotParsedWidget(self, file)
                     item.setSizeHint(itemW.sizeHint())
                     self.lstFileNotParse.setItemWidget(item, itemW)
-                    itemW.btnGiveImdbUrl.clicked.connect(lambda ignore, x=fPath: self.getFilmInfoByUrl(x))
+                    itemW.btnGiveImdbUrl.clicked.connect(lambda ignore, widgetListItem=item, filePath=file:
+                                                         self.getFilmInfoByUrl(widgetListItem,filePath))
                 except Exception as e:
                     print(e)
 
@@ -89,54 +93,41 @@ class AddFilesWidget(QWidget, GuiComponent):
             msgBox.exec()
 
     def chooseDir(self):
-        self.dirPath = QFileDialog.getExistingDirectory(self, 'Open file', 'c:\\',QFileDialog.ShowDirsOnly)
+        self.dirPath = QFileDialog.getExistingDirectory(self, 'Open file', 'C:/Users/ilias.goujgali/Videos',QFileDialog.ShowDirsOnly)
         self.inputPath.setText(self.dirPath)
 
-    def getFilmInfoByUrl(self,file):
+    def getFilmInfoByUrl(self,item,file):
+        idMovie = None
+        url = None
+        urlPath = None
+        itemAdd= None #item of the QListWidget use for add not parsed file list to parsed file list
+
         url, ok = QInputDialog.getText(self,'Copy IMDb URL', 'Please copy the URL of the web page IMDb of the movie:')
-        urlParsed = urlparse(url)
-        netLoc = urlParsed.netloc
-        imdbUrl = 'www.imdb.com'
-        urlPath = urlParsed.path
-        idMovie = urlPath.split("title/")[1][:-1]
-        print(idMovie)
-        # if netLoc is not imdbUrl:
-        #     msgBox = QMessageBox()
-        #     msgBox.setIcon(QMessageBox.Critical)
-        #     msgBox = QMessageBox()
-        #     msgBox.setIcon(QMessageBox.Critical)
-        #     msgBox.setText("This URL isn't from IMDb")
-        #     msgBox.setWindowTitle("This Url isn't valid")
-        #     msgBox.setStandardButtons(QMessageBox.Ok)
-        #     msgBox.exec()
-        # else:
-        #     print("ntm")
+        if url is not None:
+            urlParsed = urlparse(url)
+            urlPath = urlParsed.path
+            idMovie = urlPath.split("title/")[1][:-1]
+
+            if idMovie is not None or idMovie is not "":
+                print(idMovie)
+                row = self.lstFileNotParse.row(item)
+                self.lstFileNotParse.takeItem(row)
+                itemAdd = QListWidgetItem(self.lstFileParse)
+                itemW = FileParsedWidget(self, file)
+                itemAdd.setSizeHint(itemW.sizeHint())
+                self.lstFileParse.setItemWidget(itemAdd, itemW)
 
 
+                # TODO: add file to a database
+            else:
+                msgBox = QMessageBox()
+                msgBox.setIcon(QMessageBox.Critical)
+                msgBox.setText("This url isn't valid")
+                msgBox.setWindowTitle("We can't find the id of the movie, "
+                                      "please enter an URL like http://www.imdb.com/title/tt0120815")
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.exec()
 
-
-        # content = QGridLayout(self)
-        # btn = QPushButton()
-        # btn.setText("add")
-        # btn.clicked.connect(self.toggleButtons)
-        # content.addWidget(btn,0,0,1,2)
-        # directoryBtn = QPushButton()
-        # directoryBtn.clicked.connect(self.addDirectory)
-        # directoryBtn.setText("Directory")
-        # directoryBtn.setVisible(False)
-        # content.addWidget(directoryBtn,1,0)
-        # self.leftBtn = directoryBtn
-        # #button will appear on the left
-        # # directoryBtn.x = btn.x() - directoryBtn.width()/2 - 10 #just add 10 for margin
-        # # directoryBtn.y = btn.y() + 2#
-        # fileBtn = QPushButton()
-        # fileBtn.setText("File")
-        # fileBtn.setVisible(False)
-        # content.addWidget(fileBtn,1,1)
-        # self.rightBtn = fileBtn
-        # #self.leftBtn.show()
-        # #self.rightBtn.show()
-        # self.setLayout(content)
 
     def toggleButtons(self):
         self.leftBtn.setVisible(not self.leftBtn.isVisible())
@@ -155,6 +146,7 @@ class AddFilesWidget(QWidget, GuiComponent):
         pass
     def requestAction(self,name):
         pass
+
 class FileParsedWidget(QWidget):
     def __init__(self, parent, file=None):
         super().__init__(parent)
@@ -162,17 +154,53 @@ class FileParsedWidget(QWidget):
         self.createWidgets()
 
     def createWidgets(self):
-        grid = QGridLayout()
-        lblTitle = QLabel("")
+        content = QGridLayout()
         lblFile = QLabel(self.file, self)
-        self.btnGiveImdbUrl = QPushButton("Give IMDb url", self)
+        label = QLabel(unichr(0xf00c))
+        label.setFont(qta.font('fa', 16))
+        label.setStyleSheet("QLabel {color : green}")
 
-        lblFile.setFixedWidth(200)
+
+
+        # = QLabel(self,faIconCheck)
+
+        # styling_icon = qta.icon('fa.music',
+        #                         active='fa.legal',
+        #                         color='blue',
+        #                         color_active='orange')
+        # music_button = QtGui.QPushButton(styling_icon, 'Styling')
+
+
+        # imgPath = os.path.join(os.path.realpath(__file__),"../../../../",".cache","ok.png")
+        # lblImgValid.setPixmap(QPixmap(imgPath))
+
+        lblFile.setFixedWidth(550)
         lblFile.setWordWrap(True)
 
-        grid.addWidget(lblFile, 0, 1)
-        grid.addWidget(self.btnGiveImdbUrl, 0, 2)
+        content.addWidget(lblFile, 0, 0)
+        content.addWidget(label, 0, 1)
+        self.setLayout(content)
+
+class FileNotParsedWidget(QWidget):
+    def __init__(self,parent,file=None):
+        super().__init__(parent)
+        self.file = file
+        self.createWidgets()
+
+    def createWidgets(self):
+        grid = QGridLayout()
+        lblFile = QLabel(self.file,self)
+        print(self.file)
+        faIconCheck = qta.icon("fa.external-link")
+        self.btnGiveImdbUrl = QPushButton(faIconCheck,"Give IMDb URL",self)
+
+        lblFile.setFixedWidth(400)
+        lblFile.setWordWrap(True)
+
+        grid.addWidget(lblFile,0,1)
+        grid.addWidget(self.btnGiveImdbUrl,0,2)
         self.setLayout(grid)
+
 class DirectoryListWidget(QWidget, GuiComponent):
     def __init__(self,parent = None):
         super(DirectoryListWidget,self).__init__(parent)
@@ -200,24 +228,7 @@ class DirectoryListWidget(QWidget, GuiComponent):
     def requestAction(self,name):
         pass
 
-class FileNotParsedWidget(QWidget):
-    def __init__(self,parent,file=None):
-        super().__init__(parent)
-        self.file = file
-        self.createWidgets()
 
-    def createWidgets(self):
-        grid = QGridLayout()
-        lblFile = QLabel(self.file,self)
-        self.btnGiveImdbUrl = QPushButton("Give IMDb url",self)
-
-
-        lblFile.setFixedWidth(400)
-        lblFile.setWordWrap(True)
-
-        grid.addWidget(lblFile,0,1)
-        grid.addWidget(self.btnGiveImdbUrl,0,2)
-        self.setLayout(grid)
 
 class ExplorerWidget(QWidget):
     def __init__(self,parent = None):
