@@ -6,7 +6,6 @@ from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
 
 import app.helpers
-from app.models.base import Base
 from app.models import db, File
 
 

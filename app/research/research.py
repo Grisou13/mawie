@@ -28,7 +28,8 @@ class SearchableItem:
 class Filterable:
     column = "column_on_model"
     model = "model_name"
-
+    def __init__(self, col):
+        self.column = col
 
 class FilterableList:
     filters = []
@@ -38,18 +39,30 @@ class Research:
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
+    def __init__(self,*args,**kwargs):
+        self.model = self.default_model
+        self.cols = self.default_cols
+        if "model" in kwargs:
+            self.model = kwargs["model"]
+            self.cols = []
+            del kwargs["model"]
+        if "cols" in kwargs:
+            self.cols = kwargs["cols"]
+            del kwargs["cols"]
 
     def _aggregate_results(self):
         pass
 
     def _to_filters(self, model, st):
         pass
-
+    def setModel(self,m):
+        self.model = m
+        self.cols = [] # no more defaul cols when reassigning the model
     # only implement local research for films
-    def search(self, query, filters=None):
+    def search(self, query = "", filters=None):
         """ :return generator"""
-        m = self.default_model
-        cols = self.default_cols
+        m = self.model
+        cols = self.cols
         if isinstance(filters, list):
             #either append cols or just assign cols to filter
             #cols.append(filters)
@@ -61,9 +74,8 @@ class Research:
         if len(cols) <=0:
             yield [] #return an empty iterator
         q = self.queryModelOnColumn(*cols, query, m)
-        for res in q.all():
+        for res in q.yield_per(5):
             yield res
-
     @staticmethod
     def get_fields(cls):
         if not hasattr(cls,'__table__'):
@@ -87,21 +99,27 @@ class Research:
 
         :param args:
         :param kwargs:
-        :return: Rows of all data for 1 model
+        :return: SqlAlchemyQuery
         """
         model = kwargs["model"] if "model" in kwargs else args[-1]
         query = kwargs["query"] if "query" in kwargs else args[-2]
         fields = kwargs["columns"] if "columns" in kwargs else list(args)[:-2]
         if isinstance(fields, str):
             fields = fields.replace(';', ' ').replace(',', ' ').replace(':', ' ').split()
-        try:
-            authorized_fields = self.get_fields(model)
-        except NotAModel:
-            authorized_fields = self.get_fields(self.default_model) #query on the default model so functionality is not altered
+        authorized_fields = self.get_fields(model)
+        # try:
+        #     authorized_fields = self.get_fields(model)
+        # except NotAModel:
+        #     authorized_fields = self.get_fields(self.default_model) #query on the default model so functionality is not altered
 
         if set(fields).issubset(set(authorized_fields)): #small hack with sets, python cannot compare list (http://stackoverflow.com/questions/3931541/python-check-if-all-of-the-following-items-is-in-a-list)
             return model.query().filter(or_(*[getattr(model, name).like("%" + str(query) + "%") for name in fields]))
         raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
+
+    def setCols(self, param):
+        self.cols = param
+
+
 if __name__ == '__main__':
     r = Research()
     searchable = r.search("")

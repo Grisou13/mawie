@@ -5,8 +5,6 @@ from sqlalchemy.orm import relationship
 
 from app.models import Movie
 
-from app.models.base import Base
-# TODO: redo models with https://github.com/mardix/active-alchemy
 from app.models import db
 class File(db.Model):
     __tablename__ = "file"
