@@ -1,4 +1,5 @@
 
+
 from sqlalchemy import or_
 
 from app.models import db
@@ -71,11 +72,21 @@ class Research:
             new_cols = filters.replace(';',' ').replace(',',' ').replace(':',' ').split()
             #cols = list(set(cols + [x.lower() for x in new_cols]))
             cols = [x.lower() for x in new_cols]
+
+
         if len(cols) <=0:
             yield [] #return an empty iterator
-        q = self.queryModelOnColumn(*cols, query, m)
-        for res in q.yield_per(5):
-            yield res
+        if isinstance(query, dict):
+            q = self.queryModelOnMultipleColumns(query,m)
+        else:
+            q = self.queryModelOnColumn(*cols, query, m)
+        if isinstance(q,list):
+            for i in q:
+                yield i
+
+        else:
+            for res in q.yield_per(5):
+                yield res
     @staticmethod
     def get_fields(cls):
         if not hasattr(cls,'__table__'):
@@ -85,20 +96,56 @@ class Research:
             name = str(col).split(".")[1]
             _.append(name)
         return _
+    def queryModelOnMultipleColumns(self,*args,**kwargs):
+        """
+        Queries a model with one/mutliple queries per column (SELECT * FROM ... WHERE col = query1, col = query2, col2 = query3, col3 = query4)
+
+        The same thing for queryModelOnColumn, the query can be either a list or string (seperated with ;,:)
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        queries = kwargs["queries"] if "queries" in kwargs else args[0]
+        model = kwargs["model"] if "model" in kwargs else args[1]
+        fields = queries.keys()
+        authorized_fields = self.get_fields(model)
+        if set(fields).issubset(set(authorized_fields)):
+            filters = []
+            for field, query in enumerate(queries):
+                if isinstance(query,str):
+                    query = query.replace(';', ' ').replace(',', ' ').replace(':', ' ').split()
+                print(query)
+                print(field)
+                for elem in query:
+                    print(elem)
+                    # if "=" in elem:
+                    #filters.append(getattr(model, field)+elem)
+                    # elif "!=" in elem:
+                    #     filters.append(getattr(model, field))
+                     #TODO parse the query {colName:["=asd","!=d","like asd"]} to be valide sql
+            print(filters)
+            return [] #model.query().filter(or_(*filters))
+        else:
+            raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
+
 
     def queryModelOnColumn(self, *args, **kwargs):
         """
-        Query's the searchable model on specified columns.
+        Query's the searchable model with one query string on number of columns. (SELECT * FROM .. WHERE col = query, col2 = query, col3 = query)
 
-        Columns are either specified by arg list, and last element is used as the query : queryModelOnColumn("col1","col2","query"
-        Wither by arguments queryModelOnColumn(query="some thing to search",columns=["a","list","of","cols"])
-        Or separated list of columns by [;,:] queryModelOnColumn(query="some thing to search",columns="a,list,of,cols")
+        Columns are either specified by arg list, and last element is used as the query : queryModelOnColumn("col1","col2","query",modelInstance)
+        Wither by arguments queryModelOnColumn(query="some thing to search",columns=["a","list","of","cols"],model=modelInstance)
+        Or separated list of columns by [;,:] queryModelOnColumn(query="some thing to search",columns="a,list,of,cols",model=modelInstance)
         And the last argument is the model
         Idea came from http://stackoverflow.com/a/28270753
         Needs some optimization for complexity
 
         :param args:
         :param kwargs:
+        :kwargs
+            - columns The columns on which the model will be queried
+            - model The model to query, by default the search will take the default_model (see Research.__init__)
+            - query The query string on which all the columns will be compared to
         :return: SqlAlchemyQuery
         """
         model = kwargs["model"] if "model" in kwargs else args[-1]
@@ -114,7 +161,8 @@ class Research:
 
         if set(fields).issubset(set(authorized_fields)): #small hack with sets, python cannot compare list (http://stackoverflow.com/questions/3931541/python-check-if-all-of-the-following-items-is-in-a-list)
             return model.query().filter(or_(*[getattr(model, name).like("%" + str(query) + "%") for name in fields]))
-        raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
+        else:
+            raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
 
     def setCols(self, param):
         self.cols = param
@@ -122,7 +170,7 @@ class Research:
 
 if __name__ == '__main__':
     r = Research()
-    searchable = r.search("")
+    searchable = r.search("The g")
     print(searchable)
-    for s in searchable:
-        print(s)
+    print(list(r.search({"name":["=The Game","like The"]})))
+
