@@ -21,7 +21,7 @@ patterns = [
     ('container', '(MKV|AVI)'),
     ('widescreen', 'WS'),
     ('website', '^(\[ ?([^\]]+?) ?\])'),
-    ('language', 'rus\.eng'),
+    ('language', 'rus\.eng|FRENCH'),
     ('sbs', '(?:Half-)?SBS'),
 ]
 

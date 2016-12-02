@@ -2,7 +2,7 @@
 import re
 
 from py_bing_search import PyBingWebSearch
-#from py_bing_search import PyBingWebSearch
+# from py_bing_search import PyBingWebSearch
 from imdbpie import Imdb
 # import Levenshtein
 import re
@@ -10,12 +10,11 @@ import sys
 import urllib.request
 
 class googleIt():
-
     BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
     imdb = object()
 
-    def __init__(self, domainSearch = "imdb"):
+    def __init__(self, domainSearch="imdb"):
         self.domainSearch = domainSearch
         self.imdb = Imdb()
 
@@ -31,9 +30,9 @@ class googleIt():
             raise ConnectionError("No internet connection !")
 
     def _makeSearchTerm(self, movieName):
-        return movieName +" :" +self.domainSearch
+        return movieName + " :" + self.domainSearch
         # bing advanced search doesn't work w our request soooo.....
-        #return "site:" + self.domainSearch + " " + movieName
+        # return "site:" + self.domainSearch + " " + movieName
 
     def _GetMovieResearch(self, term, limit=50, format='json'):
         bing = PyBingWebSearch(self.BING_API_KEY, term, web_only=False)
@@ -43,9 +42,9 @@ class googleIt():
         # get all the links that contains the domainSearch name (imdb by default)
         for link in researchResults:
 
-            if(re.search(self.domainSearch, link.url)):
+            if (re.search(self.domainSearch, link.url)):
                 yield link.url
-                #imdblist.append(link.url)
+                # imdblist.append(link.url)
 
     def getMovieID(self, movieTitle):
         """
@@ -69,12 +68,12 @@ class googleIt():
 
         # if you give the format as http://www.imdb.com/title/tt0330373/, return the id
         # mess up if incorrect url. This is why we need a regex here
-        movieId =  next(imDBlinks).split("title/")[1][:-1]
+        movieId = next(imDBlinks).split("title/")[1][:-1]
 
         # check wether the id is only made of min letters and digit
-        assert(re.match("^[a-z0-9]*$", movieId))
+        assert (re.match("^[a-z0-9]*$", movieId))
         # and if it matches the right size (all id have the same size)
-        assert(len(movieId) == 9)
+        assert (len(movieId) == 9)
 
         return movieId
 
@@ -159,7 +158,7 @@ class googleIt():
 
         ### BASED ON THE TITLE ###
         elif movieTitle:
-            foundMovie =  self.imdb.search_for_title(movieTitle)
+            foundMovie = self.imdb.search_for_title(movieTitle)
             # if many movies found
             if(isinstance(foundMovie, list)):
                 def generator(movieList):
