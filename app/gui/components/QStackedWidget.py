@@ -32,8 +32,9 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def onCurrentChange(self,index):
         w = self.widget(index)
         w.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-        w.adjustSize()
         self.adjustSize()
+        w.adjustSize()
+
     def initWidget(self):
         self.listMovie = MovieListFrame(self, self.gui)
         self.movie = MovieFrame(self, self.gui)

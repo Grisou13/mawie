@@ -23,16 +23,17 @@ class MovieListFrame(QWidget, GuiComponent):
         self.gui.register_listener(self)
 
         self.initFrame()
-
+    def showEvent(self, QShowEvent):
+        super(MovieListFrame, self).showEvent(QShowEvent)
+        self.updateWidgets(Research().search()) # execute search before showing widget
     def initFrame(self):
         self.createWidgets()
         self.show()
     def createWidgets(self):
         grid = QGridLayout()
-
         self.listWidgets = QListWidget(self)
         self.listWidgets.setMinimumSize(670,700)
-        self.updateWidgets(Research().search(""))
+
         # for film in Movie.query():
         #     item = QListWidgetItem(self.listWidgets)
         #     itemW= ResultRow(self,film,self.gui)
