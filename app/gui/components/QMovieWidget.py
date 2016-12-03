@@ -11,15 +11,14 @@ from app.models.Movie import Movie
 class MovieFrame(QWidget, GuiComponent):
     def __init__(self,parent=None, gui=None):
         super().__init__(parent)
+        parent.addWidget(self)
         self.gui = gui
         self.gui.register_listener(self)
         self.initFrame()
 
     def initFrame(self):
         self.createWidgets()
-        #self.updateWidgets(Movie.get(7))
         self.show()
-
     def createWidgets(self):
         grid = QGridLayout()
         fontTitle = QFont('Arial',20)
@@ -152,8 +151,10 @@ class MovieFrame(QWidget, GuiComponent):
 
     def handleAction(self, name, data):
         if name == "show-info-film":
+            print(self)
             self.updateWidgets(data)
-            self.gui.dispatchAction("show-frame",MovieFrame)
+
+            self.gui.dispatchAction("show-frame",self)
 
     def requestAction(self, name):
         pass

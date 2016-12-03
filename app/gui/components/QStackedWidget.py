@@ -8,6 +8,7 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 
 from app.gui.components import GuiComponent
+from app.gui.components.QAdvancedSearch import AdvancedSearch
 from app.gui.components.QExplorer import AddFilesWidget
 from app.gui.components.QMovieListWidget import MovieListFrame
 from app.gui.components.QMovieWidget import MovieFrame
@@ -27,28 +28,35 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.initWidget()
 
     def addWidget(self,widget):
-        widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         super(ComponentArea, self).addWidget(widget)
     def onCurrentChange(self,index):
         w = self.widget(index)
-        w.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        w.setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum)
         self.adjustSize()
         w.adjustSize()
+        w.show()
 
     def initWidget(self):
-        self.listMovie = MovieListFrame(self, self.gui)
-        self.movie = MovieFrame(self, self.gui)
+        MovieFrame(self, self.gui)
+        AdvancedSearch(self, self.gui)
+        MovieListFrame(self, self.gui)
 
-        self.addWidget(self.movie)
-        self.addWidget(self.listMovie)
-        self.setCurrentWidget(self.listMovie)
+        # self.listMovie = MovieListFrame(self, self.gui)
+        # self.movie = MovieFrame(self, self.gui)
+
+        # self.addWidget(self.movie)
+        # self.addWidget(self.listMovie)
+        # self.setCurrentWidget(self.listMovie)
     def handleAction(self, name, data):
         if name == "show-frame":
-            print("showing frame "+str(data))
-            if data is MovieFrame:
-                self.setCurrentWidget(self.movie)
-            elif data is MovieListFrame:
-                self.setCurrentWidget(self.listMovie)
+            print(hex(id(data)))
+            print(self.indexOf(data))
+            if self.indexOf(data) is not -1:
+                self.setCurrentWidget(data)
+                # self.currentWidget().show()
+                # self.currentWidget().setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum)
+                # self.currentWidget().adjustSize()
 
 
     def requestAction(self, name):

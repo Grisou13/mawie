@@ -19,13 +19,14 @@ class MovieListFrame(QWidget, GuiComponent):
 
     def __init__(self,parent=None,gui=None):
         super().__init__(parent)
+        parent.addWidget(self)
+        parent.setCurrentWidget(self)
         self.gui = gui
         self.gui.register_listener(self)
-
         self.initFrame()
-    def showEvent(self, QShowEvent):
-        super(MovieListFrame, self).showEvent(QShowEvent)
-        self.updateWidgets(Research().search()) # execute search before showing widget
+    # def showEvent(self, QShowEvent):
+    #     super(MovieListFrame, self).showEvent(QShowEvent)
+    #     self.updateWidgets(Research().search()) # execute search before showing widget
     def initFrame(self):
         self.createWidgets()
         self.show()
@@ -60,6 +61,7 @@ class MovieListFrame(QWidget, GuiComponent):
     def handleAction(self,name,data):
         if name == "search-results":
             self.updateWidgets(data)
+            self.gui.dispatchAction("show-frame",self)
     def requestAction(self,name):
         pass
 

@@ -4,16 +4,21 @@ from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 
-
+from app.gui.components import GuiComponent
 from app.research.research import Research
 
 
-class QAdvancedSearch(QWidget):
-    def __init__(self, parent = None, flags = None, *args, **kwargs):
-        super().__init__(parent,flags, *args, **kwargs)
+class AdvancedSearch(QWidget, GuiComponent):
+    def __init__(self, parent = None, gui = None, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        parent.addWidget(self)
+        gui.register_listener(self)
+        self.gui = gui
+
         self.data = {}
         self.search = Research()
         self.initWidget()
+        self.show()
     def initWidget(self):
         fields = self.search.get_fields(self.search.model)
         print(fields)

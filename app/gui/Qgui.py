@@ -62,19 +62,18 @@ class Gui(QWidget,SingletonMixin):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-
-    def addComponent(self, cls):
-        c = cls(self)
-        if isinstance(c,GuiComponent):
-            self._components[c.__class__.__name__] = c
-            if isinstance(c,QWidget):
-                self.componentArea.addWidget(c)
+    # def addComponent(self, cls):
+    #     #c = cls(self)
+    #     self.register_listener(cls)
+    #     if isinstance(cls,GuiComponent):
+    #         self._components[cls.__class__.__name__] = c
+    #         # if isinstance(c,QWidget):
+    #         #     self.componentArea.addWidget(c)
 
     def register_listener(self, cls):
         self.listeners[cls] = 1
 
     def dispatchAction(self, actionName, actionData = None):
-        print("dispatching action : "+actionName )
         for l in self.listeners.keys():
             l.handleAction(actionName, actionData)
     def requestAction(self, originClass, actionName):

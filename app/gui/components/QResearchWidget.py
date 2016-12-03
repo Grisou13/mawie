@@ -59,7 +59,8 @@ class ResearchFrame(QWidget, GuiComponent):
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
-        self.gui.dispatchAction("show-frame", MovieListFrame)
+        #self.gui.dispatchAction("show-frame", MovieListFrame)
+        pass
     def handleAction(self, actionName, data):
        pass
     def requestAction(self,name):
