@@ -1,14 +1,18 @@
 
-
+import os
+if __name__ == '__main__':
+    import sys
+    sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../","../")))
 from sqlalchemy import or_
 
 from app.models import db
 from app.models.Movie import Movie
+from sqlalchemy_elasticquery import elastic_query
 
 class FilterDoesNotExist(Exception):pass
 class FieldDoesNotExist(Exception):pass
 class NotAModel(Exception): pass
-
+import types
 
 class SearchableItem:
     def __init__(self, model, defaultColumn):
@@ -77,13 +81,14 @@ class Research:
         if len(cols) <=0:
             yield [] #return an empty iterator
         if isinstance(query, dict):
-            q = self.queryModelOnMultipleColumns(query,m)
+            q = self.queryModelOnMultipleColumns(query)
         else:
             q = self.queryModelOnColumn(*cols, query, m)
         if isinstance(q,list):
             for i in q:
                 yield i
-
+        elif isinstance(q, types.GeneratorType):
+            return q
         else:
             for res in q.yield_per(5):
                 yield res
@@ -105,28 +110,19 @@ class Research:
         :param kwargs:
         :return:
         """
+        print("asd")
         queries = kwargs["queries"] if "queries" in kwargs else args[0]
-        model = kwargs["model"] if "model" in kwargs else args[1]
-        fields = queries.keys()
-        authorized_fields = self.get_fields(model)
-        if set(fields).issubset(set(authorized_fields)):
-            filters = []
-            for field, query in enumerate(queries):
-                if isinstance(query,str):
-                    query = query.replace(';', ' ').replace(',', ' ').replace(':', ' ').split()
-                print(query)
-                print(field)
-                for elem in query:
-                    print(elem)
-                    # if "=" in elem:
-                    #filters.append(getattr(model, field)+elem)
-                    # elif "!=" in elem:
-                    #     filters.append(getattr(model, field))
-                     #TODO parse the query {colName:["=asd","!=d","like asd"]} to be valide sql
-            print(filters)
-            return [] #model.query().filter(or_(*filters))
-        else:
-            raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
+        # fields = queries.keys()
+        # authorized_fields = self.get_fields(model)
+        # if set(fields).issubset(set(authorized_fields)):
+        for model, filters in queries.items():
+            print("ad")
+            res = elastic_query(model, filters)
+            print(res)
+            for i in res.yield_per(5):
+                yield i
+        # else:
+        #     raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
 
 
     def queryModelOnColumn(self, *args, **kwargs):
@@ -171,6 +167,5 @@ class Research:
 if __name__ == '__main__':
     r = Research()
     searchable = r.search("The g")
-    print(searchable)
-    print(list(r.search({"name":["=The Game","like The"]})))
-
+    print(list(searchable))
+    print(list(r.search({Movie:{"title":"The"}})))

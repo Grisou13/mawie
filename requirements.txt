@@ -4,8 +4,7 @@ urllib3
 timestring
 active_alchemy
 pillow
-python-Levenshtein
 py-bing-search
 imdbpie
-
-pyqt5
+PyQt5
+sqlalchemy-elasticquery

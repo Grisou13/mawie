@@ -9,7 +9,7 @@ from PyQt5.QtCore import QRect,Qt
 
 from app.gui.components import GuiComponent
 from app.gui.components.QAdvancedSearch import AdvancedSearch
-from app.gui.components.QExplorer import AddFilesWidget
+#from app.gui.components.QExplorer import AddFilesWidget
 from app.gui.components.QMovieListWidget import MovieListFrame
 from app.gui.components.QMovieWidget import MovieFrame
 from app.gui.components.QResearchWidget import  ResearchFrame
@@ -22,7 +22,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
         super().__init__(parent)
         self.gui = parent
         self.gui.register_listener(self)
-        self.setMinimumSize(680, 700)
+        self.setFixedSize(680, 700)
 
         self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()

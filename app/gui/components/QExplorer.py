@@ -94,5 +94,6 @@ class ExplorerWidget(QWidget):
         pass
 
 if __name__ == '__main__':
-    from app.gui.Qgui import Gui
-    Gui.start()
+    pass
+    # from app.gui.Qgui import Gui
+    # Gui.start()

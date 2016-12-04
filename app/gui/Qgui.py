@@ -10,9 +10,6 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 
 from app.gui.components import GuiComponent
-from app.gui.components.QExplorer import AddFilesWidget
-from app.gui.components.QMovieListWidget import MovieListFrame
-from app.gui.components.QMovieWidget import MovieFrame
 from app.gui.components.QResearchWidget import  ResearchFrame
 from app.gui.components.QStackedWidget import ComponentArea
 from app.helpers import SingletonMixin
@@ -35,11 +32,11 @@ class Gui(QWidget,SingletonMixin):
         self.setMinimumSize(700,800)
         self.center()
         recherche = ResearchFrame(self)
-        add = AddFilesWidget(self)
+        #add = AddFilesWidget(self)
         self.setWindowTitle('Find My movie')
         content.addWidget(self.componentArea,1,0)
         content.addWidget(recherche, 0, 0)
-        content.addWidget(add, 0, 1)
+        #content.addWidget(add, 0, 1)
 
         self.setLayout(content)
         self.show()
