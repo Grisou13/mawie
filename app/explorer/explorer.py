@@ -12,7 +12,9 @@ import urllib.request
 import PTN
 import json
 import re
-from app.models.File import File
+import app.models.File as modelFile
+import app.models.Movie as modelMovie
+
 from app.explorer.googleit import googleIt
 
 
@@ -20,6 +22,9 @@ class Explorer():
 
     googleIt = googleIt()
     MimeTypes = MimeTypes()
+    _lastTitle = dict()
+    _lastTitle["title"] = ""
+    _lastTitle["imdb_id"] = ""
 
     ###################################################
     ####                                           ####
@@ -53,7 +58,7 @@ class Explorer():
 
         path, filename = os.path.split(filePath)
         parsed = self._parseName(filename)
-        parsed["data"] = filePath
+        parsed["filePath"] = filePath
         # TODO
         # we also need to know if we found it in imdb
         return parsed
@@ -96,15 +101,31 @@ class Explorer():
             raise LookupError("The given list is empty. ")
 
         for f in movieList:
-            self._addFile(f)
+            # we try to avoid to search 20 times in a row the same title (for example for a série)
+            if f["title"] != self._lastTitle["title"]:
+                fromImdb = self.googleIt.getMovieID(f["title"])
+                self._lastTitle["title"] = f["title"]
+                self._lastTitle["imdb_id"] = fromImdb
+            else:
+                fromImdb = self._lastTitle["imdb_id"]
+
+            f["imdb_id"] = fromImdb
+
+
+            #self._addFile(f)
 
     def _addFile(self, file):
-        fromImdb = self.googleIt.getMovieID(file["title"])
+        newFile = modelFile.File()
         print(fromImdb)
+        print(dict(file))
+
+
     def _addMovie(self, movie):
         # check if movie already exists
         # if not, add it
         pass
+
+
 
 if __name__ == '__main__':
     explorer = Explorer()

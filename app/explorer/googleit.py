@@ -41,9 +41,8 @@ class googleIt():
     def _findImdbLinks(self, researchResults):
         # get all the links that contains the domainSearch name (imdb by default)
         for link in researchResults:
-
             if (re.search(self.domainSearch, link.url)):
-                yield link.url
+                return link.url
                 # imdblist.append(link.url)
 
     def getMovieID(self, movieTitle):
@@ -68,18 +67,32 @@ class googleIt():
 
         # if you give the format as http://www.imdb.com/title/tt0330373/, return the id
         # mess up if incorrect url. This is why we need a regex here
-        movieId = next(imDBlinks).split("title/")[1][:-1]
+        if not imDBlinks:
+            return False
+        #print(imDBlinks)
+        #print(imDBlinks.split("title/")[1][:-1])
+
+        movieId = imDBlinks.split("title/")[1][:-1]
 
         # check wether the id is only made of min letters and digit
-        assert (re.match("^[a-z0-9]*$", movieId))
-        # and if it matches the right size (all id have the same size)
-        assert (len(movieId) == 9)
+        if not re.match("^[a-z0-9]*$", movieId):
+            # we might find an id + a parameter (ex: tt1077097/fullcredit)
+            if "/" in movieId:
+                movieId = movieId.split("/", 1)[0]
 
+                if re.match("^[a-z0-9]*$", movieId) and len(movieId):
+                    return movieId
+
+            return False
+
+        # and if it matches the right size (all id have the same size)
+        if not len(movieId) == 9:
+            return False
         return movieId
 
 
     def getMovieInfo(self, movieId = "", movieTitle = ""):
-        print("we are getting info...   ")
+
 
         """
             Return information about a movie
