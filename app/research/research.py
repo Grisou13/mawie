@@ -88,7 +88,7 @@ class Research:
             for i in q:
                 yield i
         elif isinstance(q, types.GeneratorType):
-            return q
+            yield q
         else:
             for res in q.yield_per(5):
                 yield res
@@ -167,5 +167,5 @@ class Research:
 if __name__ == '__main__':
     r = Research()
     searchable = r.search("The g")
-    print(list(searchable))
+    print(searchable)
     print(list(r.search({Movie:{"title":"The"}})))
