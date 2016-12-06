@@ -93,7 +93,6 @@ class googleIt():
 
     def getMovieInfo(self, movieId = "", movieTitle = ""):
 
-
         """
             Return information about a movie
             Movie ID (string) can be found for example in a imdb url

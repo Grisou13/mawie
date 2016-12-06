@@ -14,7 +14,7 @@ import json
 import re
 import app.models.File as modelFile
 import app.models.Movie as modelMovie
-
+from datetime import datetime
 from app.explorer.googleit import googleIt
 
 
@@ -95,8 +95,9 @@ class Explorer():
     ####                                           ####
     ###################################################
 
-
     def addToDatabase(self, movieList):
+        foundFiles = dict()
+        notFoundFiles = dict()
         if len(movieList) <= 0:
             raise LookupError("The given list is empty. ")
 
@@ -111,14 +112,62 @@ class Explorer():
 
             f["imdb_id"] = fromImdb
 
+            if f["imdb_id"]:
+                if self._addFile(f):
 
-            #self._addFile(f)
+                    foundFiles[f["title"]] = f
+                else:
+                    SystemError("Cannot add file {} to database".format(f["title"]))
+            else:
+                notFoundFiles[f["title"]] = f
+
+
+    def _getMovieByImdbId(self, imdbId):
+        q = Movie.query().filter(Movie.imdb_id == imdbId)
+        if not q.count():
+            return False
+        else:
+            return q.first()
+
 
     def _addFile(self, file):
-        newFile = modelFile.File()
-        print(fromImdb)
-        print(dict(file))
+        # get the movie linked to the found file
+        mov = self._getMovieByImdbId(file["imdb_id"])
+        # if the movie doesn't exists, we create it !
+        if not mov:
+            # get data from imdb (see googleIt class for details)
+            foundMovie = self.googleIt.getMovieInfo(movieId = file["imdb_id"])
+            # we might to weird format stuff here, but don't worry we know what we do
+            mov = modelMovie.Movie()
+            mov.name = foundMovie.title
+            mov.imdb_id = file["imdb_id"]
+            mov.genre = ", ".join(foundMovie.genres)
+            mov.desc =  "\n".join(foundMovie.plots)
+            mov.release = datetime.strptime(str(foundMovie.year),"%Y") if foundMovie.year is not None else None
+            mov.runtime = foundMovie.runtime
+            mov.actors  = ", ".join(map(lambda x: x.name, foundMovie.cast_summary))
+            mov.directors = ", ".join(map(lambda x: x.name, foundMovie.directors_summary))
+            mov.writer  = ", ".join(map(lambda x: x.name, foundMovie.writers_summary))
+            mov.poster = foundMovie.poster_url
+            mov.rate = foundMovie.rating
 
+        # add the relation to the movie table
+        # mov.files.append(file)
+        fi = modelFile.File()
+        fi.path = file["filePath"]
+        fi.movie.append(mov)
+
+        print(file["title"])
+        print(file["filePath"])
+        print(file["imdb_id"])
+        fi.save()
+        mov.save()
+        sys.exit("FOOOOOO")
+
+        #newFile = modelFile.File()
+        #print(fromImdb)
+        #print(dict(file))
+        return True
 
     def _addMovie(self, movie):
         # check if movie already exists
