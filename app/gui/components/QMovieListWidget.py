@@ -117,12 +117,8 @@ class ResultRow(QWidget):
         grid.addWidget(lblActors, 2, 2)
         grid.addWidget(self.btnSee, 0, 3,3,2)
 
-
-
         self.setLayout(grid)
 
-    def seeFilm(self):
-        print(self.film.name)
 
     def importPosterFilm(self,path=''):
         image = QImage()
