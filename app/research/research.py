@@ -44,6 +44,7 @@ class Research:
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
+    not_authorized_fields = ["is_deleted","created_at","updated_at"]
     def __init__(self,*args,**kwargs):
         self.model = self.default_model
         self.cols = self.default_cols
@@ -88,7 +89,8 @@ class Research:
             for i in q:
                 yield i
         elif isinstance(q, types.GeneratorType):
-            yield q
+            for i in q:
+                yield i
         else:
             for res in q.yield_per(5):
                 yield res
@@ -99,7 +101,8 @@ class Research:
         _ = []
         for col in cls.__table__.columns:
             name = str(col).split(".")[1]
-            _.append(name)
+            if name not in Research.not_authorized_fields:
+                _.append(name)
         return _
     def queryModelOnMultipleColumns(self,*args,**kwargs):
         """
@@ -110,19 +113,12 @@ class Research:
         :param kwargs:
         :return:
         """
-        print("asd")
         queries = kwargs["queries"] if "queries" in kwargs else args[0]
-        # fields = queries.keys()
-        # authorized_fields = self.get_fields(model)
-        # if set(fields).issubset(set(authorized_fields)):
         for model, filters in queries.items():
-            print("ad")
-            res = elastic_query(model, filters)
-            print(res)
-            for i in res.yield_per(5):
+            authorized_fields = self.get_fields(model)
+            res = elastic_query(model, filters,enabled_fields=authorized_fields)
+            for i in res():
                 yield i
-        # else:
-        #     raise FieldDoesNotExist("Field " + str(fields) + " does not exist in model " + str(authorized_fields))
 
 
     def queryModelOnColumn(self, *args, **kwargs):
@@ -168,4 +164,5 @@ if __name__ == '__main__':
     r = Research()
     searchable = r.search("The g")
     print(searchable)
-    print(list(r.search({Movie:{"title":"The"}})))
+    for i in r.search({Movie:'{"title":"The"}'}):
+        print(i)

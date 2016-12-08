@@ -1,12 +1,10 @@
-
-
 import os
 if __name__ == '__main__':
     import sys
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../")))
 import urllib.request
 from datetime import datetime
-
+import app.helpers as h
 import re
 import timestring as timestring
 import app.models.Movie as m
@@ -39,17 +37,19 @@ def populate():
         m1.release = (datetime.strptime(l["released"], "%d %b %Y") if l["released"] is not None else None)
         m1.genre = l["genre"]
         f1 = f.File()
-        f1.path = os.path.realpath(os.path.join(os.path.dirname(__file__),"../stubs/" ,title.replace(" ","_") + ".avi"))
+        f1.path = os.path.realpath(os.path.join(h.BASE_PATH,"stubs/" ,title.replace(" ","_") + ".avi"))
         m1.files.append(f1)
         f1.save()
         m1.save()
         with open(f1.path,"w+") as s:pass
 
 if __name__ == '__main__':
+
     try:
-        os.mkdir(os.path.realpath(os.path.join(os.path.dirname(__file__),"../",".cache/")))
+        os.mkdir(h.CACHE_PATH)
     except:
         pass
-    with open(os.path.realpath(os.path.join(os.path.dirname(__file__),"../",".cache/main.sqlite")),"w+"):pass
+    if not os.path.exists(h.DB_PATH):
+        with open(h.DB_PATH,"w+"):pass
     populate()
     print("finished")

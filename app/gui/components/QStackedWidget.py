@@ -39,9 +39,9 @@ class ComponentArea(QStackedWidget,GuiComponent):
 
     def initWidget(self):
         MovieFrame(self, self.gui)
-        AdvancedSearch(self, self.gui)
         MovieListFrame(self, self.gui)
-
+        s = AdvancedSearch(self,self.gui)
+        self.setCurrentWidget(s)
         # self.listMovie = MovieListFrame(self, self.gui)
         # self.movie = MovieFrame(self, self.gui)
 

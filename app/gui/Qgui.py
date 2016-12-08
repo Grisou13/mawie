@@ -3,6 +3,7 @@ import copy
 import os
 import sys
 import weakref
+from PyQt5 import QtCore
 
 from PyQt5.QtCore import QResource
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
@@ -41,10 +42,35 @@ class Gui(QWidget,SingletonMixin):
         self.setLayout(content)
         self.show()
 
+    def myCustomHandler(ErrorType, ErrorContext):
+        print("Qt error found.")
+        print("Error Type: " + str(ErrorType))
+        print("Error Context: " + str(ErrorContext))
+
+        # Error logging code
+        # Error emailing code
+
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+
+    def ErrorHandling(ErrorType, ErrorValue, TraceBack, WhateverThisIs):
+        print("System error found.")
+        print("Error Type: " + str(ErrorType))
+        print("Error Value: " + str(ErrorValue))
+        print("Traceback: " + str(TraceBack))
+
+        # Error logging code
+        # Error emailing code
+
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
     @staticmethod
     def start():
+
         app = QApplication(sys.argv)
         ex = Gui()
+        sys.excepthook = ex.ErrorHandling
+        QtCore.qInstallMessageHandler(ex.myCustomHandler)
         try:
             ex.initUI()
             c = app.exec_()

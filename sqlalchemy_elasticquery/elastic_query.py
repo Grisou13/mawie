@@ -44,7 +44,8 @@ def elastic_query(model, query, session=None, enabled_fields=None):
         :session: SQLAlchemy session *optional
         :enabled_fields: Fields allowed for make a query *optional
     """
-    # TODO: make session to optional
+    if isinstance(query,dict): #TODO submit this as pull request
+        query = json.dumps(query)
     instance = ElasticQuery(model, query, session, enabled_fields)
     return instance.search()
 
@@ -60,7 +61,8 @@ OPERATORS = {
     'lte': lambda f, a: f <= a,
     'in': lambda f, a: f.in_(a),
     'not_in': lambda f, a: ~f.in_(a),
-    'not_equal_to': lambda f, a: f != a
+    'not_equal_to': lambda f, a: f != a,
+    'between': lambda f,a1,a2 : f.between(a1,a2)
     }
 
 

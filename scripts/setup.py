@@ -1,15 +1,25 @@
 import app.helpers as h
-
-import os
-# os.mkdir(h.CACHE_PATH)
-# import pip
-# pip.main(["install","-r",h.BASE_PATH+"/requirements.txt"])
-# import sqlite3
-# conn=sqlite3.connect(h.DB_FILE)
-# import populate_db
-# populate_db.populate()
 from subprocess import call
-for d,dn,fn in os.walk(h.BASE_PATH+"/resources/"):
-    for f in fn:
-        if f.endswith(".qrc"):
-            call("pyrcc5.exe  -o "+h.BASE_PATH+"/app/gui/resources/{}.py "+h.BASE_PATH+"/resources/{}".format(os.path.splitext(os.path.basename(f))[0],f))
+import os
+from .populate_db import populate
+def createResources():
+    for d,dn,fn in os.walk(h.BASE_PATH+"/resources/"):
+        for f in fn:
+            if f.endswith(".qrc"):
+                call("cd "+h.BASE_PATH+" && pyrcc5.exe  -o "+h.BASE_PATH+"/app/gui/resources/{}.py "+h.BASE_PATH+"/resources/{}".format(os.path.splitext(os.path.basename(f))[0],f))
+def createPaths():
+    os.mkdir(h.CACHE_PATH)
+    import sqlite3
+    conn = sqlite3.connect(h.DB_FILE) # creates the db file
+    conn.close()
+def seedDb():
+    populate()
+def installPip():
+    call("cd "+h.BASE_PATH+" && pip install -r requirements.txt")
+def run(installPip=True):
+    installPip()
+    createPaths()
+    createResources()
+    seedDb()
+if __name__ == '__main__':
+    run()
