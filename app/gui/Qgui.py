@@ -6,6 +6,7 @@ import weakref
 from PyQt5 import QtCore
 
 from PyQt5.QtCore import QResource
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
@@ -21,13 +22,35 @@ import app.gui.resources.images
 class NotAComponent(Exception):
     pass
 
+class ErrorWidget(QWidget):
+    def __init__(self,parent = None, exception = None):
+        super(ErrorWidget, self).__init__(parent)
+        self.setWindowOpacity(0.0)
+        QTimer.singleShot(1000,self.reveal)
+        lbl = QLabel(self)
+        lbl.setText(str(exception))
+        lbl.show()
+        self.show()
+        print("showing error widget")
+    def reveal(self):
+        self.setWindowOpacity(1.0)
+        self.move(0,self.height())
+        print("shown")
+        QTimer.singleShot(5000, self.delete)
+    def delete(self):
+        print("deleted")
+        #self.parent.removeWidget(self)
+        self.deleteLater()
 class Gui(QWidget,Eventable,SingletonMixin):
     def __init__(self,parent=None):
         super(Gui, self).__init__(parent)
         self._components = {}
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
         self.componentArea = ComponentArea(self)
-
+    def resizeEvent(self, QResizeEvent):
+        self.componentArea.resize(QResizeEvent.size())
+        super(Gui, self).resizeEvent(QResizeEvent)
+        QResizeEvent.accept()
     def initUI(self):
         content = QGridLayout(self)
 
@@ -42,27 +65,29 @@ class Gui(QWidget,Eventable,SingletonMixin):
 
         self.setLayout(content)
         self.show()
-
+    @staticmethod
     def myCustomHandler(ErrorType, ErrorContext):
         print("Qt error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Context: " + str(ErrorContext))
+        e = ErrorWidget(Gui.instance(),ErrorType)
 
         # Error logging code
         # Error emailing code
 
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        #os.execv(sys.executable, [sys.executable] + sys.argv)
 
-    def ErrorHandling(ErrorType, ErrorValue, TraceBack, WhateverThisIs):
+    @staticmethod
+    def ErrorHandling(ErrorType, ErrorValue, TraceBack):
         print("System error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Value: " + str(ErrorValue))
         print("Traceback: " + str(TraceBack))
-
+        e = ErrorWidget(Gui.instance(), ErrorType)
         # Error logging code
         # Error emailing code
 
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        #os.execv(sys.executable, [sys.executable] + sys.argv)
 
 
     @staticmethod

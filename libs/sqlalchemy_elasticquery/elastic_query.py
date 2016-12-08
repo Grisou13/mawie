@@ -32,6 +32,7 @@
 
 """
 import json
+
 from sqlalchemy import and_, or_, desc, asc
 
 __version__ = '0.0.1'
@@ -90,11 +91,11 @@ class ElasticQuery(object):
             return False
 
         result = self.model_query
+
         if 'filter'in filters.keys():
             result = self.parse_filter(filters['filter'])
         if 'sort'in filters.keys():
             result = result.order_by(*self.sort(filters['sort']))
-
         return result
 
     def parse_filter(self, filters):
@@ -106,24 +107,34 @@ class ElasticQuery(object):
                     if self.is_field_allowed(field):
                         conditions.append(self.create_query(self.parse_field(field, filters[filter_type][field])))
                 if filter_type == 'or':
-                    self.model_query = self.model_query.filter(or_(*conditions))
+                    if hasattr(self.model_query, '__call__'):#fix for activ_alchemy, since query already returns a bound method query, we need to execue it in order to process the request add filters
+                        self.model_query = self.model_query().filter(or_(*conditions))
+                    else:
+                        self.model_query = self.model_query.filter(or_(*conditions))
                 elif filter_type == 'and':
-                    self.model_query = self.model_query.filter(and_(*conditions))
+                    if hasattr(self.model_query, '__call__'):#fix for activ_alchemy, since query already returns a bound method query, we need to execue it in order to process the request add filters
+                        self.model_query = self.model_query().filter(and_(*conditions))
+                    else:
+                        self.model_query = self.model_query.filter(and_(*conditions))
             else:
                 if self.is_field_allowed(filter_type):
+
                     conditions = self.create_query(self.parse_field(filter_type, filters[filter_type]))
-                    self.model_query = self.model_query.filter(conditions)
+                    if hasattr(self.model_query, '__call__'):#fix for activ_alchemy, since query already returns a bound method query, we need to execue it in order to process the request add filters
+                        self.model_query = self.model_query().filter(conditions)
+                    else:
+                        self.model_query = self.model_query.filter(conditions)
         return self.model_query
 
     def parse_field(self, field, field_value):
         """ Parse the operators and traduce: ES to SQLAlchemy operators """
         if type(field_value) is dict:
             # TODO: check operators and emit error
-            operator = field_value.keys()[0]
+            operator = list(field_value.keys())[0]
             if self.verify_operator(operator) is False:
-                return "Error: operador no exite", operator
+                return "Error: operation doesn't existe", operator
             value = field_value[operator]
-        elif type(field_value) is unicode:
+        elif isinstance(field_value,str):
             operator = u'equals'
             value = field_value
         return field, operator, value
@@ -151,7 +162,6 @@ class ElasticQuery(object):
         operator = attr[1]
         value = attr[2]
         model = self.model
-
         if '.' in field:
             field_items = field.split('.')
             field_name = getattr(model, field_items[0], None)
@@ -170,3 +180,13 @@ class ElasticQuery(object):
             elif sort_list[sort] == "desc":
                 order.append(desc(getattr(self.model, sort, None)))
         return order
+if __name__ == '__main__':
+    from app.models.Movie import Movie
+    #res = elastic_query(Movie,{"filter":{"release":{'lte': '2014-09-19'},"name":{"like":"H-man"},"and":{"release":{'gte': '1980-01-01'}}}})
+    res = elastic_query(Movie,{"filter":{"name":{"like":"%h-man%"}}})
+
+    print("#############query################")
+    print(res)
+    print("#####################################")
+    print(Movie.query().count())
+    print(len(res.all()))

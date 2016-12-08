@@ -1,5 +1,8 @@
 
 import os
+
+from active_alchemy import BaseQuery
+
 if __name__ == '__main__':
     import sys
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../","../")))
@@ -90,8 +93,11 @@ class Research:
         elif isinstance(q, types.GeneratorType):
             for i in q:
                 yield i
-        else:
+        elif isinstance(q, BaseQuery):
             for res in q.yield_per(5):
+                yield res
+        else:
+            for res in q:
                 yield res
     @staticmethod
     def get_fields(cls):
@@ -114,10 +120,30 @@ class Research:
         """
         queries = kwargs["queries"] if "queries" in kwargs else args[0]
         for model, filters in queries.items():
+            multi_value_field = {}
+            if "and" in filters :
+                multi_value_field = filters["and"] #reassign the and filter, it will be updated later
+            for filterName,filterValue in filters.copy().items() :#parse the filters
+                if isinstance(filterValue,dict) and len(filterValue) > 1:
+                    """
+                    this is a small hack, since elastic_query doesnt accept a field with multiple values ("fieldName":{"something","something else"}).
+                    We need to put the multiple values in the "and" filter, but still take the first item of the filter and keep it in the basic filters
+                    """
+                    #TODO add this to elastic_query and submit a pull request
+                    first = filterValue.popitem()
+                    filters[filterName] = {first[0]:first[1]} # set the basic field to be the first item
+                    multi_value_field[filterName] = filterValue #then assign all other fields to the "and" filter
+                elif isinstance(filterValue,str) :
+                    print("field is string")
+                    filters[filterName] = {"like":"%{}%".format(filterValue)}
+                else:
+                    filters[filterName] = filterValue
             authorized_fields = self.get_fields(model)
-            res = elastic_query(model, filters,enabled_fields=authorized_fields)
-            for i in res():
-                yield i
+            if len(multi_value_field.keys()) >= 1:
+                filters.update({"and":multi_value_field})
+            print(filters)
+            res = elastic_query(model, {"filter":filters}, enabled_fields=authorized_fields)
+            return res
 
 
     def queryModelOnColumn(self, *args, **kwargs):
@@ -161,7 +187,5 @@ class Research:
 
 if __name__ == '__main__':
     r = Research()
-    searchable = r.search("The g")
-    print(searchable)
-    for i in r.search({Movie:'{"title":"The"}'}):
-        print(i)
+    searchable = r.search({Movie:{"name":"man","release":{'lte': '2000-01-01', 'gte': '1920-01-01'}}})
+    print(len(list(searchable)))
