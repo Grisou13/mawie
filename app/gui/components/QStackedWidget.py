@@ -31,7 +31,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.addWidget(self.movie)
         self.addWidget(self.listMovie)
         self.addWidget(self.explorer)
-        self.setCurrentWidget(self.explorer)
+        self.setCurrentWidget(self.listMovie)
 
     def handleAction(self, name, data):
         if name == "show-frame":
