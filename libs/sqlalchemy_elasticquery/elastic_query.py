@@ -50,6 +50,10 @@ def elastic_query(model, query, session=None, enabled_fields=None):
     return instance.search()
 
 """ Valid operators """
+def f(f,a):
+    print(f)
+    print(a)
+    return lambda f, a: f.between(a[0], a[1])
 OPERATORS = {
     'like': lambda f, a: f.like(a),
     'equals': lambda f, a: f == a,
@@ -61,8 +65,7 @@ OPERATORS = {
     'lte': lambda f, a: f <= a,
     'in': lambda f, a: f.in_(a),
     'not_in': lambda f, a: ~f.in_(a),
-    'not_equal_to': lambda f, a: f != a,
-    'between': lambda f,a : f.between(a[0],a[1])
+    'not_equal_to': lambda f, a: f != a
     }
 
 
