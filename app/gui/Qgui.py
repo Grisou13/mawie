@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEd
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 
+from app.events import Eventable
 from app.gui.components import GuiComponent
 from app.gui.components.QResearchWidget import  ResearchFrame
 from app.gui.components.QStackedWidget import ComponentArea
@@ -20,7 +21,7 @@ import app.gui.resources.images
 class NotAComponent(Exception):
     pass
 
-class Gui(QWidget,SingletonMixin):
+class Gui(QWidget,Eventable,SingletonMixin):
     def __init__(self,parent=None):
         super(Gui, self).__init__(parent)
         self._components = {}
@@ -93,16 +94,6 @@ class Gui(QWidget,SingletonMixin):
     #         # if isinstance(c,QWidget):
     #         #     self.componentArea.addWidget(c)
 
-    def register_listener(self, cls):
-        self.listeners[cls] = 1
-
-    def dispatchAction(self, actionName, actionData = None):
-        for l in self.listeners.keys():
-            l.handleAction(actionName, actionData)
-    def requestAction(self, originClass, actionName):
-        for l in self.listeners.keys():
-            if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless
-            originClass.handleAction("request_" + actionName, l.requestAction(actionName))
 
 if __name__ == '__main__':
     Gui.start()

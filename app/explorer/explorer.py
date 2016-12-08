@@ -1,18 +1,18 @@
+import mimetypes
 import os
 import sys
+import urllib.request
 from functools import reduce
 
 import Levenshtein.StringMatcher as lev
 
 from app.models.Movie import Movie
-import mimetypes
-import urllib.request
+
 mimetypes.init()
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
-import PTN
+from libs import PTN
 import json
-import re
 
 from app.models.File import File
 
@@ -125,7 +125,7 @@ class Explorer():
             #we try to construct the most plosible title with the filename, the parsed name, and a few iterations of the filename
             t = data["title"]
             data["oldTitle"] = t #just get it, maybe we need it
-            data["title"] = lev.median_improve(t,[t,filename,PTN.ptn.excess_raw,t.strip(),t.lower()]) # TODO async this, since they are very processor heavy operations
+            data["title"] = lev.median_improve(t, [t, filename, PTN.ptn.excess_raw, t.strip(), t.lower()]) # TODO async this, since they are very processor heavy operations
             data["parsed"] = True
         else:
             data["parsed"] = False

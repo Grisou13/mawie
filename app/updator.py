@@ -3,7 +3,7 @@ import os
 
 from PyQt5.QtCore import QThread
 
-from app.eventable import Eventable
+from app.events import Eventable
 from app.models.File import File
 from app.models.Movie import Movie
 class QUpdator(QThread):

@@ -62,7 +62,7 @@ OPERATORS = {
     'in': lambda f, a: f.in_(a),
     'not_in': lambda f, a: ~f.in_(a),
     'not_equal_to': lambda f, a: f != a,
-    'between': lambda f,a1,a2 : f.between(a1,a2)
+    'between': lambda f,a : f.between(a[0],a[1])
     }
 
 

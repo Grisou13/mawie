@@ -5,9 +5,8 @@ if __name__ == '__main__':
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../","../")))
 from sqlalchemy import or_
 
-from app.models import db
 from app.models.Movie import Movie
-from sqlalchemy_elasticquery import elastic_query
+from libs.sqlalchemy_elasticquery import elastic_query
 
 class FilterDoesNotExist(Exception):pass
 class FieldDoesNotExist(Exception):pass
