@@ -33,9 +33,6 @@ class VideoPlayer(QDialog):
         self.volumeSlider.sliderMoved.connect(self.setVolume)
 
 
-
-
-
         layoutH = QHBoxLayout()
         layoutH.setContentsMargins(0, 0, 0, 0)
         layoutH.addWidget(self.playButton)
@@ -77,7 +74,6 @@ class VideoPlayer(QDialog):
 
     def durationChanged(self, duration):
         self.positionSlider.setRange(0, duration)
-        print(duration)
 
     def setPosition(self, position):
         self.mediaPlayer.setPosition(position)

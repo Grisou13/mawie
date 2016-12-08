@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 
 from PyQt5.QtWidgets import QListWidgetItem
@@ -48,7 +49,7 @@ class MovieFrame(QWidget, GuiComponent):
         self.lblPlot = QLabel("Plot: -",self)
 
         self.lstFile = QListWidget(self)
-        self.lstFile.setMaximumHeight(100)
+        self.lstFile.setMaximumHeight(200)
 
         #Set font to labels
         self.lblTitle.setFont(fontTitle)
@@ -73,9 +74,13 @@ class MovieFrame(QWidget, GuiComponent):
         self.lblRelease.setWordWrap(True)
         self.lblPlot.setWordWrap(True)
 
-        self.btnLaunchFilm = QPushButton("Watch Film",self)
+        self.btnLaunchFilm = QPushButton("Play Film",self)
         self.btnLaunchFilm.setMinimumWidth(300)
-        self.btnLaunchFilm.clicked.connect(self.btnSeeClicked)
+        self.btnLaunchFilm.clicked.connect(lambda : self.btnPlayFileClicked(file=None))
+
+        self.btnShowInDir = QPushButton("Show in Explorer")
+        self.btnShowInDir.setMinimumWidth(300)
+        self.btnShowInDir.clicked.connect(lambda: self.btnShowInDirClicked(file=None))
 
 
         grid.addWidget(self.lblImg, 1, 0, 8, 0)
@@ -92,6 +97,7 @@ class MovieFrame(QWidget, GuiComponent):
         grid.addWidget(self.lblPlot,9,0,1,2)
         grid.addWidget(self.lstFile,10,0,1,2)
         grid.addWidget(self.btnLaunchFilm,10,0,2,2,QtCore.Qt.AlignCenter)
+        grid.addWidget(self.btnShowInDir,11,0,2,2,QtCore.Qt.AlignCenter)
         self.setLayout(grid)
 
     def updateWidgets(self,film):
@@ -142,6 +148,7 @@ class MovieFrame(QWidget, GuiComponent):
         if len(self.film.files) == 1:
             self.lstFile.hide()
             self.btnLaunchFilm.show()
+            self.btnShowInDir.show()
         elif len(self.film.files) >= 1:
             self.lstFile.clear() #we clear the list just to be sure there isn't any items inside the list from another movie
             for file in self.film.files:
@@ -150,27 +157,45 @@ class MovieFrame(QWidget, GuiComponent):
                 item.setSizeHint(itemW.sizeHint())
                 self.lstFile.setItemWidget(item, itemW)
                 itemW.btnPlayFile.clicked.connect(lambda ignore, x=file: self.btnPlayFileClicked(x))
+                itemW.btnShowInDir.clicked.connect(lambda ignore, x=file: self.btnShowInDirClicked(x))
             self.lstFile.show()
             self.btnLaunchFilm.hide()
+            self.btnShowInDir.hide()
 
+    def btnShowInDirClicked(self, file=None):
+        path = None
+        print(file)
+        if file is not None and file.path is not None :
+           path = file.path
+        elif file is None and len(self.film.files) == 1 and self.film.files[0].path is not None :
+            path = self.film.files[0].path
+        if path is not None:
+            if os.name.lower() == "nt":  # because windows
+                path = path.replace("/", "\\")
 
-    def btnSeeClicked(self):
-        if len(self.film.files) is 1:
-            if os.path.isfile(self.film.files[0].path):
-               #os.startfile(self.film.files[0].path)
-               moviePlayer = VideoPlayer(path = self.film.files[0].path)
-               moviePlayer.exec_()
+            if os.path.isfile(path):
+                subprocess.Popen(r'explorer /select,"{}"'.format(path))
             else:
-                self.displayErrorMessage("This file doesn't exit", "This file doesn't exist anymore, "
+                self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
+                                                                    "it has been deleted or moved in another folder")
+
+
+    def btnPlayFileClicked(self, file=None):
+        path = None
+        if file is not None and file.path is not None:
+             path = file.path
+        elif file is None and len(self.film.files) == 1 and self.film.files[0].path is not None :
+            path = self.film.files[0].path
+
+
+        if path is not None:
+            if os.path.isfile(path):
+                #os.startfile(path)
+                moviePlayer = VideoPlayer(path=path)
+                moviePlayer.exec_()
+            else:
+                self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
                                                                     "it has maybe been deleted or moved in an other folder")
-    def btnPlayFileClicked(self,file=None):
-        if os.path.isfile(file.path):
-            #os.startfile(file.path) # display in the default player of the user
-            moviePlayer = VideoPlayer(path=file.path)
-            moviePlayer.exec_()
-        else:
-            self.displayErrorMessage("This file doesn't exit", "This file doesn't exist anymore, "
-                                                           "it has been deleted or moved in another folder")
 
 
     def importPosterFilm(self, path=''):
@@ -222,7 +247,9 @@ class FileWidget(QWidget):
         fileLabel.setWordWrap(True)
 
         self.btnPlayFile= QPushButton("Play this file")
+        self.btnShowInDir= QPushButton("Show in explorer")
 
-        grid.addWidget(fileLabel,0,0)
+        grid.addWidget(fileLabel,0,0,2,1)
         grid.addWidget(self.btnPlayFile,0,1)
+        grid.addWidget(self.btnShowInDir,1,1)
         self.setLayout(grid)
