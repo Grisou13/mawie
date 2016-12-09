@@ -10,7 +10,7 @@ if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
 from app.models.Movie import Movie
 import urllib.request
-import PTN
+import libs.PTN as PTN
 import json
 import re
 import app.models.File as modelFile
