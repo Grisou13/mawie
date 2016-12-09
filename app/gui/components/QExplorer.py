@@ -55,10 +55,6 @@ class AddFilesWidget(QWidget, GuiComponent):
             Gui.instance().dispatchAction("parsed-list",self.explorer.parsedFiles)
             Gui.instance().dispatchAction("non-parsed",self.explorer.nonParsedFiles)
 
-    def handleAction(self, actionName, data):
-        pass
-    def requestAction(self,name):
-        pass
 class DirectoryListWidget(QWidget, GuiComponent):
     def __init__(self,parent = None):
         super(DirectoryListWidget,self).__init__(parent)
