@@ -2,6 +2,7 @@ import copy
 import sys
 import weakref
 
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
@@ -34,7 +35,6 @@ class Gui(QWidget,SingletonMixin):
 
         self.setWindowTitle('')
 
-
         content.addWidget(self.componentArea,1,0)
         content.addWidget(recherche, 0, 0)
 
@@ -45,6 +45,9 @@ class Gui(QWidget,SingletonMixin):
     @staticmethod
     def start():
         app = QApplication(sys.argv)
+        app.setOrganizationName("CPNV")
+        app.setApplicationName("MAWIE")
+
         ex = Gui()
         ex.initUI()
         sys.exit(app.exec_())

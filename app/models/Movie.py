@@ -25,7 +25,7 @@ class Movie(db.Model):
     poster = Column(Text, nullable=True)  # can be an image in cache or a direct url to the website
     rate = Column(String, nullable=True)
     #raings = Column(Integer,nullable=True)
-    files = relationship("File")
+    files = relationship("File",primaryjoin="and_(File.movie_id == Movie.id, File.is_deleted==0)")
     viewed= Column(Boolean, default=False)
     def __str__(self):
         return self.name

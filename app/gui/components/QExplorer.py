@@ -100,13 +100,14 @@ class AddFilesWidget(QWidget, GuiComponent):
         idMovie = None
         url = None
         urlPath = None
-        itemAdd= None #item of the QListWidget use for add not parsed file list to parsed file list
+        itemAdd= None
 
         url, ok = QInputDialog.getText(self,'Copy IMDb URL', 'Please copy the URL of the web page IMDb of the movie:')
-        if url is not None:
+        if url is not None and url != "":
             urlParsed = urlparse(url)
             urlPath = urlParsed.path
             idMovie = urlPath.split("title/")[1][:-1]
+            print(idMovie)
 
             if idMovie is not None or idMovie is not "":
                 print(idMovie)
@@ -116,7 +117,6 @@ class AddFilesWidget(QWidget, GuiComponent):
                 itemW = FileParsedWidget(self, file)
                 itemAdd.setSizeHint(itemW.sizeHint())
                 self.lstFileParse.setItemWidget(itemAdd, itemW)
-
 
                 # TODO: add file to a database
             else:
@@ -159,6 +159,7 @@ class FileParsedWidget(QWidget):
         label = QLabel(unichr(0xf00c))
         label.setFont(qta.font('fa', 16))
         label.setStyleSheet("QLabel {color : green}")
+
 
 
 
