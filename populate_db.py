@@ -14,8 +14,8 @@ def get_films():
             film = omdb.imdbid(f["imdbID"])
             yield dict( (k.lower(), (None if v == 'N/A' else v)) for k,v in film.items() )
 
-db.drop_all() # clear the database you know?
-db.create_all() # and redo it aha
+db.drop_all()  # clear the database you know?
+db.create_all()  # and redo it aha
 for l in get_films():
     m1 = m.Movie()
     m1.name     = l["title"]
@@ -28,7 +28,7 @@ for l in get_films():
     m1.genre    = l["genre"]
     f1 = f.File()
     f1.path=os.path.realpath("stubs/"+l["title"]+".avi")
-
+    
     m1.files.append(f1)
     f1.save()
     m1.save()

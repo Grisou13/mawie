@@ -39,9 +39,10 @@ class googleIt():
         return bing.search(limit, format)
 
     def _findImdbLinks(self, researchResults):
+
         # get all the links that contains the domainSearch name (imdb by default)
         for link in researchResults:
-            if (re.search(self.domainSearch, link.url)):
+            if (re.search(self.domainSearch+".com", link.url)):
                 return link.url
                 # imdblist.append(link.url)
 
@@ -60,6 +61,12 @@ class googleIt():
         # get the fifty firsts results of a research
         researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
         # find all the links from imdb
+        print(self._makeSearchTerm(movieTitle))
+        for kkk in researchResults:
+            print(kkk.url)
+
+        sys.exit(movieTitle)
+
         imDBlinks = self._findImdbLinks(researchResults)
 
         # TODO make pattern to find the imdb main url (ex: http://www.imdb.com/title/tt0330373/)
@@ -69,10 +76,15 @@ class googleIt():
         # mess up if incorrect url. This is why we need a regex here
         if not imDBlinks:
             return False
-        #print(imDBlinks)
-        #print(imDBlinks.split("title/")[1][:-1])
 
-        movieId = imDBlinks.split("title/")[1][:-1]
+        #print(imDBlinks.split("title/")[1][:-1])
+        try:
+            movieId = imDBlinks.split("title/")[1][:-1]
+        except Exception:
+            return False
+            #print(imDBlinks)
+            #print(movieTitle)
+            #sys.exit("Status fucked up !")
 
         # check wether the id is only made of min letters and digit
         if not re.match("^[a-z0-9]*$", movieId):
@@ -147,7 +159,7 @@ class googleIt():
 
         movieTitle = movieTitle.lower()
 
-        ### BASED ON THE TITLE AND ID ###
+        # BASED ON THE TITLE AND ID
         if movieTitle and movieId:
             # we search the movies with both id and title
             foundById = self.imdb.get_title_by_id(movieId)
@@ -168,7 +180,7 @@ class googleIt():
                     return False
             return False
 
-        ### BASED ON THE TITLE ###
+        # BASED ON THE TITLE
         elif movieTitle:
             foundMovie = self.imdb.search_for_title(movieTitle)
             # if many movies found
@@ -183,7 +195,7 @@ class googleIt():
 
             return False
 
-        ### BASED ON THE ID ###
+        # BASED ON THE ID
         elif movieId:
             # Getting a movie object by ID (should) only return one element
             foundMovie = self.imdb.get_title_by_id(movieId)
@@ -202,17 +214,18 @@ class googleIt():
 
 if __name__ == "__main__":
 
-    #googleItPutain = googleIt()
-
+    googleItPutain = googleIt()
+    res =googleItPutain.getMovieID(movieTitle="Despicable Me 2")
+    print(res)
     #HarryPotter4ID = "tt0330373"
     #fightClubID = "tt0137523"
 
     # without parameters
-    #googleItPutain.getMovieInfo()
+    # googleItPutain.getMovieInfo()
     # with MOVIE ID
-    #r = googleItPutain.getMovieInfo(movieId = fightClubID)
-    # with MOVIE TITLE
-    #r = googleItPutain.getMovieInfo(movieTitle = "Harry potter")
+    # r = googleItPutain.getMovieInfo(movieId = fightClubID)
+    # with MOVIE TITLE
+    # r = googleItPutain.getMovieInfo(movieTitle = "Harry potter")
     # with MOVIE ID and MOVIE TITLE
-    #r = googleItPutain.getMovieInfo(movieId = fightClubID, movieTitle = "Fight CLUB")
+    # r = googleItPutain.getMovieInfo(movieId = fightClubID, movieTitle = "Fight CLUB")
     pass
