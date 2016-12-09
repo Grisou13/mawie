@@ -11,8 +11,12 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
+<<<<<<< Updated upstream
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5.2 (C:\bin\Python3\python.exe)" project-jdk-type="Python SDK" />
 =======
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5.2 (C:\Users\Eric.BOUSBAA\AppData\Local\Programs\Python\Python35-32\python.exe)" project-jdk-type="Python SDK" />
 >>>>>>> explorer-research
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.5.1 (C:\Program Files\Python35\python.exe)" project-jdk-type="Python SDK" />
+>>>>>>> Stashed changes
 </project>

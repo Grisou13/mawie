@@ -19,6 +19,9 @@ Architecture
 
 Tests done
 
+TODOS
+
+Refactor and add relative imports, sintead of this horrible sys.path.extend
 
 http://docs.themoviedb.apiary.io/#reference/search/searchmovie/get
 theme : https://github.com/ColinDuquesnoy/QDarkStyleSheet

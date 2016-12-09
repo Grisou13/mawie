@@ -4,12 +4,12 @@ if __name__ == '__main__':
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../")))
 import urllib.request
 from datetime import datetime
-import app.helpers as h
+import mawie.helpers as h
 import re
 import timestring as timestring
-import app.models.Movie as m
-import app.models.File as f
-from app.models import db
+import mawie.models.Movie as m
+import mawie.models.File as f
+from mawie.models import db
 import omdb
 def get_films():
     _raw = omdb.request(s="The H", plot="short", r="json").json()

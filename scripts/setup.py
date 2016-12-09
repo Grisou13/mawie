@@ -1,4 +1,4 @@
-import app.helpers as h
+import mawie.helpers as h
 from subprocess import call
 import os
 from .populate_db import populate
@@ -6,7 +6,7 @@ def createResources():
     for d,dn,fn in os.walk(h.BASE_PATH+"/resources/"):
         for f in fn:
             if f.endswith(".qrc"):
-                call("pyrcc5.exe  -o "+h.BASE_PATH+"/app/gui/resources/{}.py "+h.BASE_PATH+"/resources/{}".format(os.path.splitext(os.path.basename(f))[0],f))
+                call("pyrcc5.exe  -o "+h.BASE_PATH+"/mawie/gui/resources/{}.py "+h.BASE_PATH+"/resources/{}".format(os.path.splitext(os.path.basename(f))[0],f))
 def createPaths():
     os.mkdir(h.CACHE_PATH)
     import sqlite3

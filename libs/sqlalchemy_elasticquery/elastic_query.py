@@ -181,7 +181,7 @@ class ElasticQuery(object):
                 order.append(desc(getattr(self.model, sort, None)))
         return order
 if __name__ == '__main__':
-    from app.models.Movie import Movie
+    from mawie.models.Movie import Movie
     #res = elastic_query(Movie,{"filter":{"release":{'lte': '2014-09-19'},"name":{"like":"H-man"},"and":{"release":{'gte': '1980-01-01'}}}})
     res = elastic_query(Movie,{"filter":{"name":{"like":"%h-man%"}}})
 
