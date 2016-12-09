@@ -13,6 +13,7 @@ from urllib import request
 from qtpy import QtCore
 
 from app.gui.components import GuiComponent
+from app.gui.components.QMovieListWidget import MovieListFrame
 from app.gui.components.QPoster import QPoster
 from app.gui.components.QMoviePlayer import VideoPlayer
 from app.models.File import File
@@ -188,8 +189,7 @@ class MovieFrame(QWidget, GuiComponent):
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
                                                                     "it has been deleted or moved in another folder")
-        movie = Movie.get(1)
-        print(len(movie.files))
+
 
     def btnPlayFileClicked(self, file=None):
         path = None
@@ -201,9 +201,11 @@ class MovieFrame(QWidget, GuiComponent):
 
         if path is not None:
             if os.path.isfile(path):
-                #os.startfile(path)
-                moviePlayer = VideoPlayer(path=path)
-                moviePlayer.exec_()
+                if path.lower().endswith(('.wmv','.avi')):
+                    moviePlayer = VideoPlayer(path=path)
+                    moviePlayer.exec_()
+                else:
+                    os.startfile(path)
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
                                                                     "it has maybe been deleted or moved in an other folder")
@@ -230,12 +232,14 @@ class MovieFrame(QWidget, GuiComponent):
                     self.btnShowInDir.show()
                 fileDel.delete()
         else:
-            response = QMessageBox.question(self, "Delete file",
-                                            "Delete the <b>movie</b> from database ? it will not delete the movie from your computer",
+            response = QMessageBox.question(self, "Delete the last file of the movie",
+                                            "Delete the file and the <b>movie</b> from database ? it will not delete the movie from your computer",
                                             QMessageBox.Yes | QMessageBox.Cancel)
             if response == QMessageBox.Yes:
                 fileDel.delete()
                 self.film.delete()
+                self.gui.dispatchAction('search-results',Movie.query())
+                self.gui.dispatchAction('show-frame',MovieListFrame)
 
 
     def importPosterFilm(self, path=''):

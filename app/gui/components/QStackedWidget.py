@@ -15,7 +15,7 @@ from app.gui.components.QMovieWidget import MovieFrame
 from app.gui.components.QResearchWidget import  ResearchFrame
 from app.gui.components.QExplorer import AddFilesWidget
 from app.helpers import SingletonMixin
-
+from app.gui.components.QSettings import SettingsWidget
 
 
 class ComponentArea(QStackedWidget,GuiComponent):
