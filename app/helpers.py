@@ -1,5 +1,6 @@
 # helper.py
 import os
+import socket
 
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QPixmap
@@ -37,3 +38,12 @@ class SingletonMixin(object):
                     cls.__singleton_instance = cls()#object.__new__(cls)
         return cls.__singleton_instance
 
+
+def checkInternetConnexion():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10)
+        s.connect(("8.8.8.8", 53))
+        return True
+    except Exception as e:
+        return False

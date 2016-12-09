@@ -1,5 +1,6 @@
 # pip install py_bing_search
 import re
+import socket
 
 from py_bing_search import PyBingWebSearch
 # from py_bing_search import PyBingWebSearch
@@ -8,6 +9,9 @@ from imdbpie import Imdb
 import re
 import sys
 import urllib.request
+
+from app.helpers import checkInternetConnexion
+
 
 class googleIt():
     BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
@@ -18,15 +22,9 @@ class googleIt():
         self.domainSearch = domainSearch
         self.imdb = Imdb()
 
-        def _doWeHaveInternet():
-            try:
-                req = urllib.request.Request('http://216.58.192.142')
-                urllib.request.urlopen(req, timeout=1)
-                return True
-            except urllib.error.URLError as err:
-                return False
 
-        if not _doWeHaveInternet():
+
+        if not checkInternetConnexion():
             raise ConnectionError("No internet connection !")
 
     def _makeSearchTerm(self, movieName):
