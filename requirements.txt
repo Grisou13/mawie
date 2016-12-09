@@ -9,3 +9,4 @@ imdbpie
 PyQt5
 qdarkstyle
 guessit
+qtawesome

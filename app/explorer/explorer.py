@@ -21,6 +21,28 @@ from app.explorer.googleit import googleIt
 import time
 import json
 
+class FileContainer:
+    _data = {}
+    def __init__(self,data):
+        self._data = data
+    # def __getattr__(self, item):
+    #     return self._data[item]
+    # def __getattribute__(self, item):
+    #     return self._data[item]
+    # def __delattr__(self, item):
+    #     del self._data[item]
+    # def __setattr__(self, key, value):
+    #     self._data[key] = value
+    """
+    Allows dict access, so that Eric doesn't freak out
+    """
+    def __delitem__(self, key):
+        self._data[key]
+    def __getitem__(self, key):
+        return self._data[key]
+    def __setitem__(self, key, value):
+        self._data[key] = value
+
 class Explorer():
 
     googleIt = googleIt()
@@ -51,7 +73,7 @@ class Explorer():
                 path = os.path.join(r,f)
                 if self._isAVideo(path):
                     # we parse the files here
-                    files.append(self._parseFile(path))
+                    files.append(self.parseFile(path))
 
             # for d in dirs:
             #     # as Thomas said : Recursion bitch
@@ -59,7 +81,7 @@ class Explorer():
 
         return files
 
-    def _parseFile(self, filePath):
+    def parseFile(self, filePath):
         if not filePath == os.path.realpath(filePath):
             raise FileExistsError("File path '{}' isn't supported. Don't use symbolic links.".format(filePath))
 
@@ -72,7 +94,7 @@ class Explorer():
 
     def _parseName(self, movieName):
         mov = PTN.parse(re.sub(r'avi', "", movieName.replace(".", " ")))
-        return guessit(movieName, {"T":mov["title"]})
+        return FileContainer(guessit(movieName, {"T":mov["title"]}))
 
     def _secondTryParseName(self, movieName):
         return PTN.parse(re.sub(r'avi', "", movieName.replace(".", " ")))

@@ -13,8 +13,9 @@ from app.gui.components.QAdvancedSearch import AdvancedSearch
 from app.gui.components.QMovieListWidget import MovieListFrame
 from app.gui.components.QMovieWidget import MovieFrame
 from app.gui.components.QResearchWidget import  ResearchFrame
+from app.gui.components.QExplorer import AddFilesWidget, ExplorerWidget
 from app.helpers import SingletonMixin
-
+from app.gui.components.QSettings import SettingsWidget
 
 
 class ComponentArea(QStackedWidget,GuiComponent):
@@ -32,7 +33,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
         super(ComponentArea, self).addWidget(widget)
     def onCurrentChange(self,index):
         w = self.widget(index)
-        w.setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum)
+        w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
         self.adjustSize()
         w.adjustSize()
         w.show()
@@ -43,7 +44,8 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def initWidget(self):
         MovieFrame(self, self.gui)
         MovieListFrame(self, self.gui)
-        s = AdvancedSearch(self,self.gui)
+        s = ExplorerWidget(self,self.gui)
+        AdvancedSearch(self,self.gui)
         self.setCurrentWidget(s)
         # self.listMovie = MovieListFrame(self, self.gui)
         # self.movie = MovieFrame(self, self.gui)
