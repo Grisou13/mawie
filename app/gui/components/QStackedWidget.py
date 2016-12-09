@@ -23,7 +23,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.gui = parent
         self.gui.register_listener(self)
         self.setFixedSize(680, 700)
-
+        self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()
 
@@ -36,7 +36,10 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.adjustSize()
         w.adjustSize()
         w.show()
-
+    def addWidget(self,widget):
+        if widget.__class__.__name__ not in self.widgetStore:
+            self.widgetStore[widget.__class__.__name__] = widget
+            super().addWidget(widget)
     def initWidget(self):
         MovieFrame(self, self.gui)
         MovieListFrame(self, self.gui)
@@ -50,15 +53,14 @@ class ComponentArea(QStackedWidget,GuiComponent):
         # self.setCurrentWidget(self.listMovie)
     def handleAction(self, name, data):
         if name == "show-frame":
-            print(hex(id(data)))
-            print(self.indexOf(data))
-            if self.indexOf(data) is not -1:
-                self.setCurrentWidget(data)
+            print(data.__class__.__name__)
+            if data.__class__.__name__ in self.widgetStore:
+                w = self.widgetStore[data.__class__.__name__]
+                if self.indexOf(w) is not -1:
+                    self.setCurrentWidget(w)
                 # self.currentWidget().show()
                 # self.currentWidget().setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum)
                 # self.currentWidget().adjustSize()
-
-
     def requestAction(self, name):
         pass
 

@@ -3,10 +3,13 @@ import copy
 import os
 import sys
 import weakref
+from PyQt5 import QtGui
+
 from PyQt5 import QtCore
 
 from PyQt5.QtCore import QResource
 from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
@@ -19,6 +22,8 @@ from app.helpers import SingletonMixin
 
 import app.gui.resources.images
 
+import qdarkstyle
+
 class NotAComponent(Exception):
     pass
 
@@ -27,7 +32,17 @@ class ErrorWidget(QWidget):
         super(ErrorWidget, self).__init__(parent)
         self.setWindowOpacity(0.0)
         QTimer.singleShot(1000,self.reveal)
+
         lbl = QLabel(self)
+        lbl.setStyleSheet("""
+                        QLabel{
+                            background-color:yellow;
+                            border-color:yellow;
+                            border-radius:5px;
+                            border-width: 1px;
+                            border-style: solid;
+                        }
+                        """)
         lbl.setText(str(exception))
         lbl.show()
         self.show()
@@ -44,6 +59,7 @@ class ErrorWidget(QWidget):
 class Gui(QWidget,Eventable,SingletonMixin):
     def __init__(self,parent=None):
         super(Gui, self).__init__(parent)
+        self.registerExceptions()
         self._components = {}
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
         self.componentArea = ComponentArea(self)
@@ -51,6 +67,7 @@ class Gui(QWidget,Eventable,SingletonMixin):
         self.componentArea.resize(QResizeEvent.size())
         super(Gui, self).resizeEvent(QResizeEvent)
         QResizeEvent.accept()
+
     def initUI(self):
         content = QGridLayout(self)
 
@@ -59,52 +76,73 @@ class Gui(QWidget,Eventable,SingletonMixin):
         recherche = ResearchFrame(self)
         #add = AddFilesWidget(self)
         self.setWindowTitle('Find My movie')
-        content.addWidget(self.componentArea,1,0)
-        content.addWidget(recherche, 0, 0)
+        self.errorWidget = QLabel(self)
+        self.errorWidget.setVisible(False)
+        content.addWidget(self.errorWidget,0,0)
+        content.addWidget(self.componentArea,2,0)
+        content.addWidget(recherche, 1, 0)
         #content.addWidget(add, 0, 1)
 
         self.setLayout(content)
         self.show()
-    @staticmethod
-    def myCustomHandler(ErrorType, ErrorContext):
+
+    def myCustomHandler(self,ErrorType, ErrorContext, TraceBack):
         print("Qt error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Context: " + str(ErrorContext))
-        e = ErrorWidget(Gui.instance(),ErrorType)
+        print("Error traceback: "+ str(TraceBack))
+        self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorContext))
+        # m = QMessageBox()
+        # m.setText("Error : "+str(ErrorType))
+        # m.exec()
+        #e = ErrorWidget(Gui.instance(),ErrorType)
 
         # Error logging code
         # Error emailing code
 
         #os.execv(sys.executable, [sys.executable] + sys.argv)
 
-    @staticmethod
-    def ErrorHandling(ErrorType, ErrorValue, TraceBack):
+    def ErrorHandling(self,ErrorType, ErrorValue, TraceBack):
         print("System error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Value: " + str(ErrorValue))
         print("Traceback: " + str(TraceBack))
-        e = ErrorWidget(Gui.instance(), ErrorType)
+        self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
+        # m = QMessageBox()
+        # m.setText("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
+        # m.exec()
+        #e = ErrorWidget(Gui.instance(), ErrorType)
         # Error logging code
         # Error emailing code
 
         #os.execv(sys.executable, [sys.executable] + sys.argv)
-
-
+    def addError(self,text):
+        print("############")
+        print("handling error")
+        print("############")
+        self.errorWidget.setText(text)
+        self.errorWidget.setVisible(True)
+        self.errorWidget.show()
+        QTimer.singleShot(5000, lambda :self.errorWidget.setVisible(False))
+    def registerExceptions(self):
+        sys.excepthook = self.ErrorHandling
+        QtCore.qInstallMessageHandler(self.myCustomHandler)
     @staticmethod
     def start():
 
         app = QApplication(sys.argv)
+        app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
         ex = Gui()
-        sys.excepthook = ex.ErrorHandling
-        QtCore.qInstallMessageHandler(ex.myCustomHandler)
+
+        code = 0
         try:
             ex.initUI()
-            c = app.exec_()
-            sys.exit(c)
-        except SystemExit as s:
-            sys.exit()
-        except Exception as e:
-            print(e)
+            #raise Exception("Test exception")
+            code = app.exec()
+        except:
+            ex.initUI()
+        sys.exit(code)
+
 
     def center(self):
         qr = self.frameGeometry()

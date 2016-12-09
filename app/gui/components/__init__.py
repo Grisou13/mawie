@@ -3,7 +3,8 @@ class NotImplemented(Exception): pass
 
 class GuiComponent(object):
     def __init__(self):
-        print(self.__class__.__name__)
+        #print(self.__class__.__name__)
+        pass
     def requestAction(self, actionName):
         pass
 

@@ -3,6 +3,8 @@ import os
 
 from active_alchemy import BaseQuery
 
+from app import models
+
 if __name__ == '__main__':
     import sys
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../","../")))
@@ -13,7 +15,7 @@ from libs.sqlalchemy_elasticquery import elastic_query
 
 class FilterDoesNotExist(Exception):pass
 class FieldDoesNotExist(Exception):pass
-class NotAModel(Exception): pass
+
 import types
 
 class SearchableItem:
@@ -46,7 +48,7 @@ class Research:
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
-    not_authorized_fields = ["is_deleted","created_at","updated_at"]
+
     def __init__(self,*args,**kwargs):
         self.model = self.default_model
         self.cols = self.default_cols
@@ -99,16 +101,7 @@ class Research:
         else:
             for res in q:
                 yield res
-    @staticmethod
-    def get_fields(cls):
-        if not hasattr(cls,'__table__'):
-            raise NotAModel("The class "+str(cls)+" is not an instance of a ActiveAlchemy model")
-        _ = []
-        for col in cls.__table__.columns:
-            name = str(col).split(".")[1]
-            if name not in Research.not_authorized_fields:
-                _.append(name)
-        return _
+
     def queryModelOnMultipleColumns(self,*args,**kwargs):
         """
         Queries a model with one/mutliple queries per column (SELECT * FROM ... WHERE col = query1, col = query2, col2 = query3, col3 = query4)
@@ -138,7 +131,7 @@ class Research:
                     filters[filterName] = {"like":"%{}%".format(filterValue)}
                 else:
                     filters[filterName] = filterValue
-            authorized_fields = self.get_fields(model)
+            authorized_fields = models.get_fields(model)
             if len(multi_value_field.keys()) >= 1:
                 filters.update({"and":multi_value_field})
             print(filters)
@@ -170,7 +163,7 @@ class Research:
         fields = kwargs["columns"] if "columns" in kwargs else list(args)[:-2]
         if isinstance(fields, str):
             fields = fields.replace(';', ' ').replace(',', ' ').replace(':', ' ').split()
-        authorized_fields = self.get_fields(model)
+        authorized_fields = models.get_fields(model)
         # try:
         #     authorized_fields = self.get_fields(model)
         # except NotAModel:

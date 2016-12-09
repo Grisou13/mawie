@@ -6,7 +6,7 @@ def createResources():
     for d,dn,fn in os.walk(h.BASE_PATH+"/resources/"):
         for f in fn:
             if f.endswith(".qrc"):
-                call("cd "+h.BASE_PATH+" && pyrcc5.exe  -o "+h.BASE_PATH+"/app/gui/resources/{}.py "+h.BASE_PATH+"/resources/{}".format(os.path.splitext(os.path.basename(f))[0],f))
+                call("pyrcc5.exe  -o "+h.BASE_PATH+"/app/gui/resources/{}.py "+h.BASE_PATH+"/resources/{}".format(os.path.splitext(os.path.basename(f))[0],f))
 def createPaths():
     os.mkdir(h.CACHE_PATH)
     import sqlite3
@@ -16,8 +16,9 @@ def seedDb():
     populate()
 def installPip():
     call("cd "+h.BASE_PATH+" && pip install -r requirements.txt")
-def run(installPip=True):
-    installPip()
+def run(pip=True):
+    if pip:
+        installPip()
     createPaths()
     createResources()
     seedDb()

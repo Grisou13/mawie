@@ -7,3 +7,8 @@ class ShowFrame(Event):
 
 class SearchResults(Event):
     pass
+
+
+class ErrorEvent(Event):
+    pass
+

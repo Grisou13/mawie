@@ -59,6 +59,8 @@ class MovieListFrame(QWidget, GuiComponent):
     def clickedSee(self,film):
         self.gui.dispatchAction("show-info-film",film)
     def handleAction(self,name,data):
+        if name == "show-movie-list-frame":
+            self.gui.dispatchAction("show-frame",self)
         if name == "search-results":
             self.updateWidgets(data)
             self.gui.dispatchAction("show-frame",self)

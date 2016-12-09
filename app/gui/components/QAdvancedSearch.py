@@ -7,8 +7,10 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QDate
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QBoxLayout
 from PyQt5.QtWidgets import QDateEdit
 from PyQt5.QtWidgets import QFormLayout
+from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QGridLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
@@ -19,16 +21,13 @@ from sqlalchemy import Date
 from sqlalchemy import distinct
 from sqlalchemy import func
 from datetime import date, datetime, time
+
+from app import models
 from app.gui.components import GuiComponent
+from app.models.File import File
 from app.models.Movie import Movie
 from app.research.research import Research
-#http://stackoverflow.com/questions/11632513/sqlalchemy-introspect-column-type-with-inheritance
-def find_type(class_, colname):
-    if hasattr(class_, '__table__') and colname in class_.__table__.c:
-        return class_.__table__.c[colname].type
-    for base in class_.__bases__:
-        return find_type(base, colname)
-    raise NameError(colname)
+
 
 class DateRangeInput(QWidget):
     valueChange = pyqtSignal(tuple)
@@ -52,8 +51,9 @@ class DateRangeInput(QWidget):
         layout = QGridLayout(self)
         layout.setSpacing(0)
 
-        lbl = QLabel()
-        lbl.setText(self.inputName)
+        # lbl = QLabel()
+        # lbl.setText(self.inputName)
+        # lbl.setContentsMargins(-10,10,10,10)
 
         dateDiff = math.floor((self.maxValue.year()-self.minValue.year())/2) # difference between the first date and last date, used to handle min and max values for the sliders
 
@@ -88,13 +88,13 @@ class DateRangeInput(QWidget):
         maxScroller.valueChanged.connect(self._updateMaxEdit)
         maxEdit.dateChanged.connect(self._updateMaxSlider)
 
-        #layout.addWidget(lbl,0,0,0,1,QtCore.Qt.AlignRight)
+        # layout.addWidget(lbl,0,0,0,1,QtCore.Qt.AlignCenter)
 
-        layout.addWidget(minScroller,1,1)
-        layout.addWidget(minEdit, 1, 2)
+        layout.addWidget(minScroller,1,2)
+        layout.addWidget(minEdit, 1, 3)
 
-        layout.addWidget(maxScroller,2,1)
-        layout.addWidget(maxEdit, 2, 2)
+        layout.addWidget(maxScroller,2,2)
+        layout.addWidget(maxEdit, 2, 3)
 
         self.setLayout(layout)
         self.minScroller = minScroller
@@ -144,46 +144,60 @@ class AdvancedSearch(QWidget, GuiComponent):
         self.fields = ["name","runtime","genre","release","actors","directors","filename"] #TODO discover these directly with the research, for now just brutforce it
         #TODO make files and directories searchable
         self.model = Movie
+        self.models = [Movie,File]
         self.data = {}
         self.search = Research()
         self.initWidget()
         self.show()
     def initWidget(self):
-        layout = QFormLayout(self)
-        for f in self.fields:
-            if not f in self.search.get_fields(self.model):
-                continue
-            fieldType = find_type(self.model,f)
+        masterLayout = QBoxLayout(QBoxLayout.TopToBottom,self)
 
-            if isinstance(fieldType, Date):
-                input = DateRangeInput(self,self.model,f)
-                input.valueChange.connect(lambda v, f = f: self.updateData(f,{"gte":v[0],"lte":v[1]}))
-                print(f)
-                layout.addRow(input)
-            else:
+        for model in self.models:
+            #self.data[model] = {}
+            layout = QFormLayout(self)
+            for f in models.get_fields(model):
+                if "id" in f: #we do not want users to be able to query id's (what would be the point?)
+                    continue
+                fieldType = models.find_type(model,f)
                 lbl = QLabel()
                 lbl.setText(f)
-                input = QLineEdit()
-
-                input.setPlaceholderText(f)
-                input.textChanged.connect(lambda t, f = f : self.updateData(f,t))
+                if isinstance(fieldType, Date):
+                    input = DateRangeInput(self,model,f)
+                    input.valueChange.connect(lambda v, f = f, m=model: self.updateData(m,f,{"gte":v[0],"lte":v[1]}))
+                    #layout.addRow(input)
+                else:
+                    input = QLineEdit()
+                    input.setPlaceholderText(f)
+                    input.textChanged.connect(lambda t, f = f, m=model : self.updateData(m,f,t))
                 layout.addRow(lbl,input)
-
+            masterLayout.addLayout(layout)
+            separator = QFrame()
+            separator.setFrameShape(QFrame.HLine)
+            separator.setFrameShadow(QFrame.Sunken)
+            masterLayout.addWidget(separator)
         s = QPushButton()
         s.clicked.connect(self.query)
         s.setText("search")
-        layout.addRow(s)
+        masterLayout.addWidget(s)
         self.setLayout(layout)
-    def updateData(self,fieldName,data):
+    def updateData(self,model,fieldName,data):
         if data is not None:
-            self.data[fieldName] = data
+            if not model in self.data:
+                self.data[model] = {}
+            self.data[model][fieldName] = data
     def query(self):
         if len(self.data.keys()) < 1:
             return
         print(self.data)
-        res = self.search.search({self.model:self.data})
+        res = self.search.search(self.data)
+        print(res)
         #print(list(res))
+        raise Exception("Test exception")
         self.gui.dispatchAction("search-results",res)
+    def handleAction(self, actionName, data):
+
+        if actionName == "show-advanced-search":
+            self.gui.dispatchAction("show-frame",self)
 if __name__ == '__main__':
     from app.gui.Qgui import Gui
     Gui.start()

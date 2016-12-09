@@ -1,12 +1,9 @@
+import sys
+
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QPushButton
-
-from app.gui.QtAsync import AsyncTask, coroutine
-from PyQt5 import QtGui
-from PyQt5.QtCore import QThread
-import sys
 
 
 class MemoryButton(QPushButton):
@@ -35,7 +32,8 @@ class MemoryButton(QPushButton):
             print("Action Clicked!")
 
         popup.addAction("Action").triggered.connect(_action)
-        popup.exec_(self.get_last_pos())
+        popup.exec(self.get_last_pos())
+        #popup.exec(self.mapFromGlobal(QPoint(100,100)))
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
