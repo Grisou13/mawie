@@ -6,10 +6,15 @@ import weakref
 from PyQt5 import QtGui
 
 from PyQt5 import QtCore
+from PyQt5.QtCore import QByteArray
+from PyQt5.QtCore import QEasingCurve
+from PyQt5.QtCore import QPropertyAnimation
 
 from PyQt5.QtCore import QResource
 from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
@@ -28,41 +33,77 @@ class NotAComponent(Exception):
     pass
 
 class ErrorWidget(QWidget):
-    def __init__(self,parent = None, exception = None):
+    def __init__(self,parent = None):
         super(ErrorWidget, self).__init__(parent)
-        self.setWindowOpacity(0.0)
-        QTimer.singleShot(1000,self.reveal)
+        self.errorWidget = QLabel(self)
+        if parent is None:
+            width = 500
+        else:
+            width = parent.width()
+        self.errorWidget.setFixedSize(width, 20)
+        self.errorWidget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
 
-        lbl = QLabel(self)
-        lbl.setStyleSheet("""
-                        QLabel{
-                            background-color:yellow;
-                            border-color:yellow;
-                            border-radius:5px;
-                            border-width: 1px;
-                            border-style: solid;
-                        }
-                        """)
-        lbl.setText(str(exception))
-        lbl.show()
-        self.show()
-        print("showing error widget")
-    def reveal(self):
-        self.setWindowOpacity(1.0)
-        self.move(0,self.height())
-        print("shown")
-        QTimer.singleShot(5000, self.delete)
-    def delete(self):
-        print("deleted")
-        #self.parent.removeWidget(self)
-        self.deleteLater()
+        self.errorWidget.resizeEvent = self.resizeLabel
+        self.errorWidget.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.errorWidget.setVisible(False)
+
+        self.animationProp = b"opacity"  # QByteArray(len(s),s)
+        # self.errorWidget.setFixedWidth(300)
+        self.errorWidget.setStyleSheet("""
+                    QLabel{
+                        color:#1E8BC3;
+                        width:inherit;
+                        background-color:black;
+                        border-color:#6BB9F0;
+                        font-weight:bold;
+                        border-bottom-right-radius:5px;
+                        border-bottom-left-radius:5px;
+                        border-width: 1px;
+                        border-style: solid;
+
+                    }
+                """)
+    def updateText(self,txt):
+        self.errorWidget.setText(txt)
+    def display(self):
+        self.fadeIn()
+        QTimer.singleShot(5000, lambda: self.fadeOut())
+
+    def resizeLabel(self, evt):
+        font = self.font()
+        font.setPixelSize(self.height() * 0.8)
+        self.setFont(font)
+        
+    def fadeIn(self):
+        g = QGraphicsOpacityEffect(self)
+        self.errorWidget.setGraphicsEffect(g)
+        a = QPropertyAnimation(g, self.animationProp,self)
+        a.setDuration(350)
+        a.setStartValue(0)
+        a.setEndValue(1)
+        a.setEasingCurve(QEasingCurve.InBack)
+        #a.valueChanged.connect(lambda:self.errorWidget.show())
+        self.errorWidget.show()
+        a.start()
+    def fadeOut(self):
+        g = QGraphicsOpacityEffect(self)
+        self.errorWidget.setGraphicsEffect(g)
+        a = QPropertyAnimation(g, self.animationProp,self)
+        a.setDuration(350)
+        a.setStartValue(1)
+        a.setEndValue(0)
+        a.setEasingCurve(QEasingCurve.OutBack)
+        a.finished.connect(lambda : self.errorWidget.setVisible(False))
+        a.start(QPropertyAnimation.DeleteWhenStopped)
 class Gui(QWidget,Eventable,SingletonMixin):
     def __init__(self,parent=None):
         super(Gui, self).__init__(parent)
-        self.registerExceptions()
+
         self._components = {}
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
         self.componentArea = ComponentArea(self)
+        self.initUI()
+        self.registerExceptions()
     def resizeEvent(self, QResizeEvent):
         self.componentArea.resize(QResizeEvent.size())
         super(Gui, self).resizeEvent(QResizeEvent)
@@ -76,12 +117,9 @@ class Gui(QWidget,Eventable,SingletonMixin):
         recherche = ResearchFrame(self)
         #add = AddFilesWidget(self)
         self.setWindowTitle('Find My movie')
-        self.errorWidget = QLabel(self)
-        self.errorWidget.setVisible(False)
-        content.addWidget(self.errorWidget,0,0)
+        self.errorWidget = ErrorWidget(self)
         content.addWidget(self.componentArea,2,0)
         content.addWidget(recherche, 1, 0)
-        #content.addWidget(add, 0, 1)
 
         self.setLayout(content)
         self.show()
@@ -116,14 +154,16 @@ class Gui(QWidget,Eventable,SingletonMixin):
         # Error emailing code
 
         #os.execv(sys.executable, [sys.executable] + sys.argv)
+
     def addError(self,text):
         print("############")
         print("handling error")
         print("############")
-        self.errorWidget.setText(text)
-        self.errorWidget.setVisible(True)
-        self.errorWidget.show()
-        QTimer.singleShot(5000, lambda :self.errorWidget.setVisible(False))
+        #self.errorWidget.show()
+        self.errorWidget.updateText(text)
+        self.errorWidget.display()
+
+
     def registerExceptions(self):
         sys.excepthook = self.ErrorHandling
         QtCore.qInstallMessageHandler(self.myCustomHandler)
@@ -136,7 +176,6 @@ class Gui(QWidget,Eventable,SingletonMixin):
 
         code = 0
         try:
-            ex.initUI()
             #raise Exception("Test exception")
             code = app.exec()
         except:
