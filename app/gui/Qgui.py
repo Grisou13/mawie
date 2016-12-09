@@ -40,29 +40,30 @@ class ErrorWidget(QWidget):
             width = 500
         else:
             width = parent.width()
-        self.errorWidget.setFixedSize(width, 20)
-        self.errorWidget.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.errorWidget.setStyleSheet("""
+                            QLabel{
+                                width:%s;
+                                color:#1E8BC3;
+                                width:inherit;
+                                background-color:black;
+                                border-color:#6BB9F0;
+                                font-weight:bold;
+                                font-size:16px;
+                                border-bottom-right-radius:5px;
+                                border-bottom-left-radius:5px;
+                                border-width: 1px;
+                                border-style: solid;
+
+                            }
+                        """ % width)
+        self.errorWidget.setFixedSize(width, self.errorWidget.font().pointSize()*4)
+        self.errorWidget.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
 
         self.errorWidget.resizeEvent = self.resizeLabel
-        self.errorWidget.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        #self.errorWidget.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.errorWidget.setVisible(False)
 
-        self.animationProp = b"opacity"  # QByteArray(len(s),s)
-        # self.errorWidget.setFixedWidth(300)
-        self.errorWidget.setStyleSheet("""
-                    QLabel{
-                        color:#1E8BC3;
-                        width:inherit;
-                        background-color:black;
-                        border-color:#6BB9F0;
-                        font-weight:bold;
-                        border-bottom-right-radius:5px;
-                        border-bottom-left-radius:5px;
-                        border-width: 1px;
-                        border-style: solid;
-
-                    }
-                """)
+        self.animationProp = b"opacity"  #needs to be in bytes... pyqt you know?
     def updateText(self,txt):
         self.errorWidget.setText(txt)
     def display(self):

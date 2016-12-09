@@ -24,7 +24,7 @@ from app.gui.components import GuiComponent
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
 class AddFilesWidget(QWidget, GuiComponent):
-    def __init__(self, parent,gui):
+    def __init__(self, parent, gui):
         super(AddFilesWidget,self).__init__(parent)
         self.gui = gui
         self.gui.register_listener(self)
@@ -36,50 +36,53 @@ class AddFilesWidget(QWidget, GuiComponent):
 
     def initWidget(self):
         content = QGridLayout(self)
-        self.inputPath = QLineEdit(self,placeholderText="No selected folder")
+        self.inputPath = QLineEdit(self,placeholderText="No folder selected")
         self.inputPath.setReadOnly(True)
-        self.btnOpenDir = QPushButton("Select a directory to scan",self)
-        self.btnScan = QPushButton("Scan directory",self)
+
+        self.btnOpenDir = QPushButton("Select a directory to scan")
+        self.btnScan = QPushButton("Scan directory")
 
 
-        self.lblLstParseFile = QLabel("list of the parsed files",self)
+        self.lblLstParseFile = QLabel("list of the parsed files")
         self.lstFileParse = QListWidget(self)
 
-        self.lblLstNotParseFile = QLabel("list of the parsed files", self)
+        self.lblLstNotParseFile = QLabel("list of the parsed files")
         self.lstFileNotParse = QListWidget(self)
-        self.lstFileParse.setFixedSize(660,200)
-        self.lstFileNotParse.setFixedSize(660,200)
+        self.lstFileParse.setMinimumSize(660,200)
+        self.lstFileNotParse.setMinimumSize(660,200)
 
         content.addWidget(self.inputPath, 0, 0)
         content.addWidget(self.btnOpenDir,0,1)
-        content.addWidget(self.btnScan,0,2)
+        #content.addWidget(self.btnScan,0,2)
         content.addWidget(self.lblLstParseFile,1,0)
-        content.addWidget(self.lstFileNotParse,2,0)
+        content.addWidget(self.lstFileNotParse,2,0,1,3)
         content.addWidget(self.lblLstNotParseFile,3,0)
-        content.addWidget(self.lstFileParse,4,0)
+        content.addWidget(self.lstFileParse,4,0,1,3)
 
 
         self.setLayout(content)
 
         self.btnOpenDir.clicked.connect(self.chooseDir)
-        self.btnScan.clicked.connect(self.scanDir)
+        #self.btnScan.clicked.connect(self.scanDir)
+    def _scanFile(self):
+        pass
     def scanDir(self):
         if  self.dirPath is not None:
-            lst, lstParsed, lstNotParsed = self.explorer.getFolderContent(self.dirPath)
-            data=["c:/test/film2mer.de111","c:/test/film2mer.de222","c:/test/test33","c:/test/film2mer.de444","c:/test/film2mer.de55","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","C:\Program Files (x86)\Apple Software Update\SoftwareUpdate.Resources\\fr.lproj[ www.CpasBien.cm ] The.Walking.Dead.S06E15.PROPER.VOSTFR.WEB-DL.XviD-SDTEAM.avi"]
-            print(len(lstParsed))
-            self.lstFileNotParse.clear()
-            for file in data:
-                fPath = file
-                try:
+            if os.path.isdir(self.dirPath):
+                lst = self.explorer.getMoviesFromPath(self.dirPath)
+                data=["c:/test/film2mer.de111","c:/test/film2mer.de222","c:/test/test33","c:/test/film2mer.de444","c:/test/film2mer.de55","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","C:\Program Files (x86)\Apple Software Update\SoftwareUpdate.Resources\\fr.lproj[ www.CpasBien.cm ] The.Walking.Dead.S06E15.PROPER.VOSTFR.WEB-DL.XviD-SDTEAM.avi"]
+                print(len(lst))
+                self.lstFileNotParse.clear()
+                for file in lst:
+                    print(file)
+                    fPath = file
                     item = QListWidgetItem(self.lstFileNotParse)
                     itemW = FileNotParsedWidget(self, file)
                     item.setSizeHint(itemW.sizeHint())
                     self.lstFileNotParse.setItemWidget(item, itemW)
                     itemW.btnGiveImdbUrl.clicked.connect(lambda ignore, widgetListItem=item, filePath=file:
                                                          self.getFilmInfoByUrl(widgetListItem,filePath))
-                except Exception as e:
-                    print(e)
+
 
         else:
             print("No folder")
@@ -95,6 +98,7 @@ class AddFilesWidget(QWidget, GuiComponent):
     def chooseDir(self):
         self.dirPath = QFileDialog.getExistingDirectory(self, 'Open file', 'C:/Users/ilias.goujgali/Videos',QFileDialog.ShowDirsOnly)
         self.inputPath.setText(self.dirPath)
+        self.scanDir()
 
     def getFilmInfoByUrl(self,item,file):
         idMovie = None
@@ -135,12 +139,12 @@ class AddFilesWidget(QWidget, GuiComponent):
 
     def addDirectory(self):
         self.toggleButtons()
-        Gui.instance().dispatchAction("show-directory-list")
+        self.gui.dispatchAction("show-directory-list")
         dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
         if dir_ is not None and dir_ is not "":
             self.explorer.getFolderContent(dir_)
-            Gui.instance().dispatchAction("parsed-list",self.explorer.parsedFiles)
-            Gui.instance().dispatchAction("non-parsed",self.explorer.nonParsedFiles)
+            self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
+            self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
 
     def handleAction(self, actionName, data):
         pass
@@ -231,13 +235,17 @@ class DirectoryListWidget(QWidget, GuiComponent):
 
 
 
-class ExplorerWidget(QWidget):
-    def __init__(self,parent = None):
-        super(ExplorerWidget,self).__init__(self,parent)
+class ExplorerWidget(QWidget, GuiComponent):
+    def __init__(self,parent, gui):
+        super(ExplorerWidget,self).__init__(parent)
+        parent.addWidget(self)
+        self.gui = gui
+        self.gui.registerListener(self)
+        self.initWidget()
+        self.show()
     def initWidget(self):
-        pass
+        self.add = AddFilesWidget(self,self.gui)
 
 if __name__ == '__main__':
-    pass
-    # from app.gui.Qgui import Gui
-    # Gui.start()
+    from app.gui.Qgui import Gui
+    Gui.start()
