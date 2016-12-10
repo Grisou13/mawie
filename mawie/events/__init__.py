@@ -1,4 +1,7 @@
 class Event:
+    """Base class for emitting events
+    Every event that is sent in the app must extend this base class, otherwise things might go south.
+    """
     name = None
     data = None
 
@@ -17,7 +20,7 @@ class Listener(object):
     def __init__(self, eventManager=None):
         super(Listener, self).__init__()
         if eventManager is not None:
-            eventManager.registerListener(self)  # Automaticly register
+            eventManager.registerListener(eventManager)  # Automaticly register
 
     def handle(self, event):
         pass
@@ -63,4 +66,6 @@ class Eventable(EventManager, Listener):
     """
 
     def __init__(self):
-        super(Eventable, self).__init__()  # this allows the ListenerClass to register ourself in the the event manager, which is ourself
+
+        super(Eventable, self).__init__()
+        self.registerListener(self)# this allows the ListenerClass to register ourself in the the event manager, which is ourself

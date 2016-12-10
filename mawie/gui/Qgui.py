@@ -28,6 +28,7 @@ from mawie.helpers import SingletonMixin
 import mawie.gui.resources.images
 
 import qdarkstyle
+import traceback
 
 class NotAComponent(Exception):
     pass
@@ -74,7 +75,7 @@ class ErrorWidget(QWidget):
         font = self.font()
         font.setPixelSize(self.height() * 0.8)
         self.setFont(font)
-        
+
     def fadeIn(self):
         g = QGraphicsOpacityEffect(self)
         self.errorWidget.setGraphicsEffect(g)
@@ -129,7 +130,7 @@ class Gui(QWidget,Eventable,SingletonMixin):
         print("Qt error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Context: " + str(ErrorContext))
-        print("Error traceback: "+ str(TraceBack))
+        print("Traceback: " + traceback.print_tb(TraceBack))
         self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorContext))
         # m = QMessageBox()
         # m.setText("Error : "+str(ErrorType))
@@ -145,7 +146,7 @@ class Gui(QWidget,Eventable,SingletonMixin):
         print("System error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Value: " + str(ErrorValue))
-        print("Traceback: " + str(TraceBack))
+        print("Traceback: " + traceback.print_tb(TraceBack))
         self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
         # m = QMessageBox()
         # m.setText("Error [" + str(ErrorType) + "] : " + str(ErrorValue))

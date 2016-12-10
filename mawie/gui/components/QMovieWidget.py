@@ -10,7 +10,7 @@ from PyQt5.QtGui import QPixmap,QFont,QImage
 from PyQt5.QtCore import QRect,Qt
 from urllib import request
 
-from qtpy import QtCore
+from PyQt5 import QtCore
 
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QMovieListWidget import MovieListFrame

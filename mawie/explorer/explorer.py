@@ -17,7 +17,8 @@ import mawie.models.File as modelFile
 import mawie.models.Movie as modelMovie
 from datetime import datetime
 from mawie.explorer.googleit import googleIt
-
+from mawie.events import *
+from mawie.events.explorer import *
 import time
 import json
 
@@ -34,7 +35,7 @@ class FileContainer:
     # def __setattr__(self, key, value):
     #     self._data[key] = value
     """
-    Allows dict access, so that Eric doesn't freak out
+    Allows dict access, so that Eric doesn't freak out and lose it
     """
     def __delitem__(self, key):
         self._data[key]
@@ -43,7 +44,7 @@ class FileContainer:
     def __setitem__(self, key, value):
         self._data[key] = value
 
-class Explorer():
+class Explorer(EventManager):
 
     googleIt = googleIt()
     MimeTypes = MimeTypes()
@@ -73,13 +74,13 @@ class Explorer():
                 path = os.path.join(r,f)
                 if self._isAVideo(path):
                     # we parse the files here
-                    files.append(self.parseFile(path))
+                    mov =self.parseFile(path)
+                    files.append(mov)
 
             # for d in dirs:
             #     # as Thomas said : Recursion bitch
             #     files.extend(self.getMoviesFromPath(os.path.join(r,d)))
-
-        return files
+        return self.addToDatabase(files)
 
     def parseFile(self, filePath):
         if not filePath == os.path.realpath(filePath):
@@ -126,6 +127,34 @@ class Explorer():
     ####               DATABASE stuff              ####
     ####                                           ####
     ###################################################
+    def addSingleMovie(self,file_):
+        # we try to avoid to search 20 times in a row the same title (for example for a série)
+        if file_["title"] != self._lastTitle["title"]:
+            fromImdb = self.googleIt.getMovieID(file_["title"])
+            self._lastTitle["title"] = file_["title"]
+            self._lastTitle["imdb_id"] = fromImdb
+        else:
+            fromImdb = self._lastTitle["imdb_id"]
+
+        file_["imdb_id"] = fromImdb
+
+        if file_["imdb_id"]:
+            if self._addFile(f):
+
+                foundFiles[file_["title"]] = f
+                file_["parsed"] = True
+                self.emit(MovieParsed(file_))
+            else:
+                SystemError("Cannot add file {} to database".format(file_["title"]))
+        else:
+            # give it a second try !
+            #print(file_["title"])
+            imdb_id = self.googleIt.getMovieID(file_["title"])
+            #print(imdb_id)
+
+            file_["parsed"] = False
+            self.emit(MovieNotParsed(file_))
+        return file_
 
     def addToDatabase(self, movieList):
         foundFiles = dict()
@@ -134,33 +163,14 @@ class Explorer():
             raise LookupError("The given list is empty. ")
 
         for f in movieList:
-            # we try to avoid to search 20 times in a row the same title (for example for a série)
-            if f["title"] != self._lastTitle["title"]:
-                fromImdb = self.googleIt.getMovieID(f["title"])
-                self._lastTitle["title"] = f["title"]
-                self._lastTitle["imdb_id"] = fromImdb
+            res_ = self.addSingleMovie(f)
+            if res_["parsed"]:
+                foundFiles[res_["title"]] = res_
             else:
-                fromImdb = self._lastTitle["imdb_id"]
-
-            f["imdb_id"] = fromImdb
-
-            if f["imdb_id"]:
-                if self._addFile(f):
-
-                    foundFiles[f["title"]] = f
-                else:
-                    SystemError("Cannot add file {} to database".format(f["title"]))
-            else:
-                # give it a second try !
-                #print(f["title"])
-                imdb_id = self.googleIt.getMovieID(f["title"])
-                #print(imdb_id)
-
-                notFoundFiles[f["title"]] = f
+                notFoundFiles[res_["title"]] = res_
         self.found = foundFiles
         self.notFound = notFoundFiles
-
-
+        return foundFiles, notFoundFiles
     def _getMovieByImdbId(self, imdbId):
         q = Movie.query().filter(Movie.imdb_id == imdbId)
         if not q.count():

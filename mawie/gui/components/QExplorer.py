@@ -21,6 +21,26 @@ from six import unichr
 
 from mawie.explorer.explorer import Explorer
 from mawie.gui.components import GuiComponent
+from mawie.events import *
+from mawie.events.explorer import *
+
+class FileParsedListWidget(QListWidget,Listener):
+    def __init__(self,parent = None):
+        super().__init__(parent)
+    def handle(self,event):
+        if isinstance(event,MovieParsed):
+            self.addItem(event.data)
+    def addItem(self,item):
+        pass
+
+class FileNotParsedListWidget(QListWidget,Listener):
+    def __init__(self,parent = None):
+        pass
+    def handle(self,event):
+        if isinstance(event,MovieNotParsed):
+            self.addItem(event.data)
+    def addItem(self,item):
+        pass
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
 class AddFilesWidget(QWidget, GuiComponent):
@@ -47,6 +67,7 @@ class AddFilesWidget(QWidget, GuiComponent):
         self.lstFileParse = QListWidget(self)
 
         self.lblLstNotParseFile = QLabel("list of the parsed files")
+        self.lblLstNotParseFile = FileNotParsedWidget(self)
         self.lstFileNotParse = QListWidget(self)
         self.lstFileParse.setMinimumSize(660,200)
         self.lstFileNotParse.setMinimumSize(660,200)
@@ -73,14 +94,14 @@ class AddFilesWidget(QWidget, GuiComponent):
                 data=["c:/test/film2mer.de111","c:/test/film2mer.de222","c:/test/test33","c:/test/film2mer.de444","c:/test/film2mer.de55","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","C:\Program Files (x86)\Apple Software Update\SoftwareUpdate.Resources\\fr.lproj[ www.CpasBien.cm ] The.Walking.Dead.S06E15.PROPER.VOSTFR.WEB-DL.XviD-SDTEAM.avi"]
                 print(len(lst))
                 self.lstFileNotParse.clear()
-                for file in lst:
-                    print(file)
-                    fPath = file
+                for f in lst:
+                    print(f)
+                    fPath = f["filePath"]
                     item = QListWidgetItem(self.lstFileNotParse)
-                    itemW = FileNotParsedWidget(self, file)
+                    itemW = FileNotParsedWidget(self, f["title"])
                     item.setSizeHint(itemW.sizeHint())
                     self.lstFileNotParse.setItemWidget(item, itemW)
-                    itemW.btnGiveImdbUrl.clicked.connect(lambda ignore, widgetListItem=item, filePath=file:
+                    itemW.btnGiveImdbUrl.clicked.connect(lambda ignore, widgetListItem=item, filePath=f["filePath"]:
                                                          self.getFilmInfoByUrl(widgetListItem,filePath))
 
 
@@ -150,6 +171,7 @@ class AddFilesWidget(QWidget, GuiComponent):
         pass
     def requestAction(self,name):
         pass
+
 
 class FileParsedWidget(QWidget):
     def __init__(self, parent, file=None):

@@ -22,6 +22,7 @@ Tests done
 TODOS
 
 Refactor and add relative imports, sintead of this horrible sys.path.extend
+UZse asyncrounous coroutines to boost app performance (Quamash, Eventloops, or pure python async)
 
 http://docs.themoviedb.apiary.io/#reference/search/searchmovie/get
 theme : https://github.com/ColinDuquesnoy/QDarkStyleSheet
