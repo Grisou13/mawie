@@ -5,7 +5,7 @@
 # explorer
 
 ## explorer Class
-The class explorer uses the "public" method __parse()__ to parse the given folder.
+The class explorer has the "public" method __parse()__ to parse the given folder.
 Basically the function does :
 1. Loop through the given folder
 2. Get every video file with the mime type
@@ -19,6 +19,8 @@ Basically the function does :
 >>> explorer = Explorer()
 >>> found, notfound = explorer.parse(path_to_folder)
 ```
+
+The two elements returned are dictionnaries which contains respecitely the found and the not found files.
 
 ### file parsing
 We first used the [PTN library](https://github.com/divijbindlish/parse-torrent-name) to parse the files names.
@@ -47,7 +49,7 @@ A file is the phsyical element that we want to store.
 
 __File Data Model__:
 
-File  |    
+File  | &nbsp
 ------------- | -------------
 path  | string
 base  | string
@@ -58,8 +60,8 @@ created_at | datetime
 The model can be found at *app/models/File.py*
 
 __Movie data model__:
-
-Movie  |    
+And a movie is simple all the informations about a movie on imdb.
+Movie  | &nbsp  
 ------------- | -------------
 name  | string
 imdb_id  | string
@@ -72,14 +74,14 @@ directors  | string
 writer  | string
 poster  | string
 rate  | string
-name  | relation to File
+files  | relation to File
 viewed  | boolean
 
 The model can be found at *app/models/Movie.py*
 
 
 ## googleIt Class
-The class interfere directly with the explorer. 
+The class is mostly used by the explorer. 
 There's two "public" functions that can be used :
 The first one , __getMovieID()__, is to get a movie id with a title
 ```
