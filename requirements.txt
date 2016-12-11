@@ -5,7 +5,8 @@ timestring
 active_alchemy
 pillow
 python-Levenshtein
-py-bing-search
 imdbpie
 guessit
 pyqt5
+BeautifulSoup4
+imdbpie
