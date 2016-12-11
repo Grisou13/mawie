@@ -59,11 +59,11 @@ class googleIt():
         # get the fifty firsts results of a research
         researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
         # find all the links from imdb
-        print(self._makeSearchTerm(movieTitle))
-        for kkk in researchResults:
-            print(kkk.url)
+        #print(self._makeSearchTerm(movieTitle))
+        #for kkk in researchResults:
+        #    print(kkk.url)
 
-        sys.exit(movieTitle)
+        #sys.exit(movieTitle)
 
         imDBlinks = self._findImdbLinks(researchResults)
 

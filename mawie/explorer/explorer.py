@@ -1,6 +1,6 @@
 import mimetypes
 import os
-import Levenshtein.StringMatcher as lev
+#import Levenshtein.StringMatcher as lev
 # import mimetypes
 # mimetypes.init()
 from mimetypes import MimeTypes
@@ -21,6 +21,8 @@ from mawie.events import *
 from mawie.events.explorer import *
 import time
 import json
+from mawie.helpers import SingletonMixin
+from PyQt5.QtCore import QEventLoop
 
 class FileContainer:
     _data = {}
@@ -43,7 +45,7 @@ class FileContainer:
         return self._data[key]
     def __setitem__(self, key, value):
         self._data[key] = value
-
+import time
 class Explorer(EventManager):
 
     googleIt = googleIt()
@@ -139,21 +141,21 @@ class Explorer(EventManager):
         file_["imdb_id"] = fromImdb
 
         if file_["imdb_id"]:
-            if self._addFile(f):
+            if self._addFile(file_):
 
-                foundFiles[file_["title"]] = f
+                #foundFiles[file_["title"]] = file_
                 file_["parsed"] = True
                 self.emit(MovieParsed(file_))
             else:
-                SystemError("Cannot add file {} to database".format(file_["title"]))
+                raise Exception("Cannot add file {} to database".format(file_["title"]))
         else:
             # give it a second try !
             #print(file_["title"])
             imdb_id = self.googleIt.getMovieID(file_["title"])
             #print(imdb_id)
-
             file_["parsed"] = False
             self.emit(MovieNotParsed(file_))
+
         return file_
 
     def addToDatabase(self, movieList):
@@ -161,16 +163,18 @@ class Explorer(EventManager):
         notFoundFiles = dict()
         if len(movieList) <= 0:
             raise LookupError("The given list is empty. ")
-
+        loop = QEventLoop()
         for f in movieList:
+            loop.processEvents(QEventLoop.ExcludeUserInputEvents) #TODO delete this you know?
             res_ = self.addSingleMovie(f)
             if res_["parsed"]:
                 foundFiles[res_["title"]] = res_
             else:
                 notFoundFiles[res_["title"]] = res_
+            time.sleep(1)
         self.found = foundFiles
         self.notFound = notFoundFiles
-        return foundFiles, notFoundFiles
+        yield foundFiles, notFoundFiles
     def _getMovieByImdbId(self, imdbId):
         q = Movie.query().filter(Movie.imdb_id == imdbId)
         if not q.count():
@@ -178,13 +182,13 @@ class Explorer(EventManager):
         else:
             return q.first()
 
-    def _addFile(self, file):
+    def _addFile(self, file_):
         # get the movie of the file
-        mov = self._addMovie(file["imdb_id"])
+        mov = self._addMovie(file_["imdb_id"])
 
         # and create a new file
         fi = modelFile.File()
-        fi.path = file["filePath"]
+        fi.path = file_["filePath"]
         fi.movie_id = mov.id
 
         # add the relation to the movie table
@@ -193,7 +197,7 @@ class Explorer(EventManager):
         # save both the file and the movie w the new relation
         fi.save()
         mov.save()
-        print("Movie added : " + file["filePath"] + " !")
+        print("Movie added : " + file_["filePath"] + " !")
         self.count += 1
         return True
 

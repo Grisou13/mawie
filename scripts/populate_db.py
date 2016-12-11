@@ -49,7 +49,7 @@ if __name__ == '__main__':
         os.mkdir(h.CACHE_PATH)
     except:
         pass
-    if not os.path.exists(h.DB_PATH):
-        with open(h.DB_PATH,"w+"):pass
+    if not os.path.exists(h.DB_FILE):
+        with open(h.DB_FILE,"w+"):pass
     populate()
     print("finished")
