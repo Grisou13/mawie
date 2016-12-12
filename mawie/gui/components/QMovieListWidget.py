@@ -17,12 +17,9 @@ from mawie.research.research import Research
 
 class MovieListFrame(QWidget, GuiComponent):
 
-    def __init__(self,parent=None,gui=None):
-        super().__init__(parent)
+    def __init__(self,parent):
+        super(MovieListFrame,self).__init__(parent)
         parent.addWidget(self)
-        parent.setCurrentWidget(self)
-        self.gui = gui
-        self.gui.register_listener(self)
         self.initFrame()
     # def showEvent(self, QShowEvent):
     #     super(MovieListFrame, self).showEvent(QShowEvent)
@@ -34,20 +31,13 @@ class MovieListFrame(QWidget, GuiComponent):
         grid = QGridLayout()
         self.listWidgets = QListWidget(self)
         self.listWidgets.setMinimumSize(670,700)
-
-        # for film in Movie.query():
-        #     item = QListWidgetItem(self.listWidgets)
-        #     itemW= ResultRow(self,film,self.gui)
-        #     item.setSizeHint(itemW.sizeHint())
-        #     self.listWidgets.setItemWidget(item, itemW)
-
         self.setLayout(grid)
     def updateWidgets(self,data):
         self.listWidgets.clear()
         for film in data:
             try:
                 item = QListWidgetItem(self.listWidgets)
-                itemW= ResultRow(self,film,self.gui)
+                itemW= ResultRow(self,film)
                 item.setSizeHint(itemW.sizeHint())
                 self.listWidgets.setItemWidget(item, itemW)
                 #itemW.show.connect(lambda x: self.clickedSee(film))
@@ -70,7 +60,7 @@ class MovieListFrame(QWidget, GuiComponent):
 class ResultRow(QWidget):
     show = pyqtSignal()
 
-    def __init__(self,parent,data,gui):
+    def __init__(self,parent,data):
         super(ResultRow,self).__init__(parent)
         self.film = data
         self.initRow(data)
@@ -122,5 +112,5 @@ class ResultRow(QWidget):
     def seeFilm(self):
         print(self.film.name)
 if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
-    Gui.start()
+    from mawie.gui.Qgui import start
+    start()

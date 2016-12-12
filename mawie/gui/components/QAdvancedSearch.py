@@ -122,11 +122,9 @@ class DateRangeInput(QWidget):
 
 
 class AdvancedSearch(QWidget, GuiComponent):
-    def __init__(self, parent = None, gui = None, *args, **kwargs):
+    def __init__(self, parent = None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
-        parent.addWidget(self)
-        gui.register_listener(self)
-        self.gui = gui
+        self.gui = parent.gui
         self.fields = ["name","runtime","genre","release","actors","directors","filename"] #TODO discover these directly with the research, for now just brutforce it
         #TODO make files and directories searchable
         self.model = Movie

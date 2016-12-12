@@ -1,3 +1,6 @@
+import weakref
+
+
 class Event:
     """Base class for emitting events
     Every event that is sent in the app must extend this base class, otherwise things might go south.
@@ -5,23 +8,39 @@ class Event:
     name = None
     data = None
 
-    def __init__(self, data):
+    def __init__(self, data=None):
         self.name = self.__class__.__name__
         self.data = data
 
 
-"""
-Helper classes that allow events to pass on from one class to another
-"""
-import weakref
+class Request(Event):
+    def createResponse(self,data = None):
+        return Response(request=self,responseData=data)
+
+
+class Response(Event):
+    request = None
+    def __init__(self, request, responseData=None):
+        super(Response, self).__init__(responseData)
+        self.request = request
+
+
+class Start(Event):
+    def __init__(self):
+        pass
 
 
 class Listener(object):
+    """
+    Helper classes that allow events to pass on from one class to another
+    """
+
     def __init__(self, eventManager=None):
         super(Listener, self).__init__()
         if eventManager is not None:
+            print(eventManager)
             eventManager.registerListener(eventManager)  # Automaticly register
-
+            print("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
     def handle(self, event):
         pass
 
@@ -31,9 +50,8 @@ class EventManager(object):
         super(EventManager, self).__init__()
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
-
     def registerListener(self, cls):
-        self.listeners[cls] = cls.__class__.__name__  # just register the class name
+        self.listeners[cls] = 1  # just register the class name
 
     def deleteListener(self, cls):
         del self.listeners[cls]
@@ -43,10 +61,12 @@ class EventManager(object):
             l.handle(event)
 
     # TODO delete the folloing methods and implement above ones
-    def register_listener(self,cls):
+    def register_listener(self, cls):
         self.registerListener(cls)
-    def delete_listener(self,cls):
+
+    def delete_listener(self, cls):
         self.deleteListener(cls)
+
     def dispatchAction(self, actionName, actionData=None):
         print("dispatching action : " + actionName)
         for l in self.listeners.keys():
@@ -66,6 +86,7 @@ class Eventable(EventManager, Listener):
     """
 
     def __init__(self):
-
         super(Eventable, self).__init__()
-        self.registerListener(self)# this allows the ListenerClass to register ourself in the the event manager, which is ourself
+        print("registering class " + self.__class__.__name__ + " as a listener ")
+        self.registerListener(
+            self)  # this allows the ListenerClass to register ourself in the the event manager, which is ourself

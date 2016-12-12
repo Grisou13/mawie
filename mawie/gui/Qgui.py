@@ -2,6 +2,7 @@
 import copy
 import os
 import sys
+import threading
 import weakref
 from PyQt5 import QtGui
 
@@ -12,6 +13,7 @@ from PyQt5.QtCore import QPropertyAnimation
 
 from PyQt5.QtCore import QResource
 from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QSizePolicy
@@ -19,7 +21,8 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEd
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 
-from mawie.events import Eventable
+from mawie import App
+from mawie.events import Eventable, Start
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QStackedWidget import ComponentArea
@@ -29,7 +32,7 @@ import mawie.gui.resources.images
 
 import qdarkstyle
 import traceback
-
+from mawie.events.gui import *
 class NotAComponent(Exception):
     pass
 
@@ -97,109 +100,114 @@ class ErrorWidget(QWidget):
         a.setEasingCurve(QEasingCurve.OutBack)
         a.finished.connect(lambda : self.errorWidget.setVisible(False))
         a.start(QPropertyAnimation.DeleteWhenStopped)
-class Gui(QWidget,Eventable,SingletonMixin):
-    def __init__(self,parent=None):
-        super(Gui, self).__init__(parent)
 
-        self._components = {}
-        self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
-        self.componentArea = ComponentArea(self)
-        self.initUI()
+
+class Gui(QMainWindow, Eventable):
+    #based out of tornado ioloop https://github.com/tornadoweb/tornado/blob/master/tornado/ioloop.py
+    _instance_lock = threading.Lock()
+    @staticmethod
+    def instance():
+        print("getting instance")
+        if not hasattr(Gui, "_instance"):
+            with Gui._instance_lock:
+                if not hasattr(Gui, "_instance"):
+                    # New instance after double check
+                    Gui._instance = Gui()
+        return Gui._instance
+
+    def __init__(self):
+        super(Gui, self).__init__()
+        print("starting gui")
+
         self.registerExceptions()
-    def resizeEvent(self, QResizeEvent):
-        self.componentArea.resize(QResizeEvent.size())
-        super(Gui, self).resizeEvent(QResizeEvent)
-        QResizeEvent.accept()
+
+        print("done 1")
+        self.initUI()
+        print("done 2")
 
     def initUI(self):
-        content = QGridLayout(self)
-
-        self.setMinimumSize(700,800)
+        self.statusBar().showMessage("hi")
+        print("starting ui")
+        mainWidget = QWidget(self)
+        mainWidget.gui = self
+        self.main = mainWidget
+        self.setCentralWidget(self.main)
+        print("new main widget")
+        content = QGridLayout(mainWidget)
+        self.componentArea = ComponentArea(mainWidget)
+        print("created component area")
+        mainWidget.setMinimumSize(700,800)
         self.center()
-        recherche = ResearchFrame(self)
-        #add = AddFilesWidget(self)
+        recherche = ResearchFrame(mainWidget)
+        self.registerListener(recherche)
         self.setWindowTitle('Find My movie')
         self.errorWidget = ErrorWidget(self)
         content.addWidget(self.componentArea,2,0)
         content.addWidget(recherche, 1, 0)
 
-        self.setLayout(content)
+        mainWidget.setLayout(content)
+
+        print("showing widgerts")
+
+
         self.show()
+        self.main.show()
 
-    def myCustomHandler(self,ErrorType, ErrorContext, TraceBack):
-        print("Qt error found.")
-        print("Error Type: " + str(ErrorType))
-        print("Error Context: " + str(ErrorContext))
-        traceback.print_exc()
-        #print("Traceback: " + str(traceback.print_tb(TraceBack)))
-        self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorContext))
-        # m = QMessageBox()
-        # m.setText("Error : "+str(ErrorType))
-        # m.exec()
-        #e = ErrorWidget(Gui.instance(),ErrorType)
-
-        # Error logging code
-        # Error emailing code
-
-        #os.execv(sys.executable, [sys.executable] + sys.argv)
-
-    def ErrorHandling(self,ErrorType, ErrorValue, TraceBack):
+    def errorHandling(self,ErrorType, ErrorValue, TraceBack):
         print("System error found.")
         print("Error Type: " + str(ErrorType))
         print("Error Value: " + str(ErrorValue))
-        traceback.print_exc()
-        #print("Traceback: " + str(traceback.print_tb(TraceBack)))
+        if isinstance(TraceBack,str):
+            print("Error: "+TraceBack)
+        else:
+            traceback.print_exc()
+        #self.emit(ErrorEvent(ErrorType,ErrorValue,TraceBack))
         self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
-        # m = QMessageBox()
-        # m.setText("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
-        # m.exec()
-        #e = ErrorWidget(Gui.instance(), ErrorType)
-        # Error logging code
-        # Error emailing code
-
-        #os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def addError(self,text):
-        print("############")
-        print("handling error")
-        print("############")
-        #self.errorWidget.show()
         self.errorWidget.updateText(text)
         self.errorWidget.display()
 
-
     def registerExceptions(self):
-        sys.excepthook = self.ErrorHandling
-        QtCore.qInstallMessageHandler(self.myCustomHandler)
-    @staticmethod
-    def start():
-
-        app = QApplication(sys.argv)
-        app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
-        ex = Gui()
-
-        code = 0
-        try:
-            #raise Exception("Test exception")
-            code = app.exec()
-        except:
-            ex.initUI()
-        sys.exit(code)
-
+        self.errorWidget = ErrorWidget(self)
+        print("registering exception handlers")
+        sys.excepthook = self.errorHandling
+        QtCore.qInstallMessageHandler(self.errorHandling)
 
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-    # def addComponent(self, cls):
-    #     #c = cls(self)
-    #     self.register_listener(cls)
-    #     if isinstance(cls,GuiComponent):
-    #         self._components[cls.__class__.__name__] = c
-    #         # if isinstance(c,QWidget):
-    #         #     self.componentArea.addWidget(c)
+
+    def handle(self, event):
+        print("asdasd")
+        if isinstance(event,Start):
+            print("starting")
+            self.initUI()
+            self.backgroundApp = App.instance()
+        elif isinstance(event,ShowFrame):
+            if isinstance(event.data,str):
+                pass #should redispatch an event for callin g the right class
+        else:
+            self.sendToBackground(event)
+
+    def sendToBackground(self,event):
+        print("sending to background")
+        self.backgroundApp.newEvent.emit(event)
 
 
+def start():
+    app = QApplication(sys.argv)
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    ex = Gui.instance()
+    #ex.emit(Start())
+    code = 0
+    try:
+        # raise Exception("Test exception")
+        code = app.exec()
+    except:
+        ex.initUI()
+    sys.exit(code)
 if __name__ == '__main__':
-    Gui.start()
+    start()

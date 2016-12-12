@@ -15,8 +15,7 @@ import re
 class ResearchFrame(QWidget, GuiComponent):
     def __init__(self,parent):
         super().__init__(parent)
-        self.gui = parent
-        self.gui.register_listener(self)
+        self.gui = parent.gui
         self.search = Research()
         self.initFrame()
         self._textChangedFlag = False

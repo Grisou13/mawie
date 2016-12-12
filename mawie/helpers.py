@@ -29,21 +29,32 @@ def constant(f):
 class SingletonMixin(object):
     __singleton_lock = threading.Lock()
     __singleton_instance = None
+    _instance = None
+    _lock = threading.Lock()
 
-    @classmethod
-    def instance(cls):
-        if not cls.__singleton_instance:
-            with cls.__singleton_lock:
-                if not cls.__singleton_instance:
-                    cls.__singleton_instance = cls()#object.__new__(cls)
-        return cls.__singleton_instance
+    def __new__(cls):
+        if SingletonMixin._instance is None:
+            with SingletonMixin._lock:
+                if SingletonMixin._instance is None:
+                    SingletonMixin._instance = super(SingletonMixin, cls).__new__(cls)
+        print(SingletonMixin._instance)
+        return SingletonMixin._instance
 
 
 def checkInternetConnexion():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
-        s.connect(("google.com", 80))
+        s.connect(("google.com", 80)) #if the computer doesn't have a dns and can't handle google... don't know what else to do man
         return True
     except Exception as e:
         return False
+if __name__ == '__main__':
+    class A(SingletonMixin): pass
+    class B(SingletonMixin): pass
+    a,b = A(), B()
+    a1,b1 = A(),B()
+    print(a)
+    print(b)
+    print(a1)
+    print(b1)

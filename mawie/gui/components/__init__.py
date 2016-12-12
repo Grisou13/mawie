@@ -1,16 +1,15 @@
+from mawie.events import Listener
+from mawie.events.gui import ShowFrame
+
+
 class NotImplemented(Exception): pass
 
-
-class GuiComponent(object):
-    def __init__(self):
-        #print(self.__class__.__name__)
-        pass
-    def requestAction(self, actionName):
-        pass
-
-    def handleAction(self, actionName, data):
-        pass
-
+class GuiComponent(Listener):
+    def handle(self,event):
+        #should call super() otherwise the compoenent may never appear on screen
+        if isinstance(event, ShowFrame):
+            if event.data == self.__class__.__name__:
+                self.gui.emit(ShowFrame(self))
 
 '''
 https://gist.github.com/bootchk/9025575
@@ -24,7 +23,7 @@ from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest
 
 
 class Downloader(QObject):
-    '''
+    """
     Asynchronous download from network, which is expected to be unreliable and possibly slow.
 
     A thin wrapper around QNetworkAccessManager()
@@ -45,7 +44,7 @@ class Downloader(QObject):
         bar = foo.downloadedData()
         # bar is only a reference, consume it before calling doDownload() again
 
-    '''
+    """
 
     downloaded = Signal()
 

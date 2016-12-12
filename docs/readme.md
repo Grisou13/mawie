@@ -12,9 +12,8 @@ The *gui* is made in Qt (PyQt5). It uses the updator, and everything else to mak
 
 It was made easy for anybody with some minimum of python, and qt notions to add components to the Gui, or add functionality to underlying apis.
 
-# folder structure
-
-libs/ contains python librairies that were either altered in functionalilty, or were installation failed, so we installed them from source.
+The app runs under a global event system. It is used to pass data back and forth in the app. Events are used for the communication between components, and comunication with background services.
+The event system provides a very simple api, and was implemented because of python's GIL ([read more here](http://www.dabeaz.com/python/UnderstandingGIL.pdf)). tl;dr The GIL blocks thread execution. This may be convenient, but in our case, we need Qt to run, and make background process data happen. If we were to only use 2 threads, and no event system, Qt will crash if too much data needs to be processed in the backend. This also has another negative side effect : alél the bandwidth is used for making single requests to duckduck go or imdb.... sems a bit too much?
 
 # Todos
 

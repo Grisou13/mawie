@@ -20,9 +20,8 @@ from mawie.gui.components.QSettings import SettingsWidget
 
 class ComponentArea(QStackedWidget,GuiComponent):
     def __init__(self,parent=None):
-        super().__init__(parent)
-        self.gui = parent
-        self.gui.register_listener(self)
+        super(ComponentArea,self).__init__(parent)
+        self.gui = parent.gui
         self.setFixedSize(680, 700)
         self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
@@ -38,14 +37,19 @@ class ComponentArea(QStackedWidget,GuiComponent):
         w.adjustSize()
         w.show()
     def addWidget(self,widget):
+        print("asdasdasdasdasd")
+        print(widget)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
-            super().addWidget(widget)
+            self.gui.register_listener(widget)
+            super(ComponentArea,self).addWidget(widget)
     def initWidget(self):
-        MovieFrame(self, self.gui)
-        MovieListFrame(self, self.gui)
-        s = ExplorerWidget(self,self.gui)
-        AdvancedSearch(self,self.gui)
+        print("starting main stacked")
+        self.addWidget(MovieFrame(self))
+        self.addWidget(MovieListFrame(self))
+        s = ExplorerWidget(self)
+        self.addWidget(s)
+        self.addWidget(AdvancedSearch(self))
         self.setCurrentWidget(s)
         # self.listMovie = MovieListFrame(self, self.gui)
         # self.movie = MovieFrame(self, self.gui)
@@ -53,20 +57,20 @@ class ComponentArea(QStackedWidget,GuiComponent):
         # self.addWidget(self.movie)
         # self.addWidget(self.listMovie)
         # self.setCurrentWidget(self.listMovie)
-    def handleAction(self, name, data):
-        if name == "show-frame":
-            print(data.__class__.__name__)
-            if data.__class__.__name__ in self.widgetStore:
-                w = self.widgetStore[data.__class__.__name__]
-                if self.indexOf(w) is not -1:
-                    self.setCurrentWidget(w)
+    # def handleAction(self, name, data):
+    #     if name == "show-frame":
+    #         print(data.__class__.__name__)
+    #         if data.__class__.__name__ in self.widgetStore:
+    #             w = self.widgetStore[data.__class__.__name__]
+    #             if self.indexOf(w) is not -1:
+    #                 self.setCurrentWidget(w)
                 # self.currentWidget().show()
                 # self.currentWidget().setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum)
                 # self.currentWidget().adjustSize()
-    def requestAction(self, name):
-        pass
+    # def requestAction(self, name):
+    #     pass
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
+    from mawie.gui.Qgui import start
 
-    Gui.start()
+    start()

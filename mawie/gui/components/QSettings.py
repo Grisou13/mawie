@@ -7,11 +7,12 @@ from PyQt5.QtWidgets import QListWidget
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 
+from mawie.gui.components import GuiComponent
 
-class SettingsWidget(QWidget):
-    def __init__(self,parent=None,gui=None):
+
+class SettingsWidget(QWidget, GuiComponent):
+    def __init__(self,parent=None):
         super(SettingsWidget, self).__init__(parent)
-        self.gui = gui
         self.createWidgets()
 
 

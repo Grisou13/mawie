@@ -73,10 +73,8 @@ class FileNotParsedListWidget(QListWidget,Listener):
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
 class AddFilesWidget(QWidget, GuiComponent):
-    def __init__(self, parent, gui):
+    def __init__(self, parent):
         super(AddFilesWidget,self).__init__(parent)
-        self.gui = gui
-        self.gui.register_listener(self)
         self.dirPath = None
         self.explorer = Explorer()
 
@@ -270,16 +268,14 @@ class FileNotParsedWidget(QWidget):
 
 
 class ExplorerWidget(QWidget, GuiComponent):
-    def __init__(self,parent, gui):
+    def __init__(self,parent):
         super(ExplorerWidget,self).__init__(parent)
-        parent.addWidget(self)
-        self.gui = gui
-        self.gui.registerListener(self)
+        self.gui = parent.gui
         self.initWidget()
-        self.show()
-    def initWidget(self):
-        self.add = AddFilesWidget(self,self.gui)
 
+    def initWidget(self):
+        self.add = AddFilesWidget(self)
+        self.show()
 if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
-    Gui.start()
+    from mawie.gui.Qgui import start
+    start()

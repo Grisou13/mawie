@@ -3,7 +3,9 @@ import os
 
 from active_alchemy import BaseQuery
 
+from mawie import Eventable
 from mawie import models
+from mawie.events.search import SearchResult, SearchRequest, SearchResponse
 
 if __name__ == '__main__':
     import sys
@@ -44,7 +46,7 @@ class FilterableList:
     filters = []
 
 
-class Research:
+class Research(Eventable):
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
@@ -59,7 +61,10 @@ class Research:
         if "cols" in kwargs:
             self.cols = kwargs["cols"]
             del kwargs["cols"]
-
+        super(Research,self).__init__(*args,**kwargs)
+    def handle(self, event):
+        if isinstance(event, SearchRequest):
+            self.emit(event.createResponse(self.search(event.data),event))
     def _aggregate_results(self):
         pass
 
@@ -99,6 +104,7 @@ class Research:
                 yield i
         elif isinstance(q, BaseQuery):
             for res in q.yield_per(5):
+                self.emit(SearchResult(res))
                 yield res
         else:
             for res in q:

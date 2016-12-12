@@ -20,11 +20,9 @@ from mawie.models.File import File
 from mawie.models.Movie import Movie
 
 class MovieFrame(QWidget, GuiComponent):
-    def __init__(self,parent=None, gui=None):
+    def __init__(self,parent=None):
         super().__init__(parent)
-        parent.addWidget(self)
-        self.gui = gui
-        self.gui.register_listener(self)
+        self.gui = parent.gui
         self.initFrame()
 
     def initFrame(self):
