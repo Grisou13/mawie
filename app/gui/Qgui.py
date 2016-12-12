@@ -14,6 +14,7 @@ from app.gui.components.QMovieWidget import MovieFrame
 from app.gui.components.QResearchWidget import  ResearchFrame
 from app.gui.components.QStackedWidget import ComponentArea
 from app.helpers import SingletonMixin
+from PyQt5.QtCore import QSettings
 
 class NotAComponent(Exception):
     pass
@@ -47,6 +48,21 @@ class Gui(QWidget,SingletonMixin):
         app = QApplication(sys.argv)
         app.setOrganizationName("CPNV")
         app.setApplicationName("MAWIE")
+        settings = QSettings()
+
+        firstLaunch = settings.value("firstlaunch")
+        updatorEnable = settings.value("updator/updatorEnable")
+        frequency = settings.value("updator/frequency")
+        playerDefault = settings.value("infomovie/player-default")
+
+        if firstLaunch is None:
+            settings.setValue("firstlaunch", True)
+        if updatorEnable  is None:
+            settings.setValue("updator/updatorEnable", True)
+        if frequency is None:
+            settings.setValue("updator/frequency",1800)
+        if playerDefault is None:
+            settings.setValue("infomovie/player-default",True)
 
         ex = Gui()
         ex.initUI()

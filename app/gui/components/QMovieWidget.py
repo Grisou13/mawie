@@ -3,6 +3,8 @@ import subprocess
 import sys
 
 import time
+
+from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
@@ -23,6 +25,8 @@ class MovieFrame(QWidget, GuiComponent):
         super().__init__(parent)
         self.gui = gui
         self.gui.register_listener(self)
+        self.settings = QSettings()
+        self.defaultPlayer = self.settings.value('infomovie/player-default')
         self.initFrame()
 
     def initFrame(self):
@@ -205,9 +209,12 @@ class MovieFrame(QWidget, GuiComponent):
 
         if path is not None:
             if os.path.isfile(path):
-                if path.lower().endswith(('.wmv','.avi')):
-                    moviePlayer = VideoPlayer(path=path)
-                    moviePlayer.exec_()
+                if self.defaultPlayer == 'true':
+                    if path.lower().endswith(('.wmv','.avi')):
+                        moviePlayer = VideoPlayer(path=path)
+                        moviePlayer.exec_()
+                    else:
+                        os.startfile(path)
                 else:
                     os.startfile(path)
             else:

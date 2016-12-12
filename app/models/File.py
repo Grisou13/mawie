@@ -1,4 +1,6 @@
 import datetime
+import os
+
 from sqlalchemy import Column, ForeignKey, Integer, Text, DateTime, schema
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -14,3 +16,8 @@ class File(db.Model):
     movie_id = Column(Integer, ForeignKey("movie.id"))
     movie = relationship("Movie", backref="movie")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    base = Column(Text, nullable=True)
+
+
+def directory(self):
+        return os.path.basename(self.path)
