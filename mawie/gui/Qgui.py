@@ -148,7 +148,7 @@ class Gui(EventManager, metaclass=Singleton):
 
     def handle(self, event):
         if isinstance(event, ErrorEvent):
-            log.info("error %s: %s [%s]",event.type,event.value,event.traceback)
+            log.warning("Error %s: %s [%s]",event.type,event.value,traceback.print_tb(event.traceback))
             log.info(traceback.print_exc())
         else:
             log.info("handling events: %s [%s]",event,event.data)

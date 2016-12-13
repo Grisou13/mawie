@@ -3,7 +3,7 @@ import os
 
 from active_alchemy import BaseQuery
 
-from mawie.app import AppComponent
+#from mawie.app import AppComponent
 from mawie.events import Eventable
 from mawie import models
 from mawie.events.gui import SearchResults
@@ -49,7 +49,7 @@ class FilterableList:
     filters = []
 
 
-class Research(AppComponent):
+class Research(Eventable):
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
