@@ -20,9 +20,11 @@ import mawie.models.File as modelFile
 import mawie.models.Movie as modelMovie
 from datetime import datetime
 from mawie.explorer.googleit import googleIt
-
+import logging
 import time
 import json
+
+log = logging.getLogger("mawie")
 
 class Explorer(Eventable):
 
@@ -37,9 +39,24 @@ class Explorer(Eventable):
     # main func to call.
 
     def parse(self, path):
+        """
+        Parse and stores the movies in the given folder
+        :param path: Folder containing the movie files
+        :return: two lists of movies. The first one is the parsed (and stores in db).
+        The second list contains the unparsed files
+
+        So the function :
+        1. Get the name of every movie in the folder
+        2. Parse the name of the file
+        3. Get the IMDB's ID of that movie
+        4. If the IMDB's ID is found, the file is in the found list and stored in the db
+        6. Also stores each found movie with IMDB.com's information
+        5. Returns the two lists
+        """
         files = self._getMoviesFromPath(path)
         foundFiles, notFoundFiles = self._addToDatabase(files)
 
+        # assign properties
         self.foundFiles = foundFiles
         self.notFoundFiles = notFoundFiles
 
@@ -72,7 +89,7 @@ class Explorer(Eventable):
             # for d in dirs:
             #     # as Thomas said : Recursion bitch
             #     files.extend(self.getMoviesFromPath(os.path.join(r,d)))
-        sys.exit("yoj")
+
         return files
 
     def _parseFile(self, filePath):
@@ -113,7 +130,6 @@ class Explorer(Eventable):
         # and finally check if it is a video in array ex: (video, avi)
         return "video" in mime[0]
 
-
     ###################################################
     ####                                           ####
     ####               DATABASE stuff              ####
@@ -123,6 +139,7 @@ class Explorer(Eventable):
     def _addToDatabase(self, movieList):
         foundFiles = dict()
         notFoundFiles = dict()
+
         if len(movieList) <= 0:
             raise LookupError("The given list is empty. ")
 
@@ -130,6 +147,8 @@ class Explorer(Eventable):
             # we try to avoid to search 20 times in a row the same title (for example for a série)
             if f["title"] != self._lastTitle["title"]:
                 # todo search in fucking database
+                # how (w/o looking for the id) as the files is not stored yet...
+
                 fromImdb = self.googleIt.getMovieID(f["title"])
                 self._lastTitle["title"] = f["title"]
                 self._lastTitle["imdb_id"] = fromImdb
@@ -210,19 +229,6 @@ def r():
         return json.load(outfile)
 
 if __name__ == '__main__':
-    parsed = PTN.parse("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T")
-    secondParsed = guessit("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T", {"T": parsed["title"]})
-    print(secondParsed)
-
-    sys.exit("fuck yo bro")
-    explorer = Explorer()
-    #for l in r():
-        #r = explorer._parseName(l)
-        #print(explorer.googleIt.getMovieID(r["title"]))
-
-    startTime = time.process_time()
-    pth = "../../stubs/FILM_a_trier"
-    found, notFound = explorer.parse(pth)
-
-    for l in notFound:
-        print(l)
+    ex = Explorer()
+    ex.parse("../../stubs/FILM_a_trier")
+    pass

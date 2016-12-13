@@ -11,7 +11,7 @@ import logging.handlers
 s = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
 formatter = logging.Formatter(s)
 #basic config
-logging.basicConfig(level=logging.NOTSET, format=s, filemode = "w+")
+logging.basicConfig(level=logging.INFO, format=s, filemode = "w+")
 logger = logging.getLogger("mawie")
 #define handlers
 default = logging.handlers.RotatingFileHandler(os.path.join(LOG_PATH,'app.log'),"a+",encoding="utf8",backupCount = 5)
