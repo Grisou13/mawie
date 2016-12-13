@@ -37,6 +37,7 @@ class App(Eventable, metaclass=Singleton):
     def addEvent(self,event):
         self.queue.append(event)
     def handle(self, event):
+        print("asdasdasdasd")
         if isinstance(event,Start):
             next_call = time.time()
             while True:

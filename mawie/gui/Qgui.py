@@ -23,7 +23,7 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt, QRunnable, QThread, QThreadPool, pyqtSignal, QObject
 
 from mawie.app import App
-from mawie.events import Eventable, Start, Listener, EventManager
+from mawie.events import Eventable, Start, Listener, EventManager, Quit
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
@@ -49,6 +49,7 @@ class BackgorundProcess(QObject,Listener):
     def dispatchInternal(self,event):
         self.app.addEvent(event)
     def run(self):
+        log.debug("HI")
         print("starting")
         self.app = App()
 
@@ -57,6 +58,7 @@ class BackgorundProcess(QObject,Listener):
         self.app.emit(Start())
     def handle(self,event):
         self.response.emit(event)
+
 
 class MainWindow(QMainWindow):
     def center(self):
@@ -89,8 +91,10 @@ class MainWindow(QMainWindow):
 
 class Gui(EventManager, metaclass=Singleton):
     #based out of tornado ioloop https://github.com/tornadoweb/tornado/blob/master/tornado/ioloop.py
-    def __init__(self):
+    def __init__(self, app = None):
         super(Gui, self).__init__()
+        if not hasattr(self,"app"):
+            self.app = app
         self.registerListener(self)
         self.initSettings()
     def initSettings(self):
@@ -120,7 +124,8 @@ class Gui(EventManager, metaclass=Singleton):
             traceback.print_exc()
         else:
             print(TraceBack)
-        #self.emit(ErrorEvent(ErrorType,ErrorValue,TraceBack))
+
+        self.emit(ErrorEvent(ErrorType,ErrorValue,TraceBack))
         self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
 
     def addError(self,text):
@@ -132,17 +137,27 @@ class Gui(EventManager, metaclass=Singleton):
         QtCore.qInstallMessageHandler(self.errorHandling)
 
     def handle(self, event):
+        if isinstance(event, ErrorEvent):
+            log.info("error %s: %s [%s]",event.type,event.value,event.traceback)
+        else:
+            log.info("handling events: %s [%s]",event,event.data)
+
         if isinstance(event,Start):
-            log.info("Starting app")
+            log.info("starting everything up")
             self.initUI()
             self.registerExceptions()
             self.backgroundApp = BackgorundProcess()
             thread = QThread()
+            thread.started.connect(lambda : log.info("background process started"))
             self.backgroundApp.moveToThread(thread)
             self.backgroundApp.response.connect(self.emit)
-            thread.run()
-            log.debug("%s background thread",)
+
+            thread.start()
+            log.debug("%s background thread: %s",thread,thread.isRunning())
             self.backgroundProcessThread = thread
+        elif isinstance(event,Quit):
+            self.app.quit()
+            self.backgroundProcessThread.terminate()
         elif not isinstance(event,ShowFrame):
             self.sendToBackground(event)
 
@@ -154,15 +169,11 @@ def start():
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
-    ex = Gui()
+    ex = Gui(app)
     ex.emit(Start())
-    code = 0
-    try:
-        # raise Exception("Test exception")
-        code = app.exec()
-    except:
-        ex.initUI()
-    traceback.print_exc()
+    QTimer.singleShot(5000,lambda g = ex:ex.emit(Quit()))
+    code = app.exec()
+    #traceback.print_exc()
     sys.exit(code)
 if __name__ == '__main__':
     start()

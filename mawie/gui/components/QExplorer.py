@@ -28,22 +28,6 @@ import sys
 import traceback
 import copy
 
-class ExplorerRun(QThread):
-    def __init__(self, explorer, path, parent = None):
-        super(ExplorerRun,self).__init__(parent)
-        self.setPriority(QThread.IdlePriority)
-        print("new thread started")
-        self.toParse = path
-        self.explorer = copy.deepcopy(explorer) #redundant, maybe use a singleton?
-    def run(self):
-        try:
-            for m in self.explorer.getMoviesFromPath(self.toParse):
-                pass
-        except Exception as e:
-            print(e)
-            traceback.print_tb(e.__traceback__)
-            print(sys.exc_info())
-
 
 class FileParsedListWidget(QListWidget,Listener):
     def __init__(self,parent = None):
@@ -120,25 +104,7 @@ class AddFilesWidget(GuiComponent):
     def scanDir(self):
         if  self.dirPath is not None:
             if os.path.isdir(self.dirPath):
-
-                runnable = ExplorerRun(self.explorer,self.dirPath)
-                runnable.run()
-                #QThreadPool.globalInstance().start(runnable) # execute the explorer in a seperate thread, or just let Qt handle it
-                #lst = self.explorer.getMoviesFromPath(self.dirPath)
-                # data=["c:/test/film2mer.de111","c:/test/film2mer.de222","c:/test/test33","c:/test/film2mer.de444","c:/test/film2mer.de55","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","c:/test/film2mer.de","C:\Program Files (x86)\Apple Software Update\SoftwareUpdate.Resources\\fr.lproj[ www.CpasBien.cm ] The.Walking.Dead.S06E15.PROPER.VOSTFR.WEB-DL.XviD-SDTEAM.avi"]
-                # print(len(lst))
-                # self.lstFileNotParse.clear()
-                # for f in lst:
-                #     print(f)
-                #     fPath = f["filePath"]
-                #     item = QListWidgetItem(self.lstFileNotParse)
-                #     itemW = FileNotParsedWidget(self, f["title"])
-                #     item.setSizeHint(itemW.sizeHint())
-                #     self.lstFileNotParse.setItemWidget(item, itemW)
-                #     itemW.btnGiveImdbUrl.clicked.connect(lambda ignore, widgetListItem=item, filePath=f["filePath"]:
-                #                                          self.getFilmInfoByUrl(widgetListItem,filePath))
-
-
+                self.emit(ParseDirectoryRequest(self.dirPath))
         else:
             print("No folder")
             msgBox = QMessageBox()
@@ -204,7 +170,11 @@ class AddFilesWidget(GuiComponent):
             self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
             self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
     def handle(self,event):
-        pass
+        super().handle(event)
+        if isinstance(event, FileParsed):
+            self.lstFileParse.addItem(event.data)
+        elif isinstance(event, FileNotParsed):
+            self.lstFileNotParse.addItem(event.data)
     def handleAction(self, actionName, data):
         pass
     def requestAction(self,name):

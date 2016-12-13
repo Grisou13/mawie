@@ -28,7 +28,9 @@ class Response(Event):
 class Start(Event):
     def __init__(self):
         pass
-
+class Quit(Event):
+    def __init__(self):
+        pass
 
 class Listener:
     """

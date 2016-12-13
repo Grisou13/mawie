@@ -1,4 +1,4 @@
-from . import Event
+from . import Event, Request
 
 
 class SearchStarted(Event):
@@ -10,6 +10,18 @@ class MovieParsed(Event):
 
 
 class MovieNotParsed(Event):
+    pass
+
+
+class ParseDirectoryRequest(Request):
+    pass
+
+
+class FileParsed(Event):
+    pass
+
+
+class FileNotParsed(Event):
     pass
 
 

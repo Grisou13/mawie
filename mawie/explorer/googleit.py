@@ -23,8 +23,8 @@ class googleIt():
             except urllib.error.URLError as err:
                 return False
 
-        if not _doWeHaveInternet():
-            raise ConnectionError("No internet connection !")
+        # if not _doWeHaveInternet():
+        #     raise ConnectionError("No internet connection !")
 
     def _makeSearchTerm(self, movieName):
         return "https://duckduckgo.com/html/?q=" + movieName + " site:" + self.domainSearch
