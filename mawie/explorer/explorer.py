@@ -144,11 +144,9 @@ class Explorer(Eventable):
             raise LookupError("The given list is empty. ")
 
         for f in movieList:
-            # we try to avoid to search 20 times in a row the same title (for example for a série)
+            # we try to avoid to search 20 times in a row the same title (as for a série)
             if f["title"] != self._lastTitle["title"]:
-                # todo search in fucking database
-                # how (w/o looking for the id) as the files is not stored yet...
-
+                # get the imdb of that id
                 fromImdb = self.googleIt.getMovieID(f["title"])
                 self._lastTitle["title"] = f["title"]
                 self._lastTitle["imdb_id"] = fromImdb
