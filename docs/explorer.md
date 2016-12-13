@@ -7,12 +7,12 @@
 ## explorer Class
 The class explorer has the "public" method __parse()__ to parse the given folder.
 Basically the function does :
-1. Loop through the given folder
-2. Get every video file with the mime type
-3. Parse the file name
-4. Try to get the IMDB ID with the movie name
-5. If found, stores the __file__ information's (if not already stored)
-6. Get the info about the movie
+1. Loop through the given folder  
+2. Get every video file with the mime type  
+3. Parse the file name  
+4. Try to get the IMDB ID with the movie name  
+5. If found, stores the __file__ information's (if not already stored)  
+6. Get the info about the movie    
 7. Stores the __movie__ information's if not already done !
 
 ```
