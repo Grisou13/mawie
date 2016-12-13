@@ -1,20 +1,13 @@
 # pip install py_bing_search
 import re
-import socket
-
-from py_bing_search import PyBingWebSearch
-# from py_bing_search import PyBingWebSearch
+from bs4 import BeautifulSoup
+import urllib.request
 from imdbpie import Imdb
-# import Levenshtein
 import re
 import sys
-import urllib.request
-
-from mawie.helpers import checkInternetConnexion
-
 
 class googleIt():
-    BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
+    #BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
     imdb = object()
 
@@ -22,27 +15,34 @@ class googleIt():
         self.domainSearch = domainSearch
         self.imdb = Imdb()
 
+        def _doWeHaveInternet():
+            try:
+                req = urllib.request.Request('http://216.58.192.142')
+                urllib.request.urlopen(req, timeout=1)
+                return True
+            except urllib.error.URLError as err:
+                return False
 
-
-        # if not checkInternetConnexion():
-        #     raise ConnectionError("No internet connection !")
+        if not _doWeHaveInternet():
+            raise ConnectionError("No internet connection !")
 
     def _makeSearchTerm(self, movieName):
-        return movieName + " :" + self.domainSearch
+        return "https://duckduckgo.com/html/?q=" + movieName + " : " + self.domainSearch
         # bing advanced search doesn't work w our request soooo.....
         # return "site:" + self.domainSearch + " " + movieName
 
     def _GetMovieResearch(self, term, limit=50, format='json'):
-        bing = PyBingWebSearch(self.BING_API_KEY, term, web_only=False)
-        return bing.search(limit, format)
+        fp = urllib.request.urlopen(term)
+        r = fp.read().decode("utf8")
+        fp.close()
+        return BeautifulSoup(r, "html.parser").find_all("a", attrs={"class": u"result__a"}, href=True)
 
     def _findImdbLinks(self, researchResults):
-
         # get all the links that contains the domainSearch name (imdb by default)
         for link in researchResults:
-            if (re.search(self.domainSearch+".com", link.url)):
-                return link.url
-                # imdblist.append(link.url)
+            if (re.search(self.domainSearch+".com", link.get("href"))):
+                return link.get("href")
+                #imdblist.append(link.url)
 
     def getMovieID(self, movieTitle):
         """
@@ -58,13 +58,8 @@ class googleIt():
 
         # get the fifty firsts results of a research
         researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
+
         # find all the links from imdb
-        #print(self._makeSearchTerm(movieTitle))
-        #for kkk in researchResults:
-        #    print(kkk.url)
-
-        #sys.exit(movieTitle)
-
         imDBlinks = self._findImdbLinks(researchResults)
 
         # TODO make pattern to find the imdb main url (ex: http://www.imdb.com/title/tt0330373/)
@@ -213,10 +208,12 @@ class googleIt():
 if __name__ == "__main__":
 
     googleItPutain = googleIt()
-    res =googleItPutain.getMovieID(movieTitle="Despicable Me 2")
-    print(res)
+    # todo unicode stuff
+    # https://pypi.python.org/pypi/Unidecode
+    #res = googleItPutain.getMovieID(movieTitle="La guerre des étoiles")
+    #print(res)
     #HarryPotter4ID = "tt0330373"
-    #fightClubID = "tt0137523"
+    fightClubID = "tt0137523"
 
     # without parameters
     # googleItPutain.getMovieInfo()
@@ -225,5 +222,8 @@ if __name__ == "__main__":
     # with MOVIE TITLE
     # r = googleItPutain.getMovieInfo(movieTitle = "Harry potter")
     # with MOVIE ID and MOVIE TITLE
-    # r = googleItPutain.getMovieInfo(movieId = fightClubID, movieTitle = "Fight CLUB")
+    r = googleItPutain.getMovieInfo(movieId = fightClubID, movieTitle = "Fight CLUB")
+    print(r.title)
+    print(r.plots)
+    print(r.release_date)
     pass
