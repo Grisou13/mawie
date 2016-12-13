@@ -51,6 +51,7 @@ class EventManager:
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
     def registerListener(self, cls):
+        print("registering "+cls.__class__.__name__ + " in class "+self.__class__.__name__)
         self.listeners[cls] = 1  # just register the class name
 
     def deleteListener(self, cls):

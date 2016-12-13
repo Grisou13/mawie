@@ -11,7 +11,7 @@ from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 #from mawie.gui.components.QExplorer import AddFilesWidget
 from mawie.gui.components.QMovieListWidget import MovieListFrame
-from mawie.gui.components.QMovieWidget import MovieFrame
+from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import AddFilesWidget, ExplorerWidget
 from mawie.gui.components.QSettings import SettingsWidget
@@ -41,7 +41,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
             self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)
     def initWidget(self):
-        self.addWidget(MovieFrame(self))
+        self.addWidget(MovieWidget(self))
         self.addWidget(MovieListFrame(self))
         s = ExplorerWidget(self)
         self.addWidget(s)

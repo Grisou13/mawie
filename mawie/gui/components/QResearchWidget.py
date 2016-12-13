@@ -8,7 +8,7 @@ from PyQt5.uic.properties import QtGui, QtCore
 
 from mawie.events import Response
 from mawie.events.gui import SearchResults, ShowFrame
-from mawie.events.search import SearchRequest
+from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QMovieListWidget import MovieListFrame
@@ -28,8 +28,9 @@ class ResearchFrame(GuiComponent):
         if text is not "":
             self._textChangedFlag = True
             self.emit(SearchRequest(self.inputSearch.text().lower()))
-            results = self.search.search(self.inputSearch.text().lower())
-            self.gui.dispatchAction("search-results",results)
+            #results = self.search.search(self.inputSearch.text().lower())
+
+            #self.gui.dispatchAction("search-results",results)
             #self.model.setStringList([str(x) for x in results])
         else:
             self._textChangedFlag = False
@@ -62,17 +63,19 @@ class ResearchFrame(GuiComponent):
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
-        self.gui.dispatchAction("show-movie-list-frame")
+        self.emit(SearchResults())
         pass
-    def handleAction(self, actionName, data):
-       pass
-    def requestAction(self,name):
-        pass
+
     def handle(self,event):
-        if isinstance(event, Response) and isinstance(event.request, SearchRequest):
-            self.gui.emit(SearchResults(event.data))
+        super().handle(event)
+        if isinstance(event, Response) and isinstance(event.request, SearchRequest) or isinstance(event,SearchResponse):
+            self.emit(SearchResults(event.data))
+
         elif isinstance(event,SearchResults):
-            self.gui.emit(ShowFrame(MovieListFrame.__class__.__name__))
+            self.emit(ShowFrame(MovieListFrame.__name__))
+
+
+
 if __name__ == '__main__':
     from mawie.gui.Qgui import start
     start()

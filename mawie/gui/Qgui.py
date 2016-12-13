@@ -109,6 +109,7 @@ class Gui(EventManager, metaclass=Singleton):
             settings.setValue("updator/frequency", 1800)
         if playerDefault is None:
             settings.setValue("infomovie/player-default", True)
+
     def initUI(self):
         self.main = MainWindow()
         self.errorWidget = ErrorWidget(self.main)
@@ -132,6 +133,7 @@ class Gui(EventManager, metaclass=Singleton):
         QtCore.qInstallMessageHandler(self.errorHandling)
 
     def handle(self, event):
+        print(event)
         if isinstance(event,Start):
             log.info("Starting app")
             self.initUI()
@@ -143,6 +145,7 @@ class Gui(EventManager, metaclass=Singleton):
             thread.run()
             log.debug("%s background thread",)
             self.backgroundProcessThread = thread
+
         elif not isinstance(event,ShowFrame):
             self.sendToBackground(event)
 

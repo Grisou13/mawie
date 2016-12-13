@@ -13,6 +13,7 @@ class GuiComponent(QWidget,Listener):
         super(GuiComponent, self).__init__(parent)
         from mawie.gui.Qgui import Gui
         self.gui = Gui()
+        print(self.__class__.__name__)
         self.gui.registerListener(self)
         self.emit = self.gui.emit
 
@@ -21,7 +22,6 @@ class GuiComponent(QWidget,Listener):
         if isinstance(event, ShowFrame):
             if event.data == self.__class__.__name__:
                 self.gui.emit(ShowFrame(self))
-
 '''
 https://gist.github.com/bootchk/9025575
 Copyright 2014 Lloyd Konneker
