@@ -27,7 +27,7 @@ class googleIt():
             raise ConnectionError("No internet connection !")
 
     def _makeSearchTerm(self, movieName):
-        return "https://duckduckgo.com/html/?q=" + movieName + " : " + self.domainSearch
+        return "https://duckduckgo.com/html/?q=" + movieName + " site:" + self.domainSearch
         # bing advanced search doesn't work w our request soooo.....
         # return "site:" + self.domainSearch + " " + movieName
 
