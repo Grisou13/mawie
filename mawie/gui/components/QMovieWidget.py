@@ -198,9 +198,12 @@ class MovieFrame(GuiComponent):
 
         if path is not None:
             if os.path.isfile(path):
-                if path.lower().endswith(('.wmv','.avi')):
-                    moviePlayer = VideoPlayer(path=path)
-                    moviePlayer.exec_()
+                if self.defaultPlayer == 'true':
+                    if path.lower().endswith(('.wmv','.avi')):
+                        moviePlayer = VideoPlayer(path=path)
+                        moviePlayer.exec_()
+                    else:
+                        os.startfile(path)
                 else:
                     os.startfile(path)
             else:

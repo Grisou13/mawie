@@ -12,6 +12,7 @@ from PyQt5.QtCore import QEasingCurve
 from PyQt5.QtCore import QPropertyAnimation
 
 from PyQt5.QtCore import QResource
+from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
@@ -91,8 +92,23 @@ class Gui(EventManager, metaclass=Singleton):
     def __init__(self):
         super(Gui, self).__init__()
         self.registerListener(self)
+        self.initSettings()
+    def initSettings(self):
+        settings = QSettings()
 
+        firstLaunch = settings.value("firstlaunch")
+        updatorEnable = settings.value("updator/updatorEnable")
+        frequency = settings.value("updator/frequency")
+        playerDefault = settings.value("infomovie/player-default")
 
+        if firstLaunch is None:
+            settings.setValue("firstlaunch", True)
+        if updatorEnable is None:
+            settings.setValue("updator/updatorEnable", True)
+        if frequency is None:
+            settings.setValue("updator/frequency", 1800)
+        if playerDefault is None:
+            settings.setValue("infomovie/player-default", True)
     def initUI(self):
         self.main = MainWindow()
         self.errorWidget = ErrorWidget(self.main)
@@ -136,6 +152,8 @@ class Gui(EventManager, metaclass=Singleton):
 def start():
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    app.setOrganizationName("CPNV")
+    app.setApplicationName("MAWIE")
     ex = Gui()
     ex.emit(Start())
     code = 0

@@ -5,22 +5,25 @@ import Levenshtein.StringMatcher as lev
 from mimetypes import MimeTypes
 from guessit import guessit
 import sys
+
+from mawie.events import Eventable
+
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
-from app.models.Movie import Movie
+from mawie.models.Movie import Movie
 import urllib.request
-import PTN
+import libs.PTN
 import json
 import re
-import app.models.File as modelFile
-import app.models.Movie as modelMovie
+import mawie.models.File as modelFile
+import mawie.models.Movie as modelMovie
 from datetime import datetime
-from app.explorer.googleit import googleIt
+from mawie.explorer.googleit import googleIt
 
 import time
 import json
 
-class Explorer():
+class Explorer(Eventable):
 
     googleIt = googleIt()
     MimeTypes = MimeTypes()
@@ -222,4 +225,3 @@ if __name__ == '__main__':
 
     for l in notFound:
         print(l)
-
