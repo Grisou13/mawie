@@ -10,9 +10,10 @@ from mawie.events import Eventable
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
+
 from mawie.models.Movie import Movie
 import urllib.request
-import libs.PTN
+import libs.PTN as PTN
 import json
 import re
 import mawie.models.File as modelFile
