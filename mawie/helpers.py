@@ -13,7 +13,7 @@ BASE_PATH = os.path.join(_dir,"../")
 CACHE_PATH = os.path.join(BASE_PATH,".cache/")
 DB_FILE = os.path.join(CACHE_PATH,'main.sqlite')
 DB_PATH=r"sqlite:///"+DB_FILE
-
+LOG_PATH = os.path.join(BASE_PATH,"logs")
 
 import threading
 #http://stackoverflow.com/questions/2682745/how-to-create-a-constant-in-python
@@ -26,20 +26,33 @@ def constant(f):
 # Based on tornado.ioloop.IOLoop.instance() approach.
 # See https://github.com/facebook/tornado
 #tooken from https://gist.github.com/werediver/4396488
-class SingletonMixin(object):
-    __singleton_lock = threading.Lock()
-    __singleton_instance = None
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+"""
+Singelton decorator
+"""
+def singleton(class_):
+  class class_w(class_):
     _instance = None
-    _lock = threading.Lock()
-
-    def __new__(cls):
-        if SingletonMixin._instance is None:
-            with SingletonMixin._lock:
-                if SingletonMixin._instance is None:
-                    SingletonMixin._instance = super(SingletonMixin, cls).__new__(cls)
-        print(SingletonMixin._instance)
-        return SingletonMixin._instance
-
+    def __new__(class_, *args, **kwargs):
+      if class_w._instance is None:
+          class_w._instance = super(class_w,
+                                    class_).__new__(class_,
+                                                    *args,
+                                                    **kwargs)
+          class_w._instance._sealed = False
+      return class_w._instance
+    def __init__(self, *args, **kwargs):
+      if self._sealed:
+        return
+      super(class_w, self).__init__(*args, **kwargs)
+      self._sealed = True
+  class_w.__name__ = class_.__name__
+  return class_w
 
 def checkInternetConnexion():
     try:

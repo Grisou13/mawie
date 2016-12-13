@@ -24,8 +24,8 @@ class googleIt():
 
 
 
-        if not checkInternetConnexion():
-            raise ConnectionError("No internet connection !")
+        # if not checkInternetConnexion():
+        #     raise ConnectionError("No internet connection !")
 
     def _makeSearchTerm(self, movieName):
         return movieName + " :" + self.domainSearch

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QWidget
 from mawie.gui.components import GuiComponent
 
 
-class SettingsWidget(QWidget, GuiComponent):
+class SettingsWidget(GuiComponent):
     def __init__(self,parent=None):
         super(SettingsWidget, self).__init__(parent)
         self.createWidgets()

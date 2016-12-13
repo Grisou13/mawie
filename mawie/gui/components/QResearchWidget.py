@@ -6,25 +6,28 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 from PyQt5.uic.properties import QtGui, QtCore
 
+from mawie.events import Response
+from mawie.events.gui import SearchResults, ShowFrame
+from mawie.events.search import SearchRequest
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QMovieListWidget import MovieListFrame
 from mawie.research.research import Research
 import re
 
-class ResearchFrame(QWidget, GuiComponent):
-    def __init__(self,parent):
+class ResearchFrame(GuiComponent):
+    def __init__(self,parent = None):
         super().__init__(parent)
-        self.gui = parent.gui
-        self.search = Research()
-        self.initFrame()
         self._textChangedFlag = False
+        self.initFrame()
+
     def initFrame(self):
         self.createWidget()
         self.show()
     def refreshSearch(self,text):
         if text is not "":
             self._textChangedFlag = True
+            self.emit(SearchRequest(self.inputSearch.text().lower()))
             results = self.search.search(self.inputSearch.text().lower())
             self.gui.dispatchAction("search-results",results)
             #self.model.setStringList([str(x) for x in results])
@@ -47,12 +50,10 @@ class ResearchFrame(QWidget, GuiComponent):
         self.model.setStringList([])
         self.btnOk = QPushButton("Launch the research", self)
         self.btnOk.clicked.connect(self._forceFrameChange)
-        self.btnAdvancedSearch = QPushButton("Advanced search",self)
-        self.btnAdvancedSearch.clicked.connect(lambda x: self.gui.dispatchAction("show-advanced-search"))
+
         grid.addWidget(self.lbl,0,0)
         grid.addWidget(self.inputSearch,0,1)
         grid.addWidget(self.btnOk,0,2)
-        grid.addWidget(self.btnAdvancedSearch,0,3)
 
         self.setLayout(grid)
     def _showMovieList(self,*args,**kwargs):
@@ -67,6 +68,11 @@ class ResearchFrame(QWidget, GuiComponent):
        pass
     def requestAction(self,name):
         pass
+    def handle(self,event):
+        if isinstance(event, Response) and isinstance(event.request, SearchRequest):
+            self.gui.emit(SearchResults(event.data))
+        elif isinstance(event,SearchResults):
+            self.gui.emit(ShowFrame(MovieListFrame.__class__.__name__))
 if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
-    Gui.start()
+    from mawie.gui.Qgui import start
+    start()

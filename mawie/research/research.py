@@ -3,7 +3,7 @@ import os
 
 from active_alchemy import BaseQuery
 
-from mawie import Eventable
+from mawie.events import Eventable
 from mawie import models
 from mawie.events.search import SearchResult, SearchRequest, SearchResponse
 

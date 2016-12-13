@@ -14,14 +14,12 @@ from mawie.gui.components.QMovieListWidget import MovieListFrame
 from mawie.gui.components.QMovieWidget import MovieFrame
 from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import AddFilesWidget, ExplorerWidget
-from mawie.helpers import SingletonMixin
 from mawie.gui.components.QSettings import SettingsWidget
 
 
 class ComponentArea(QStackedWidget,GuiComponent):
     def __init__(self,parent=None):
-        super(ComponentArea,self).__init__(parent)
-        self.gui = parent.gui
+        super().__init__(parent)
         self.setFixedSize(680, 700)
         self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
@@ -37,14 +35,12 @@ class ComponentArea(QStackedWidget,GuiComponent):
         w.adjustSize()
         w.show()
     def addWidget(self,widget):
-        print("asdasdasdasdasd")
         print(widget)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
             self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)
     def initWidget(self):
-        print("starting main stacked")
         self.addWidget(MovieFrame(self))
         self.addWidget(MovieListFrame(self))
         s = ExplorerWidget(self)

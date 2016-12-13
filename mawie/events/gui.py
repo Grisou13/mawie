@@ -5,6 +5,10 @@ class ShowFrame(Event):
     pass
 
 
+class SearchResults(Event):
+    pass
+
+
 class ErrorEvent(Event):
     type = None
     value = None

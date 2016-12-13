@@ -1,10 +1,21 @@
+from PyQt5.QtWidgets import QWidget
+
 from mawie.events import Listener
 from mawie.events.gui import ShowFrame
 
 
+
 class NotImplemented(Exception): pass
 
-class GuiComponent(Listener):
+
+class GuiComponent(QWidget,Listener):
+    def __init__(self,parent = None):
+        super(GuiComponent, self).__init__(parent)
+        from mawie.gui.Qgui import Gui
+        self.gui = Gui()
+        self.gui.registerListener(self)
+        self.emit = self.gui.emit
+
     def handle(self,event):
         #should call super() otherwise the compoenent may never appear on screen
         if isinstance(event, ShowFrame):

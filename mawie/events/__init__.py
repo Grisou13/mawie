@@ -30,14 +30,14 @@ class Start(Event):
         pass
 
 
-class Listener(object):
+class Listener:
     """
     Helper classes that allow events to pass on from one class to another
     """
 
     def __init__(self, eventManager=None):
         super(Listener, self).__init__()
-        if eventManager is not None:
+        if eventManager is not None and isinstance(eventManager, EventManager):
             print(eventManager)
             eventManager.registerListener(eventManager)  # Automaticly register
             print("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
@@ -45,7 +45,7 @@ class Listener(object):
         pass
 
 
-class EventManager(object):
+class EventManager:
     def __init__(self):
         super(EventManager, self).__init__()
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
@@ -85,8 +85,7 @@ class Eventable(EventManager, Listener):
     It can be used in some other gui components if wanted.
     """
 
-    def __init__(self):
+    def __init__(self, parent = None):
         super(Eventable, self).__init__()
         print("registering class " + self.__class__.__name__ + " as a listener ")
-        self.registerListener(
-            self)  # this allows the ListenerClass to register ourself in the the event manager, which is ourself
+        self.registerListener(self)  # this allows the ListenerClass to register ourself in the the event manager, which is ourself

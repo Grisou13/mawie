@@ -15,11 +15,10 @@ import asyncio
 from mawie.research.research import Research
 
 
-class MovieListFrame(QWidget, GuiComponent):
+class MovieListFrame(GuiComponent):
 
-    def __init__(self,parent):
+    def __init__(self,parent = None):
         super(MovieListFrame,self).__init__(parent)
-        parent.addWidget(self)
         self.initFrame()
     # def showEvent(self, QShowEvent):
     #     super(MovieListFrame, self).showEvent(QShowEvent)
@@ -28,7 +27,7 @@ class MovieListFrame(QWidget, GuiComponent):
         self.createWidgets()
         self.show()
     def createWidgets(self):
-        grid = QGridLayout()
+        grid = QGridLayout(self)
         self.listWidgets = QListWidget(self)
         self.listWidgets.setMinimumSize(670,700)
         self.setLayout(grid)

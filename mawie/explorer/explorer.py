@@ -21,7 +21,6 @@ from mawie.events import *
 from mawie.events.explorer import *
 import time
 import json
-from mawie.helpers import SingletonMixin
 from PyQt5.QtCore import QEventLoop
 
 class FileContainer:
@@ -45,7 +44,9 @@ class FileContainer:
         return self._data[key]
     def __setitem__(self, key, value):
         self._data[key] = value
+
 import time
+
 class Explorer(EventManager):
 
     googleIt = googleIt()
