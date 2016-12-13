@@ -28,12 +28,12 @@ class ResearchFrame(GuiComponent):
         if text is not "":
             self._textChangedFlag = True
             self.emit(SearchRequest(self.inputSearch.text().lower()))
-            results = self.search.search(self.inputSearch.text().lower())
-            self.gui.dispatchAction("search-results",results)
+            # results = self.search.search(self.inputSearch.text().lower())
+            # self.gui.dispatchAction("search-results",results)
             #self.model.setStringList([str(x) for x in results])
         else:
             self._textChangedFlag = False
-            self.gui.dispatchAction("show-initial-list")
+            # self.gui.dispatchAction("show-initial-list")
     def createWidget(self):
         grid = QGridLayout(self)
         self.lbl = QLabel("Please enter a research", self)
@@ -62,17 +62,14 @@ class ResearchFrame(GuiComponent):
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
-        self.gui.dispatchAction("show-movie-list-frame")
+        # self.gui.dispatchAction("show-movie-list-frame")
         pass
-    def handleAction(self, actionName, data):
-       pass
-    def requestAction(self,name):
-        pass
+
     def handle(self,event):
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
-            self.gui.emit(SearchResults(event.data))
+            self.emit(SearchResults(event.data))#just redispatch an event for the list
         elif isinstance(event,SearchResults):
-            self.gui.emit(ShowFrame(MovieListFrame.__class__.__name__))
+            self.emit(ShowFrame(MovieListFrame.__class__.__name__))
 if __name__ == '__main__':
     from mawie.gui.Qgui import start
     start()

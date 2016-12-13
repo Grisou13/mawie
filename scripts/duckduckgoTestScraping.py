@@ -1,7 +1,7 @@
 import bs4
 import requests
 def main(search = ""):
-    search = search + " :imdb"
+    search = search + " site:imdb.com"
     r = requests.get("https://duckduckgo.com/html/",data={"q":search})
     soup = bs4.BeautifulSoup(r.text,"html.parser")
     links = soup.find_all("a",attrs={"class":u"result__a"},href=True)

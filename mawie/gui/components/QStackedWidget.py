@@ -15,7 +15,8 @@ from mawie.gui.components.QMovieWidget import MovieFrame
 from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import AddFilesWidget, ExplorerWidget
 from mawie.gui.components.QSettings import SettingsWidget
-
+import logging
+log = logging.getLogger("mawie")
 
 class ComponentArea(QStackedWidget,GuiComponent):
     def __init__(self,parent=None):
@@ -35,7 +36,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
         w.adjustSize()
         w.show()
     def addWidget(self,widget):
-        print(widget)
+        log.info("adding widget %s",widget)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
             self.gui.register_listener(widget)

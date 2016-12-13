@@ -3,8 +3,10 @@ import os
 
 from active_alchemy import BaseQuery
 
+from mawie.app import AppComponent
 from mawie.events import Eventable
 from mawie import models
+from mawie.events.gui import SearchResults
 from mawie.events.search import SearchResult, SearchRequest, SearchResponse
 
 if __name__ == '__main__':
@@ -14,7 +16,8 @@ from sqlalchemy import or_
 
 from mawie.models.Movie import Movie
 from libs.sqlalchemy_elasticquery import elastic_query
-
+import logging
+log = logging.getLogger("mawie")
 class FilterDoesNotExist(Exception):pass
 class FieldDoesNotExist(Exception):pass
 
@@ -46,7 +49,7 @@ class FilterableList:
     filters = []
 
 
-class Research(Eventable):
+class Research(AppComponent):
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
@@ -64,6 +67,7 @@ class Research(Eventable):
         super(Research,self).__init__(*args,**kwargs)
     def handle(self, event):
         if isinstance(event, SearchRequest):
+            log.info("new query: %s",event.data)
             self.emit(event.createResponse(self.search(event.data),event))
     def _aggregate_results(self):
         pass
@@ -91,11 +95,13 @@ class Research(Eventable):
 
 
         if len(cols) <=0:
+            self.emit(SearchResponse([]))
             yield [] #return an empty iterator
         if isinstance(query, dict):
             q = self.queryModelOnMultipleColumns(query)
         else:
             q = self.queryModelOnColumn(*cols, query, m)
+        self.emit(SearchResponse(q))
         if isinstance(q,list):
             for i in q:
                 yield i
@@ -104,9 +110,8 @@ class Research(Eventable):
                 yield i
         elif isinstance(q, BaseQuery):
             for res in q.yield_per(5):
-                self.emit(SearchResult(res))
                 yield res
-        else:
+        else: #otherwise i don't know what to do with the list, just loop it and yield
             for res in q:
                 yield res
 

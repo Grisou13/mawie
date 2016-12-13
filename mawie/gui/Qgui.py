@@ -22,8 +22,9 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEd
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt, QRunnable, QThread, QThreadPool, pyqtSignal, QObject
 
-from mawie.app import App
-from mawie.events import Eventable, Start, Listener, EventManager, Quit
+from mawie.app import App, start as startApp
+from mawie.events import Eventable, Start, Listener, EventManager, Quit, Response
+from mawie.events.app import MoveToForeground
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
@@ -43,24 +44,32 @@ class NotAComponent(Exception):
     pass
 
 
-class BackgorundProcess(QObject,Listener):
-    send = pyqtSignal("PyQt_PyObject")
-    response = pyqtSignal("PyQt_PyObject")
+class BackgorundProcess(QThread, Listener):
+    request = pyqtSignal("PyQt_PyObject") #use QT signals to communicate between threads
+    response = pyqtSignal("PyQt_PyObject") #use QT signals to communicate between threads
+    def __init__(self):
+        super(BackgorundProcess,self).__init__()
+        self.request.connect(self.dispatchInternal)
     def dispatchInternal(self,event):
-        self.app.addEvent(event)
+        self.app.addEvent(event)#explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
+
     def run(self):
         log.debug("HI")
         print("starting")
         self.app = App()
-
         self.app.registerListener(self)
-        self.send.connect(self.dispatchInternal)
-        self.app.emit(Start())
+        self.request.connect(self.dispatchInternal)
+        QTimer.singleShot(1000,startApp(self.app)) #start the background process in a second
+
     def handle(self,event):
-        self.response.emit(event)
+        if isinstance(event, MoveToForeground) or isinstance(event,Response):
+            self.response.emit(event)
 
 
 class MainWindow(QMainWindow):
+    def closeEvent(self, *args, **kwargs):
+        super(QMainWindow,self).closeEvent(*args,**kwargs)
+        Gui().emit(Quit())
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -81,7 +90,7 @@ class MainWindow(QMainWindow):
         # Make the topbar
         recherche = ResearchFrame(mainWidget)
         btnAdvancedSearch = QPushButton("Advanced search", self)
-        btnAdvancedSearch.clicked.connect(lambda x: self.emit(ShowFrame(AdvancedSearch.__name__)))
+        btnAdvancedSearch.clicked.connect(lambda x: Gui().emit(ShowFrame(AdvancedSearch.__name__)))
         self.setWindowTitle('Find My movie')
         self.errorWidget = ErrorWidget(self)
         content.addWidget(self.componentArea, 2, 0)
@@ -96,6 +105,7 @@ class Gui(EventManager, metaclass=Singleton):
         if not hasattr(self,"app"):
             self.app = app
         self.registerListener(self)
+        self.backgroundProcessThread = BackgorundProcess()
         self.initSettings()
     def initSettings(self):
         settings = QSettings()
@@ -139,6 +149,7 @@ class Gui(EventManager, metaclass=Singleton):
     def handle(self, event):
         if isinstance(event, ErrorEvent):
             log.info("error %s: %s [%s]",event.type,event.value,event.traceback)
+            log.info(traceback.print_exc())
         else:
             log.info("handling events: %s [%s]",event,event.data)
 
@@ -146,23 +157,23 @@ class Gui(EventManager, metaclass=Singleton):
             log.info("starting everything up")
             self.initUI()
             self.registerExceptions()
-            self.backgroundApp = BackgorundProcess()
-            thread = QThread()
+            #self.backgroundApp = BackgorundProcess()
+            thread = BackgorundProcess()
             thread.started.connect(lambda : log.info("background process started"))
-            self.backgroundApp.moveToThread(thread)
-            self.backgroundApp.response.connect(self.emit)
+            thread.finished.connect(lambda : log.info("background process stopped"))
+            #self.backgroundApp.moveToThread(thread)
+            thread.response.connect(self.emit)
 
-            thread.start()
+            #thread.run()
             log.debug("%s background thread: %s",thread,thread.isRunning())
             self.backgroundProcessThread = thread
+            thread.start()
         elif isinstance(event,Quit):
             self.app.quit()
             self.backgroundProcessThread.terminate()
         elif not isinstance(event,ShowFrame):
-            self.sendToBackground(event)
-
-    def sendToBackground(self,event):
-        self.backgroundApp.send.emit(event)
+            log.debug("self : %s",self)
+            self.backgroundProcessThread.request.emit(event)
 
 def start():
     app = QApplication(sys.argv)
@@ -171,9 +182,9 @@ def start():
     app.setApplicationName("MAWIE")
     ex = Gui(app)
     ex.emit(Start())
-    QTimer.singleShot(5000,lambda g = ex:ex.emit(Quit()))
+    QTimer.singleShot(6*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
     code = app.exec()
-    #traceback.print_exc()
+    traceback.print_exc()
     sys.exit(code)
 if __name__ == '__main__':
     start()
