@@ -6,7 +6,7 @@
 
 ## explorer Class
 The class explorer has the "public" method __parse()__ to parse the given folder.
-Basically the function does :
+Basically the function does :  
 1. Loop through the given folder  
 2. Get every video file with the mime type  
 3. Parse the file name  
@@ -45,7 +45,7 @@ MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language
 
 ### Storage
 The "File" and "Movie" can be a little bit fuzzy to discern yet.
-A file is the phsyical element that we want to store.
+A File is a representations of a physical video file that we have.
 
 __File Data Model__:
 
@@ -60,7 +60,8 @@ created_at | datetime
 The model can be found at *app/models/File.py*
 
 __Movie data model__:
-And a movie is simple all the informations about a movie on imdb.
+This table contains simply all the informations about a movie we can find on IMDB.com.
+
 Movie  | &nbsp  
 ------------- | -------------
 name  | string
