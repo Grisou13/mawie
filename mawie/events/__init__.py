@@ -9,6 +9,7 @@ class Event:
     name = None
     data = None
     timeout = -1
+    propogate = True
     def __init__(self, data=None):
         self.name = self.__class__.__name__
         self.data = data
@@ -46,7 +47,8 @@ class Listener:
             eventManager.registerListener(eventManager)  # Automaticly register
             log.info("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
     def handle(self, event):
-        pass
+        if not event.propogate: #return if we were asked to explicitly not process the event
+            return False
 
 
 class EventManager:
@@ -55,7 +57,7 @@ class EventManager:
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
     def registerListener(self, cls):
-        print("registering "+cls.__class__.__name__ + " in class "+self.__class__.__name__)
+        log.info("registering "+cls.__class__.__name__ + " in "+self.__class__.__name__)
         self.listeners[cls] = 1  # just register the class name
 
     def deleteListener(self, cls):
@@ -68,9 +70,8 @@ class EventManager:
         if event.timeout == 0:
             del event
             return
-        for l in self.listeners.keys():
-            log.info(l)
-            log.info("handling events eh?")
+
+        for l in self.listeners.copy().keys():
             l.handle(event)
 
 
@@ -93,5 +94,4 @@ class Eventable(EventManager, Listener):
 
     def __init__(self, parent = None):
         super(Eventable, self).__init__()
-        log.info("registering class " + self.__class__.__name__ + " as a listener ")
         self.registerListener(self)  # this allows the ListenerClass to register ourself in the the event manager, which is ourself

@@ -38,42 +38,21 @@ class ComponentArea(QStackedWidget,GuiComponent):
         w.show()
 
     def addWidget(self,widget):
-        log.info("adding widget %s",widget)
+        log.info("adding widget %s",widget.__class__.__name__)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
             #self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)
     def initWidget(self):
         self.addWidget(MovieWidget(self))
-        self.addWidget(MovieListFrame(self))
-        s = ExplorerWidget(self)
+        s = MovieListFrame(self)
         self.addWidget(s)
+        self.addWidget(ExplorerWidget(self))
         self.addWidget(AdvancedSearch(self))
         self.setCurrentWidget(s)
-        # self.listMovie = MovieListFrame(self, self.gui)
-        # self.movie = MovieFrame(self, self.gui)
-
-        # self.addWidget(self.movie)
-        # self.addWidget(self.listMovie)
-        # self.setCurrentWidget(self.listMovie)
-    # def handleAction(self, name, data):
-    #     if name == "show-frame":
-    #         print(data.__class__.__name__)
-    #         if data.__class__.__name__ in self.widgetStore:
-    #             w = self.widgetStore[data.__class__.__name__]
-    #             if self.indexOf(w) is not -1:
-    #                 self.setCurrentWidget(w)
-                # self.currentWidget().show()
-                # self.currentWidget().setSizePolicy(QSizePolicy.Maximum,QSizePolicy.Maximum)
-                # self.currentWidget().adjustSize()
-    # def requestAction(self, name):
-    #     pass
+        log.info("initialized : %s widgets",self.widgetStore)
     def handle(self,event):
-
-        log.info("-----------STACKED---------------")
-        log.info("handling %s",event)
         if isinstance(event, ShowFrame):
-            log.info("stacked w - ")
             if event.data.__class__.__name__ in self.widgetStore:
                 self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
 

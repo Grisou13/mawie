@@ -73,7 +73,7 @@ class MyAwesomeComponent(GuiComponent):
 
 If you want to add an image to the app, you hae 2 methods of doing so:
  - In a folder just drop your jpeg, or png and load it using QPixmap
- - Or use resources [more info](http://pyqt/resources)
+ - Or use resources [more info](http://pyqt/resources) TODO complete link
 
 ## Adding resource
 

@@ -3,9 +3,8 @@ import time
 from queue import Queue, Empty
 
 from mawie.events import Eventable, Start, EventManager, Response, Quit, Request
+from mawie.events.search import SearchRequest
 from mawie.helpers import Singleton
-
-
 
 from mawie.events.app import *
 
@@ -13,7 +12,9 @@ from mawie.explorer.explorer import Explorer
 from mawie.research.research import Research
 from mawie.explorer.googleit import googleIt
 import logging
-log = logging.getLogger("mawie")
+
+log = logging.getLogger(__name__)
+
 
 class AppComponent(Eventable):
     pass
@@ -25,28 +26,41 @@ class App(EventManager):
     background = [Explorer, googleIt, Research]
     _processes = []
     _running = False
+    _lock = threading.Lock()
+
     def __init__(self):
-        super(App,self).__init__()
+        super().__init__()
         log.info("Starting background app")
         self.registerListener(self)
         self.queue = Queue(-1)
         self.tickTime = 1
         for s in self.background:
             self.addBackgroundProcess(s)
-    def addBackgroundProcess(self,cls):
+
+    def addBackgroundProcess(self, cls):
         c = cls()
+        c.emit = self.emit
         # register the class to the app
         # This allows events to transit between background processes
-        c.registerListener(self)#bind the process, and the app together
+        # c.registerListener(self)#bind the process, and the app together
         self.registerListener(c)
         self._processes.append(c)
+
     def run(self):
         pass
-    def addEvent(self,event):
-        event.timeout = 2 #allow it to cycle twice
+
+    def addEvent(self, event):
+        log.info("adding event to background app")
+        # event.timeout = 2 #allow it to cycle twice
+        log.info("before queue size : %s", self.queue.qsize())
         self.queue.put_nowait(event)
+        log.info("after queue size : %s", self.queue.qsize())
+
     def handle(self, event):
-        if isinstance(event,Start):
+        if not isinstance(event,Tick):
+            log.info("handling in bg process event : %s",event)
+            log.info("queue length: %s", self.queue.qsize())
+        if isinstance(event, Start):
             next_call = time.time()
             self._running = True
             while self._running:
@@ -56,36 +70,43 @@ class App(EventManager):
             for s in self._processes:
                 s.emit(Quit())
             log.info("Stopping background app")
-        elif isinstance(event, Tick): #we do stuff on the queue
-            self.process()
-        elif isinstance(event,Quit):
+        elif isinstance(event, Tick):  # we do stuff on the queue
+            with self._lock:
+                self.process()
+        elif isinstance(event, Quit):
             self._running = False
             log.info("quitting background app.... ")
-        elif isinstance(event, Response):
-            self.addEvent(event) # reprocess the event, it's from background
+        # elif isinstance(event, Response):
+        #     self.emit()
+
     def process(self):
-        log.info("ticking")
-        log.info("queue length: %s", self.queue.qsize())
         try:
-            event = self.queue.get_nowait()
+            event = self.queue.get(True, 0.1)
+            self.queue.task_done()
+            log.info("processing event %s [timeout = %s]", event, event.timeout)
+            if isinstance(event,Request):
+                self.emit(event)
+
         except Empty:
             return False
-        log.info("processing event %s [timeout = %s]", event,event.timeout)
-
-        self.emit(event)
-        self.queue.task_done()
-
-        # if isinstance(event,Response):#maybe it's a request with a response
-        #     self.emit(event) #we just emit the event, the thread will catch it
 
 
-def start(app = None):
+            # self.emit(event)
+
+
+            # if isinstance(event,Response):#maybe it's a request with a response
+            #     self.emit(event) #we just emit the event, the thread will catch it
+
+
+def start(app=None):
     log.info("starting background app")
     a = App()
     if app is not None:
         a = app
+
     a.emit(Start())
     return a
+
 
 if __name__ == '__main__':
     print(start())

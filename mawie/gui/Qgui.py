@@ -51,6 +51,7 @@ class NotAComponent(Exception):
 
 
 class BackgorundProcess(QThread):
+    _lock = threading.Lock()
     request = pyqtSignal("PyQt_PyObject") #use QT signals to communicate between threads
     response = pyqtSignal("PyQt_PyObject") #use QT signals to communicate between threads
     def __init__(self):
@@ -59,7 +60,8 @@ class BackgorundProcess(QThread):
         self.request.connect(self.app.addEvent)
 
     def dispatchInternal(self,event):
-        self.request.emit(lambda e: self.app.addEvent(e))#explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
+        with self._lock:
+            self.request.emit(lambda e: self.app.addEvent(e))#explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
 
     def run(self):
 
@@ -75,6 +77,7 @@ class BackgorundProcess(QThread):
                 if isinstance(event, MoveToForeground) or isinstance(event, Response):
                     log.info("sending back response from background %s",event)
                     self.process.response.emit(event)
+                    event.propogate = False
         listener = L(self)
         self.app.registerListener(listener)
 
@@ -120,7 +123,7 @@ class Gui(EventManager, metaclass=Singleton):
     def __init__(self, app = None):
         super(Gui, self).__init__()
         if not hasattr(self,"app"):
-            self.app = app
+            self.app = app #container for the main QtApplication
         self.registerListener(self)
         self.backgroundProcessThread = BackgorundProcess()
         self.initSettings()
@@ -200,11 +203,12 @@ def start():
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
     ex = Gui(app)
-    time.sleep(2)
+    time.sleep(1)
+    ex.initUI()
     ex.emit(Start())
     time.sleep(2)
     ex.emit(SearchRequest("the"))
-    QTimer.singleShot(12*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
+    #QTimer.singleShot(12*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
     code = app.exec()
     traceback.print_exc()
     sys.exit(code)

@@ -19,7 +19,6 @@ from PyQt5.QtWidgets import QFileDialog
 import qtawesome as qta
 from six import unichr
 
-from mawie.explorer.explorer import Explorer
 from mawie.gui.components import GuiComponent
 from mawie.events import *
 from mawie.events.explorer import *
@@ -60,7 +59,6 @@ class AddFilesWidget(GuiComponent):
     def __init__(self, parent):
         super(AddFilesWidget,self).__init__(parent)
         self.dirPath = None
-        self.explorer = Explorer()
 
         self.initWidget()
         self.show()
@@ -77,11 +75,8 @@ class AddFilesWidget(GuiComponent):
         self.lblLstParseFile = QLabel("list of parsed files")
         #self.lstFileParse = QListWidget(self)
         self.lstFileParse = FileParsedListWidget(self)
-        self.explorer.registerListener(self.lstFileParse)
-
         self.lblLstNotParseFile = QLabel("list of  non parsable files")
         self.lstFileNotParse = FileNotParsedListWidget(self)
-        self.explorer.registerListener(self.lstFileNotParse)
         #self.lstFileNotParse = QListWidget(self)
         #self.lstFileParse.setMinimumSize(660,200)
         #self.lstFileNotParse.setMinimumSize(660,200)
@@ -166,9 +161,10 @@ class AddFilesWidget(GuiComponent):
         self.gui.dispatchAction("show-directory-list")
         dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
         if dir_ is not None and dir_ is not "":
-            self.explorer.getFolderContent(dir_)
-            self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
-            self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
+            pass
+            # self.explorer.getFolderContent(dir_)
+            # self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
+            # self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
     def handle(self,event):
         super().handle(event)
         if isinstance(event, FileParsed):

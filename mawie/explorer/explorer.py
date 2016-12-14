@@ -6,7 +6,7 @@ from mimetypes import MimeTypes
 from guessit import guessit
 import sys
 
-from mawie.events import Eventable
+from mawie.events import Listener
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
@@ -23,7 +23,7 @@ from mawie.explorer.googleit import googleIt
 import time
 import json
 
-class Explorer(Eventable):
+class Explorer(Listener):
 
     googleIt = googleIt()
     MimeTypes = MimeTypes()
@@ -34,7 +34,8 @@ class Explorer(Eventable):
     foundFiles = dict()
     notFoundFiles = dict()
     # main func to call.
-
+    def __init__(self):
+        pass
     def parse(self, path):
         files = self._getMoviesFromPath(path)
         foundFiles, notFoundFiles = self._addToDatabase(files)

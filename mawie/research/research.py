@@ -4,7 +4,7 @@ import os
 from active_alchemy import BaseQuery
 
 #from mawie.app import AppComponent
-from mawie.events import Eventable
+from mawie.events import Listener
 from mawie import models
 from mawie.events.gui import SearchResults
 from mawie.events.search import SearchResult, SearchRequest, SearchResponse
@@ -17,7 +17,7 @@ from sqlalchemy import or_
 from mawie.models.Movie import Movie
 from libs.sqlalchemy_elasticquery import elastic_query
 import logging
-log = logging.getLogger("mawie")
+log = logging.getLogger(__name__)
 class FilterDoesNotExist(Exception):pass
 class FieldDoesNotExist(Exception):pass
 
@@ -49,7 +49,7 @@ class FilterableList:
     filters = []
 
 
-class Research(Eventable):
+class Research(Listener):
     """ main research class """
     default_cols = ["name"]
     default_model = Movie
@@ -64,11 +64,13 @@ class Research(Eventable):
         if "cols" in kwargs:
             self.cols = kwargs["cols"]
             del kwargs["cols"]
-        super(Research,self).__init__(*args,**kwargs)
     def handle(self, event):
         if isinstance(event, SearchRequest):
             log.info("new query: %s",event.data)
-            self.emit(event.createResponse(self.search(event.data)))
+            res = self.search(event.data)
+            for i in res:
+                log.info("search result: %s",i)
+            #self.emit(event.createResponse(self.search(event.data)))
     def _aggregate_results(self):
         pass
 
@@ -101,7 +103,11 @@ class Research(Eventable):
             q = self.queryModelOnMultipleColumns(query)
         else:
             q = self.queryModelOnColumn(*cols, query, m)
-        self.emit(SearchResponse(q))
+        if isinstance(q,BaseQuery):
+            res = q.all()
+        else:
+            res = q
+        self.emit(SearchResponse(None,res))
         if isinstance(q,list):
             for i in q:
                 yield i

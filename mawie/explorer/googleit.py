@@ -6,16 +6,15 @@ from imdbpie import Imdb
 import re
 import sys
 
-from mawie.events import Eventable
+from mawie.events import Listener
 
 
-class googleIt(Eventable):
+class googleIt(Listener):
     #BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
     imdb = object()
 
     def __init__(self, domainSearch="imdb"):
-        super().__init__(self)
         self.domainSearch = domainSearch
         self.imdb = Imdb()
 

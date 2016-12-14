@@ -6,8 +6,9 @@ from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
 
 import mawie
+from mawie.events import Response
 from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame
-from mawie.events.search import SearchResult, SearchResponse
+from mawie.events.search import SearchResult, SearchResponse, SearchRequest
 from mawie.gui.components import GuiComponent, Downloader
 from mawie.gui.components.QPoster import QPoster
 from mawie.models.Movie import Movie
@@ -15,7 +16,6 @@ from urllib import request
 import asyncio
 import logging
 log = logging.getLogger("mawie")
-from mawie.research.research import Research
 
 
 class MovieListFrame(GuiComponent):
@@ -63,11 +63,13 @@ class MovieListFrame(GuiComponent):
     def requestAction(self,name):
         pass
     def handle(self, event):
-        super().handle(event)
+        #super().handle(event)
         if isinstance(event,ShowMovieList):
-            log.info("ME%TZHO&ZIZikzuk")
-            self.emit(ShowFrame(self.__class__.__name__))
-        if isinstance(event, SearchResponse):
+            log.info("ME TZHO ZIZikzuk")
+            self.emit(ShowFrame(self))
+        if isinstance(event,SearchResponse):
+            self.updateWidgets(event.data)
+        if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             self.updateWidgets(event.data)
 
 class ResultRow(QWidget):
