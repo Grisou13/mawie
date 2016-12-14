@@ -35,6 +35,7 @@ class ExplorerRun(QThread):
         print("new thread started")
         self.toParse = path
         self.explorer = copy.deepcopy(explorer) #redundant, maybe use a singleton?
+
     def run(self):
         try:
             for m in self.explorer.getMoviesFromPath(self.toParse):
@@ -98,9 +99,9 @@ class AddFilesWidget(GuiComponent):
         self.lblLstNotParseFile = QLabel("list of  non parsable files")
         self.lstFileNotParse = FileNotParsedListWidget(self)
         self.explorer.registerListener(self.lstFileNotParse)
-        #self.lstFileNotParse = QListWidget(self)
-        #self.lstFileParse.setMinimumSize(660,200)
-        #self.lstFileNotParse.setMinimumSize(660,200)
+        self.lstFileNotParse = QListWidget(self)
+        self.lstFileParse.setMinimumSize(660,200)
+        self.lstFileNotParse.setMinimumSize(660,200)
 
         content.addWidget(self.inputPath, 0, 0)
         content.addWidget(self.btnOpenDir,0,1)
@@ -109,6 +110,7 @@ class AddFilesWidget(GuiComponent):
         content.addWidget(self.lstFileNotParse,2,0,1,3)
         content.addWidget(self.lblLstParseFile,3,0)
         content.addWidget(self.lstFileParse,4,0,1,3)
+
 
 
         self.setLayout(content)

@@ -14,8 +14,10 @@ from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtCore import QResource
 from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QMenu
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
@@ -26,6 +28,9 @@ from mawie.app import App
 from mawie.events import Eventable, Start, Listener, EventManager
 from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
+from mawie.gui.components import QAdvancedSearch
+from mawie.gui.components import QExplorer
+from mawie.gui.components import QMovieListWidget
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
 from mawie.gui.components.QStackedWidget import ComponentArea
@@ -69,7 +74,26 @@ class MainWindow(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
     def initWidget(self):
-        self.statusBar().showMessage("hi")
+        bar = self.menuBar()
+        menu = bar.addMenu("Menu")
+
+        menuAddFolder = QAction("Add folder", self)
+        menuAddFolder.triggered.connect(lambda: self.emit(ShowFrame(QExplorer.__class__.__name__)))
+        menu.addAction(menuAddFolder)
+
+        menuSettings = QAction("Settings", self)
+        menuSettings.triggered.connect(lambda: self.emit(ShowFrame(QSettings.__class__.__name__)))
+        menu.addAction(menuSettings)
+
+        menuResearch= menu.addMenu("Research")
+        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowFrame(QAdvancedSearch.__class__.__name__)))
+        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowFrame(QMovieListWidget.__class__.__name__)))
+
+        quit = QAction("Quit", self)
+        quit.triggered.connect(self.close)
+        menu.addAction(quit)
+
+        self.statusBar().showMessage("STATUS BAR")
 
         mainWidget = QWidget(self) #central placeholder widget
         self.main = mainWidget
@@ -80,16 +104,22 @@ class MainWindow(QMainWindow):
 
         mainWidget.setMinimumSize(700, 800)
         self.center()
-        # Make the topbar
+
+        # # Make the topbar
         recherche = ResearchFrame(mainWidget)
-        btnAdvancedSearch = QPushButton("Advanced search", self)
-        btnAdvancedSearch.clicked.connect(lambda x: self.emit(ShowFrame(AdvancedSearch.__name__)))
+        # ****** DELETE THE FALLOWING LINEs
+        #btnAdvancedSearch = QPushButton("Advanced search", self)
+        #btnAdvancedSearch.clicked.connect(lambda x: self.emit(ShowFrame(AdvancedSearch.__name__)))
+
         self.setWindowTitle('Find My movie')
-        self.errorWidget = ErrorWidget(self)
-        content.addWidget(self.componentArea, 2, 0)
+        self.errorWidget = ErrorWidget(self) # doesn't allow to access menu
+        self.errorWidget.move(100,100)
+
         content.addWidget(recherche, 1, 0)
-        content.addWidget(btnAdvancedSearch, 1, 1)
+        #content.addWidget(btnAdvancedSearch, 1, 1)
+        content.addWidget(self.componentArea, 2, 0)
         mainWidget.setLayout(content)
+
 
 class Gui(EventManager, metaclass=Singleton):
     #based out of tornado ioloop https://github.com/tornadoweb/tornado/blob/master/tornado/ioloop.py
@@ -144,6 +174,7 @@ class Gui(EventManager, metaclass=Singleton):
         #
         if isinstance(event,SearchRequest):
             self.emit(SearchResponse(Movie.query(Movie.name.distinct).all()))
+
         if isinstance(event,Start):
             log.info("Starting app")
             self.initUI()
@@ -168,6 +199,7 @@ def start():
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
+
     ex = Gui()
     ex.emit(Start())
     code = 0
@@ -178,5 +210,7 @@ def start():
         ex.initUI()
     traceback.print_exc()
     sys.exit(code)
+
+
 if __name__ == '__main__':
     start()
