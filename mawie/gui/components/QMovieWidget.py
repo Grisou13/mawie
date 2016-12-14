@@ -265,6 +265,10 @@ class MovieWidget(GuiComponent):
 
     def requestAction(self, name):
         pass
+
+    def handle(self,event):
+        super().handle(event)
+
 if __name__ == '__main__':
     from mawie.gui.Qgui import Gui
     Gui.start()

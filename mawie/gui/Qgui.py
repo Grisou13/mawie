@@ -24,6 +24,7 @@ from PyQt5.QtCore import QRect,Qt, QRunnable, QThread, QThreadPool, pyqtSignal, 
 
 from mawie.app import App
 from mawie.events import Eventable, Start, Listener, EventManager
+from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
@@ -37,6 +38,9 @@ import traceback
 from mawie.events.gui import *
 
 import logging
+
+from mawie.models.Movie import Movie
+
 log = logging.getLogger("mawie")
 
 class NotAComponent(Exception):
@@ -134,6 +138,12 @@ class Gui(EventManager, metaclass=Singleton):
 
     def handle(self, event):
         print(event)
+        #
+        # Debugging to remove
+        # TODO remove the following
+        #
+        if isinstance(event,SearchRequest):
+            self.emit(SearchResponse(Movie.query(Movie.name.distinct).all()))
         if isinstance(event,Start):
             log.info("Starting app")
             self.initUI()
@@ -143,11 +153,12 @@ class Gui(EventManager, metaclass=Singleton):
             self.backgroundApp.moveToThread(thread)
             self.backgroundApp.response.connect(self.emit)
             thread.run()
-            log.debug("%s background thread",)
+            log.debug("%s background thread")
             self.backgroundProcessThread = thread
 
         elif not isinstance(event,ShowFrame):
             self.sendToBackground(event)
+
 
     def sendToBackground(self,event):
         self.backgroundApp.send.emit(event)

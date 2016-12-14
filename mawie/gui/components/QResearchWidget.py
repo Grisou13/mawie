@@ -14,6 +14,8 @@ from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QMovieListWidget import MovieListFrame
 from mawie.research.research import Research
 import re
+import logging
+log = logging.getLogger("mawie")
 
 class ResearchFrame(GuiComponent):
     def __init__(self,parent = None):
@@ -28,6 +30,7 @@ class ResearchFrame(GuiComponent):
         if text is not "":
             self._textChangedFlag = True
             self.emit(SearchRequest(self.inputSearch.text().lower()))
+            self._showMovieList()
             #results = self.search.search(self.inputSearch.text().lower())
 
             #self.gui.dispatchAction("search-results",results)
@@ -63,16 +66,23 @@ class ResearchFrame(GuiComponent):
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
-        self.emit(SearchResults())
-        pass
+        log.info("-----FORCE FRAME CHANGE--------")
+        self.emit(ShowFrame(MovieListFrame.__class__.__name__))
+
 
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, Response) and isinstance(event.request, SearchRequest) or isinstance(event,SearchResponse):
-            self.emit(SearchResults(event.data))
+        log.info("RESEARCH WIDGET HANDLE")
+        if isinstance(event, Response) and isinstance(event.request, SearchRequest):
+            log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
+            self.gui.emit(SearchResults(event.data))
 
-        elif isinstance(event,SearchResults):
-            self.emit(ShowFrame(MovieListFrame.__name__))
+
+        elif isinstance(event, SearchResponse):
+            log.info("-----EVENT SHOW FRAME--------" + event.data)
+            self.gui.emit(ShowMovieList())
+
+        log.info("---> %s [%s]",event,event.data)
 
 
 

@@ -18,3 +18,7 @@ class ErrorEvent(Event):
         self.type = type_
         self.value = value
         self.traceback = traceback
+
+
+class ShowMovieList(Event):
+    pass

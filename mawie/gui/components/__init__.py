@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QWidget
 from mawie.events import Listener
 from mawie.events.gui import ShowFrame
 
-
+import logging
+log = logging.getLogger("mawie")
 
 class NotImplemented(Exception): pass
 
@@ -14,12 +15,17 @@ class GuiComponent(QWidget,Listener):
         from mawie.gui.Qgui import Gui
         self.gui = Gui()
         print(self.__class__.__name__)
+        print("registering compoenent in gui")
         self.gui.registerListener(self)
         self.emit = self.gui.emit
 
     def handle(self,event):
+
         #should call super() otherwise the compoenent may never appear on screen
         if isinstance(event, ShowFrame):
+            log.info("HANDLING FRAME CHANGE")
+            log.info(event.data)
+            log.info(self.__class__.__name__)
             if event.data == self.__class__.__name__:
                 self.gui.emit(ShowFrame(self))
 '''

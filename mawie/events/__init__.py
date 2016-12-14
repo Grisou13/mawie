@@ -1,5 +1,6 @@
 import weakref
-
+import logging
+log = logging.getLogger("mawie")
 
 class Event:
     """Base class for emitting events
@@ -59,6 +60,8 @@ class EventManager:
 
     def emit(self, event):
         for l in self.listeners.keys():
+            log.info(l)
+            log.info("handling events eh?")
             l.handle(event)
 
     # TODO delete the folloing methods and implement above ones

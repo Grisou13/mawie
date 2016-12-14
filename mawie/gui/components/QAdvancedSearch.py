@@ -90,9 +90,10 @@ class AdvancedSearch(GuiComponent):
         self.gui.emit(SearchRequest(self.data))
 
     def handle(self,event):
+        super().handle(event)
         if isinstance(event,Response) and isinstance(event.request, SearchRequest):
             self.emit(SearchResults(event.data))
-            self.emit(ShowFrame(MovieListFrame.__name__))
+            self.emit(ShowFrame(MovieListFrame.__class__.__name__))
 if __name__ == '__main__':
     from mawie.gui.Qgui import start
     start()
