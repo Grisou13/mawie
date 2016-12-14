@@ -1,6 +1,7 @@
 import weakref
 import logging
 log = logging.getLogger("mawie")
+
 class Event:
     """Base class for emitting events
     Every event that is sent in the app must extend this base class, otherwise things might go south.
@@ -54,6 +55,7 @@ class EventManager:
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
     def registerListener(self, cls):
+        print("registering "+cls.__class__.__name__ + " in class "+self.__class__.__name__)
         self.listeners[cls] = 1  # just register the class name
 
     def deleteListener(self, cls):
@@ -67,6 +69,8 @@ class EventManager:
             del event
             return
         for l in self.listeners.keys():
+            log.info(l)
+            log.info("handling events eh?")
             l.handle(event)
 
 

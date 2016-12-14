@@ -19,7 +19,7 @@ from mawie.gui.components.QMoviePlayer import VideoPlayer
 from mawie.models.File import File
 from mawie.models.Movie import Movie
 
-class MovieFrame(GuiComponent):
+class MovieWidget(GuiComponent):
     def __init__(self,parent=None):
         super().__init__(parent)
         self.initFrame()
@@ -265,6 +265,10 @@ class MovieFrame(GuiComponent):
 
     def requestAction(self, name):
         pass
+
+    def handle(self,event):
+        super().handle(event)
+
 if __name__ == '__main__':
     from mawie.gui.Qgui import Gui
     Gui.start()

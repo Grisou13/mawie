@@ -7,11 +7,12 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEd
 from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt
 
+from mawie.events.gui import ShowFrame
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 #from mawie.gui.components.QExplorer import AddFilesWidget
 from mawie.gui.components.QMovieListWidget import MovieListFrame
-from mawie.gui.components.QMovieWidget import MovieFrame
+from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import AddFilesWidget, ExplorerWidget
 from mawie.gui.components.QSettings import SettingsWidget
@@ -35,14 +36,15 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.adjustSize()
         w.adjustSize()
         w.show()
+
     def addWidget(self,widget):
         log.info("adding widget %s",widget)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
-            self.gui.register_listener(widget)
+            #self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)
     def initWidget(self):
-        self.addWidget(MovieFrame(self))
+        self.addWidget(MovieWidget(self))
         self.addWidget(MovieListFrame(self))
         s = ExplorerWidget(self)
         self.addWidget(s)
@@ -66,6 +68,14 @@ class ComponentArea(QStackedWidget,GuiComponent):
                 # self.currentWidget().adjustSize()
     # def requestAction(self, name):
     #     pass
+    def handle(self,event):
+
+        log.info("-----------STACKED---------------")
+        log.info("handling %s",event)
+        if isinstance(event, ShowFrame):
+            log.info("stacked w - ")
+            if event.data.__class__.__name__ in self.widgetStore:
+                self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

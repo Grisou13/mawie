@@ -41,6 +41,9 @@ import traceback
 from mawie.events.gui import *
 
 import logging
+
+from mawie.models.Movie import Movie
+
 log = logging.getLogger("mawie")
 
 class NotAComponent(Exception):
@@ -137,6 +140,7 @@ class Gui(EventManager, metaclass=Singleton):
             settings.setValue("updator/frequency", 1800)
         if playerDefault is None:
             settings.setValue("infomovie/player-default", True)
+
     def initUI(self):
         self.main = MainWindow()
         self.errorWidget = ErrorWidget(self.main)
