@@ -4,6 +4,8 @@ import os
 import sys
 import threading
 import weakref
+
+import time
 from PyQt5 import QtGui
 
 from PyQt5 import QtCore
@@ -23,8 +25,9 @@ from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtCore import QRect,Qt, QRunnable, QThread, QThreadPool, pyqtSignal, QObject
 
 from mawie.app import App, start as startApp
-from mawie.events import Eventable, Start, Listener, EventManager, Quit, Response
+from mawie.events import Eventable, Start, Listener, EventManager, Quit, Response, Request
 from mawie.events.app import MoveToForeground
+from mawie.events.search import SearchRequest
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
@@ -44,26 +47,37 @@ class NotAComponent(Exception):
     pass
 
 
-class BackgorundProcess(QThread, Listener):
+class BackgorundProcess(QThread):
     request = pyqtSignal("PyQt_PyObject") #use QT signals to communicate between threads
     response = pyqtSignal("PyQt_PyObject") #use QT signals to communicate between threads
     def __init__(self):
         super(BackgorundProcess,self).__init__()
-        self.request.connect(self.dispatchInternal)
+        self.app = App()
+        self.request.connect(self.app.addEvent)
+
     def dispatchInternal(self,event):
-        self.app.addEvent(event)#explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
+        self.request.emit(lambda e: self.app.addEvent(e))#explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
 
     def run(self):
-        log.debug("HI")
-        print("starting")
-        self.app = App()
-        self.app.registerListener(self)
-        self.request.connect(self.dispatchInternal)
+
+        class L(Listener):
+            """
+                small inner class, so that the Background process doesnt become a listener.
+                It would be too much overhead, and not a good task separation
+            """
+            def __init__(self, process):
+                super().__init__(None)
+                self.process = process
+            def handle(self, event):
+                if isinstance(event, MoveToForeground) or isinstance(event, Response):
+                    log.info("sending back response from background %s",event)
+                    self.process.response.emit(event)
+        listener = L(self)
+        self.app.registerListener(listener)
+
+        log.info("connected app to gui")
         QTimer.singleShot(1000,startApp(self.app)) #start the background process in a second
 
-    def handle(self,event):
-        if isinstance(event, MoveToForeground) or isinstance(event,Response):
-            self.response.emit(event)
 
 
 class MainWindow(QMainWindow):
@@ -133,7 +147,7 @@ class Gui(EventManager, metaclass=Singleton):
         if not isinstance(TraceBack,str):
             traceback.print_exc()
         else:
-            print(TraceBack)
+            log.warning(TraceBack)
 
         self.emit(ErrorEvent(ErrorType,ErrorValue,TraceBack))
         self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
@@ -169,10 +183,11 @@ class Gui(EventManager, metaclass=Singleton):
             self.backgroundProcessThread = thread
             thread.start()
         elif isinstance(event,Quit):
-            self.app.quit()
             self.backgroundProcessThread.terminate()
-        elif not isinstance(event,ShowFrame):
+            self.app.quit()
+        elif isinstance(event,Request):
             log.debug("self : %s",self)
+            log.info("emitting to background process %s",event)
             self.backgroundProcessThread.request.emit(event)
 
 def start():
@@ -181,8 +196,11 @@ def start():
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
     ex = Gui(app)
+    time.sleep(2)
     ex.emit(Start())
-    QTimer.singleShot(6*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
+    time.sleep(2)
+    ex.emit(SearchRequest("the"))
+    QTimer.singleShot(12*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
     code = app.exec()
     traceback.print_exc()
     sys.exit(code)

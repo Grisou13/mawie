@@ -68,7 +68,7 @@ class Research(Eventable):
     def handle(self, event):
         if isinstance(event, SearchRequest):
             log.info("new query: %s",event.data)
-            self.emit(event.createResponse(self.search(event.data),event))
+            self.emit(event.createResponse(self.search(event.data)))
     def _aggregate_results(self):
         pass
 

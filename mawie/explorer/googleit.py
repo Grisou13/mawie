@@ -15,6 +15,7 @@ class googleIt(Eventable):
     imdb = object()
 
     def __init__(self, domainSearch="imdb"):
+        super().__init__(self)
         self.domainSearch = domainSearch
         self.imdb = Imdb()
 

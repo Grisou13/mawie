@@ -1,21 +1,23 @@
 import weakref
-
-
+import logging
+log = logging.getLogger("mawie")
 class Event:
     """Base class for emitting events
     Every event that is sent in the app must extend this base class, otherwise things might go south.
     """
     name = None
     data = None
-
+    timeout = -1
     def __init__(self, data=None):
         self.name = self.__class__.__name__
         self.data = data
 
 
 class Request(Event):
+    response = None
     def createResponse(self,data = None):
-        return Response(request=self,responseData=data)
+        self.response= Response(request=self,responseData=data)
+        return self.response
 
 
 class Response(Event):
@@ -40,9 +42,8 @@ class Listener:
     def __init__(self, eventManager=None):
         super(Listener, self).__init__()
         if eventManager is not None and isinstance(eventManager, EventManager):
-            print(eventManager)
             eventManager.registerListener(eventManager)  # Automaticly register
-            print("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
+            log.info("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
     def handle(self, event):
         pass
 
@@ -59,8 +60,15 @@ class EventManager:
         del self.listeners[cls]
 
     def emit(self, event):
+
+        if event.timeout != -1:
+            event.timeout -= 1 #add one to the timeout
+        if event.timeout == 0:
+            del event
+            return
         for l in self.listeners.keys():
             l.handle(event)
+
 
     # TODO delete the folloing methods and implement above ones
     def register_listener(self, cls):
@@ -69,15 +77,7 @@ class EventManager:
     def delete_listener(self, cls):
         self.deleteListener(cls)
 
-    def dispatchAction(self, actionName, actionData=None):
-        print("dispatching action : " + actionName)
-        for l in self.listeners.keys():
-            l.handleAction(actionName, actionData)
 
-    def requestAction(self, originClass, actionName):
-        for l in self.listeners.keys():
-            if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless
-            originClass.handleAction("request_" + actionName, l.requestAction(actionName))
 
 
 class Eventable(EventManager, Listener):
@@ -89,5 +89,5 @@ class Eventable(EventManager, Listener):
 
     def __init__(self, parent = None):
         super(Eventable, self).__init__()
-        print("registering class " + self.__class__.__name__ + " as a listener ")
+        log.info("registering class " + self.__class__.__name__ + " as a listener ")
         self.registerListener(self)  # this allows the ListenerClass to register ourself in the the event manager, which is ourself
