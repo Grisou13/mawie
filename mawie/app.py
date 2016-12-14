@@ -60,7 +60,7 @@ class App(EventManager):
         if not isinstance(event,Tick):
             log.info("handling in bg process event : %s",event)
             log.info("queue length: %s", self.queue.qsize())
-        if isinstance(event, Start):
+        elif isinstance(event, Start):
             next_call = time.time()
             self._running = True
             while self._running:
@@ -76,9 +76,11 @@ class App(EventManager):
         elif isinstance(event, Quit):
             self._running = False
             log.info("quitting background app.... ")
-        # elif isinstance(event, Response):
-        #     self.emit()
-
+            return
+        elif isinstance(event, Response):
+            self.emit(event,"background") #emit on the background listener only
+        elif isinstance(event,Request):
+            self.emit(event)
     def process(self):
         try:
             event = self.queue.get(True, 0.1)

@@ -56,23 +56,31 @@ class EventManager:
         super(EventManager, self).__init__()
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
-    def registerListener(self, cls):
+    def registerListener(self, cls, extra = 1):
         log.info("registering "+cls.__class__.__name__ + " in "+self.__class__.__name__)
-        self.listeners[cls] = 1  # just register the class name
+        self.listeners[cls] = extra  # just register the class name
 
     def deleteListener(self, cls):
         del self.listeners[cls]
 
-    def emit(self, event):
-
-        if event.timeout != -1:
+    def emit(self, event, on = ""):
+        if not event.propogate:
+            del event
+            return
+        elif event.timeout != -1:
             event.timeout -= 1 #add one to the timeout
-        if event.timeout == 0:
+        elif event.timeout == 0:
             del event
             return
 
-        for l in self.listeners.copy().keys():
-            l.handle(event)
+        for l, extra in self.listeners.copy().items():
+            log.info("emitting on listener %s [%s]",l,extra)
+            if extra == on:#emit on a specific range of listeners
+                l.handle(event)
+                continue
+            else:
+                l.handle(event)
+
 
 
     # TODO delete the folloing methods and implement above ones

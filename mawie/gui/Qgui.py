@@ -65,7 +65,7 @@ class BackgorundProcess(QThread):
 
     def run(self):
 
-        class L(Listener):
+        class Local(Listener):
             """
                 small inner class, so that the Background process doesnt become a listener.
                 It would be too much overhead, and not a good task separation
@@ -74,15 +74,15 @@ class BackgorundProcess(QThread):
                 super().__init__(None)
                 self.process = process
             def handle(self, event):
-                if isinstance(event, MoveToForeground) or isinstance(event, Response):
+                if isinstance(event, Response):
                     log.info("sending back response from background %s",event)
-                    self.process.response.emit(event)
+                    self.process.response.emit(event) #propagate back to foreground
                     event.propogate = False
-        listener = L(self)
-        self.app.registerListener(listener)
-
+        listener = Local(self)
+        self.app.registerListener(listener,"background") #register it with something extra data
+        #startApp(self.app)
         log.info("connected app to gui")
-        QTimer.singleShot(1000,startApp(self.app)) #start the background process in a second
+        QTimer.singleShot(500,lambda : self.app.emit(Start())) #start the background process in a second
 
 
 
@@ -203,8 +203,8 @@ def start():
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
     ex = Gui(app)
-    time.sleep(1)
     ex.initUI()
+    time.sleep(1)
     ex.emit(Start())
     time.sleep(2)
     ex.emit(SearchRequest("the"))
