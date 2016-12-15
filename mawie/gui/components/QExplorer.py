@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import QFileDialog
 import qtawesome as qta
 from six import unichr
 
+from mawie.events.gui import ShowExplorer
 from mawie.explorer.explorer import Explorer
 from mawie.gui.components import GuiComponent
 from mawie.events import *
@@ -99,7 +100,7 @@ class AddFilesWidget(GuiComponent):
         self.lblLstNotParseFile = QLabel("list of  non parsable files")
         self.lstFileNotParse = FileNotParsedListWidget(self)
         self.explorer.registerListener(self.lstFileNotParse)
-        self.lstFileNotParse = QListWidget(self)
+        #self.lstFileNotParse = QListWidget(self)
         self.lstFileParse.setMinimumSize(660,200)
         self.lstFileNotParse.setMinimumSize(660,200)
 
@@ -171,7 +172,7 @@ class AddFilesWidget(GuiComponent):
             urlParsed = urlparse(url)
             urlPath = urlParsed.path
             idMovie = urlPath.split("title/")[1][:-1]
-            print(idMovie)
+            #print(idMovie)
 
             if idMovie is not None or idMovie is not "":
                 print(idMovie)
@@ -206,7 +207,10 @@ class AddFilesWidget(GuiComponent):
             self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
             self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
     def handle(self,event):
-        pass
+        super().handle(event)
+        if isinstance(event, ShowExplorer):
+            self.emit(ShowFrame(self))
+
     def handleAction(self, actionName, data):
         pass
     def requestAction(self,name):
@@ -279,5 +283,6 @@ class ExplorerWidget(GuiComponent):
         self.add = AddFilesWidget(self)
         self.show()
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui.Qgui import start, ShowMovieList, ShowFrame
+
     start()

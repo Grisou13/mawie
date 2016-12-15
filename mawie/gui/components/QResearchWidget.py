@@ -7,7 +7,7 @@ from PyQt5.QtCore import QRect,Qt
 from PyQt5.uic.properties import QtGui, QtCore
 
 from mawie.events import Response
-from mawie.events.gui import SearchResults, ShowFrame
+from mawie.events.gui import SearchResults, ShowFrame, ShowMovieList
 from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
@@ -67,7 +67,8 @@ class ResearchFrame(GuiComponent):
             self._textChangedFlag = False
     def _forceFrameChange(self):
         log.info("-----FORCE FRAME CHANGE--------")
-        self.emit(ShowFrame(MovieListFrame.__class__.__name__))
+        #self.emit(ShowFrame(MovieListFrame.__class__.__name__))
+        self.emit(ShowMovieList())
 
 
     def handle(self,event):

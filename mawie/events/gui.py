@@ -22,3 +22,9 @@ class ErrorEvent(Event):
 
 class ShowMovieList(Event):
     pass
+
+class ShowExplorer(Event):
+    pass
+
+class ShowSettings(Event):
+    pass

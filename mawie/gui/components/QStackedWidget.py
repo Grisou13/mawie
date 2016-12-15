@@ -32,13 +32,14 @@ class ComponentArea(QStackedWidget,GuiComponent):
         super(ComponentArea, self).addWidget(widget)
     def onCurrentChange(self,index):
         w = self.widget(index)
-        w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
-        self.adjustSize()
-        w.adjustSize()
+        #w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
+        #self.adjustSize()
+        #w.adjustSize()
         w.show()
 
     def addWidget(self,widget):
-        print(widget)
+
+        #print(widget)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
             #self.gui.register_listener(widget)
@@ -46,6 +47,8 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def initWidget(self):
         self.addWidget(MovieWidget(self))
         self.addWidget(MovieListFrame(self))
+        self.addWidget(SettingsWidget(self))
+
         s = ExplorerWidget(self)
         self.addWidget(s)
         self.addWidget(AdvancedSearch(self))

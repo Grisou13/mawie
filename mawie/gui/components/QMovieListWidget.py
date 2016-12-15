@@ -66,7 +66,9 @@ class MovieListFrame(GuiComponent):
         super().handle(event)
         if isinstance(event,ShowMovieList):
             log.info("ME%TZHO&ZIZikzuk")
-            self.emit(ShowFrame(self.__class__.__name__))
+            #self.emit(ShowFrame(self.__class__.__name__))
+            self.emit(ShowFrame(self))
+
         if isinstance(event, SearchResponse):
             self.updateWidgets(event.data)
 

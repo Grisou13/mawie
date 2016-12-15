@@ -78,16 +78,16 @@ class MainWindow(QMainWindow):
         menu = bar.addMenu("Menu")
 
         menuAddFolder = QAction("Add folder", self)
-        menuAddFolder.triggered.connect(lambda: self.emit(ShowFrame(QExplorer.__class__.__name__)))
+        menuAddFolder.triggered.connect(lambda: self.emit(ShowExplorer()))
         menu.addAction(menuAddFolder)
 
         menuSettings = QAction("Settings", self)
-        menuSettings.triggered.connect(lambda: self.emit(ShowFrame(QSettings.__class__.__name__)))
+        menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
         menu.addAction(menuSettings)
 
-        menuResearch= menu.addMenu("Research")
-        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowFrame(QAdvancedSearch.__class__.__name__)))
-        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowFrame(QMovieListWidget.__class__.__name__)))
+        # menuResearch= menu.addMenu("Research")
+        # menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowFrame(QAdvancedSearch.__class__.__name__)))
+        # menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowFrame(QMovieListWidget.__class__.__name__)))
 
         quit = QAction("Quit", self)
         quit.triggered.connect(self.close)
