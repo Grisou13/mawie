@@ -1,3 +1,5 @@
+import traceback
+
 from . import Event
 
 
@@ -12,7 +14,16 @@ class SearchResults(Event):
 class ErrorEvent(Event):
     type = None
     value = None
-    traceback = None
+    _traceback = None
+    @property
+    def traceback(self):
+        return self._traceback
+    @traceback.setter
+    def traceback(self,val):
+        if isinstance(val,str):
+            self._traceback = val
+        else:
+            self._traceback = traceback.format_tb(val)
     def __init__(self,type_,value,traceback):
         super(ErrorEvent,self).__init__()
         self.type = type_

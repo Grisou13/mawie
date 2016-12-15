@@ -77,7 +77,7 @@ class AdvancedSearch(GuiComponent):
         s.clicked.connect(self.query)
         s.setText("search")
         masterLayout.addWidget(s)
-        self.setLayout(layout)
+        self.setLayout(masterLayout)
     def updateData(self,model,fieldName,data):
         if data is not None:
             if not model in self.data:

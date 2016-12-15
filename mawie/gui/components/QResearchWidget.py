@@ -60,6 +60,8 @@ class ResearchFrame(GuiComponent):
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
+        if len(self.inputSearch.text()) > 0:
+            self.emit(SearchRequest(self.inputSearch.text().lower()))
         self.emit(ShowMovieList())
 
 

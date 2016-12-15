@@ -14,8 +14,7 @@ class GuiComponent(QWidget,Listener):
         super(GuiComponent, self).__init__(parent)
         from mawie.gui.Qgui import Gui
         self.gui = Gui()
-        log.info(self.__class__.__name__)
-        log.info("registering compoenent in gui")
+        log.info("registering component %s in gui [%s]",self,self.gui)
         self.gui.registerListener(self)
         #self.gui.main.componentArea.addWidget(self) #adds the component automaticly to the QStackedWidget in the main area of the app
         self.emit = self.gui.emit

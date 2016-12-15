@@ -66,8 +66,10 @@ class Research(Listener):
             del kwargs["cols"]
     def handle(self, event):
         if isinstance(event, SearchRequest):
+            event.stopPropagate()
             log.info("new query: %s",event.data)
             res = self.search(event.data)
+            self.emit(SearchResponse(res),"front")
             for i in res:
                 log.info("search result: %s",i)
             #self.emit(event.createResponse(self.search(event.data)))
@@ -107,7 +109,7 @@ class Research(Listener):
             res = q.all()
         else:
             res = q
-        self.emit(SearchResponse(None,res))
+        #self.emit(SearchResponse(None,res))
         if isinstance(q,list):
             for i in q:
                 yield i
