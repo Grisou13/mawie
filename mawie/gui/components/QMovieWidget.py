@@ -12,12 +12,14 @@ from urllib import request
 
 from PyQt5 import QtCore
 
+from mawie.events.gui import ShowMovieList, ShowFrame
 from mawie.gui.components import GuiComponent
-from mawie.gui.components.QMovieListWidget import MovieListFrame
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QPoster import QPoster
-from mawie.gui.components.QMoviePlayer import VideoPlayer
+from mawie.gui.components.QMoviePlayer import MoviePlayer
 from mawie.models.File import File
 from mawie.models.Movie import Movie
+
 
 class MovieWidget(GuiComponent):
     def __init__(self,parent=None):
@@ -200,7 +202,7 @@ class MovieWidget(GuiComponent):
             if os.path.isfile(path):
                 if self.defaultPlayer == 'true':
                     if path.lower().endswith(('.wmv','.avi')):
-                        moviePlayer = VideoPlayer(path=path)
+                        moviePlayer = MoviePlayer(path=path)
                         moviePlayer.exec_()
                     else:
                         os.startfile(path)
@@ -239,7 +241,7 @@ class MovieWidget(GuiComponent):
                 fileDel.delete()
                 self.film.delete()
                 self.gui.dispatchAction('search-results',Movie.query())
-                self.gui.dispatchAction('show-frame',MovieListFrame)
+                self.gui.dispatchAction('show-frame', MovieListWidget)
 
 
     def importPosterFilm(self, path=''):
@@ -268,6 +270,9 @@ class MovieWidget(GuiComponent):
 
     def handle(self,event):
         super().handle(event)
+        # if isinstance(event, ShowMovieList):
+        #     log.info("ME TZHO ZIZikzuk")
+        #     self.emit(ShowFrame(self))
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import Gui

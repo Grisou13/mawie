@@ -173,6 +173,11 @@ class SettingsWidget(GuiComponent):
         elif idx == 3:
             self.settings.setValue("updator/frequency", 36000)
 
+    def handle(self,event):
+        log.info("***************************")
+        if isinstance(event, ShowMovieList):
+            self.emit(ShowFrame(self))
+
 class DirListItem(QWidget):
     def __init__(self,parent = None,dirPathFile=None):
         super(DirListItem, self).__init__(parent)

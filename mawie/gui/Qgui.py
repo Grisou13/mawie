@@ -184,12 +184,11 @@ class Gui(EventManager, metaclass=Singleton):
             self.backgroundApp.moveToThread(thread)
             self.backgroundApp.response.connect(self.emit)
             thread.run()
-            log.debug("%s background thread")
+            #log.debug("%s background thread")
             self.backgroundProcessThread = thread
 
         elif not isinstance(event,ShowFrame):
             self.sendToBackground(event)
-
 
     def sendToBackground(self,event):
         self.backgroundApp.send.emit(event)

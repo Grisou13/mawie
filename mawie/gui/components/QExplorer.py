@@ -160,7 +160,7 @@ class AddFilesWidget(GuiComponent):
 
     def getFilmInfoByUrl(self,item,file):
         """
-        TODO move this to nonparsedlist component
+        TODO: move this to nonparsedlist component
         """
         idMovie = None
         url = None

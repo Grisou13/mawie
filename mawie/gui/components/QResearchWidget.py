@@ -11,7 +11,7 @@ from mawie.events.gui import SearchResults, ShowFrame, ShowMovieList
 from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
-from mawie.gui.components.QMovieListWidget import MovieListFrame
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.research.research import Research
 import re
 import logging
@@ -31,13 +31,8 @@ class ResearchFrame(GuiComponent):
             self._textChangedFlag = True
             self.emit(SearchRequest(self.inputSearch.text().lower()))
             self._showMovieList()
-            #results = self.search.search(self.inputSearch.text().lower())
-
-            #self.gui.dispatchAction("search-results",results)
-            #self.model.setStringList([str(x) for x in results])
         else:
             self._textChangedFlag = False
-            self.gui.dispatchAction("show-initial-list")
     def createWidget(self):
         grid = QGridLayout(self)
         self.lbl = QLabel("Please enter a research", self)
@@ -62,7 +57,6 @@ class ResearchFrame(GuiComponent):
         self.setLayout(grid)
     def _showMovieList(self,*args,**kwargs):
         if self._textChangedFlag:
-            print("editing finished showing movie list")
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
@@ -72,18 +66,14 @@ class ResearchFrame(GuiComponent):
 
 
     def handle(self,event):
-        super().handle(event)
-        log.info("RESEARCH WIDGET HANDLE")
+        #super().handle(event)
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
-            log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
-            self.gui.emit(SearchResults(event.data))
-
+            #logs.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
+            self.gui.emit(SearchResponse(event.request,event.data))
 
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
             self.gui.emit(ShowMovieList())
-
-        log.info("---> %s [%s]",event,event.data)
 
 
 

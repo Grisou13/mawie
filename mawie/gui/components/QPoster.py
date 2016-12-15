@@ -86,7 +86,7 @@ class QPoster(QLabel):
 
     def _updateImage(self, image_):
         """
-        This is connected to the download thread. Called only when the download thread has reaceived, or not an image
+        This is connected to the download thread. Called only when the download thread has received, or not an image
         :param image_:
         :type image_: QPixmap
         :return:
