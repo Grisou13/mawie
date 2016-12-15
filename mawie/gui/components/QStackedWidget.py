@@ -14,7 +14,7 @@ from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QMovieListWidget import MovieListFrame
 from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QResearchWidget import  ResearchFrame
-from mawie.gui.components.QExplorer import AddFilesWidget, ExplorerWidget
+from mawie.gui.components.QExplorer import ExplorerWidget
 from mawie.gui.components.QSettings import SettingsWidget
 import logging
 log = logging.getLogger("mawie")
@@ -33,8 +33,8 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def onCurrentChange(self,index):
         w = self.widget(index)
         w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
-        self.adjustSize()
-        w.adjustSize()
+        #self.adjustSize()
+        #w.adjustSize()
         w.show()
 
     def addWidget(self,widget):
@@ -54,6 +54,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def handle(self,event):
         if isinstance(event, ShowFrame):
             if event.data.__class__.__name__ in self.widgetStore:
+                event.stopPropagate()
                 self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
 
 if __name__ == '__main__':

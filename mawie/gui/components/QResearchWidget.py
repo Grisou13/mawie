@@ -30,7 +30,7 @@ class ResearchFrame(GuiComponent):
         if text is not "":
             self._textChangedFlag = True
             self.emit(SearchRequest(self.inputSearch.text().lower()))
-            self._showMovieList()
+            #self._showMovieList()
         else:
             self._textChangedFlag = False
     def createWidget(self):
@@ -66,12 +66,12 @@ class ResearchFrame(GuiComponent):
     def handle(self,event):
         #super().handle(event)
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
-            #log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
-            self.gui.emit(SearchResponse(event.request,event.data))
+            log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
+            self.emit(SearchResponse(event.request,event.data))
 
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
-            self.gui.emit(ShowMovieList())
+            self.emit(ShowMovieList())
 
 
 

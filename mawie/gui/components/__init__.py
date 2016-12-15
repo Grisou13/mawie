@@ -17,8 +17,11 @@ class GuiComponent(QWidget,Listener):
         log.info(self.__class__.__name__)
         log.info("registering compoenent in gui")
         self.gui.registerListener(self)
+        #self.gui.main.componentArea.addWidget(self) #adds the component automaticly to the QStackedWidget in the main area of the app
         self.emit = self.gui.emit
-
+    def registerInComponentArea(self):
+        pass
+        #self.gui.main.componentArea.addWidget(self) #adds the component automaticly to the QStackedWidget in the main area of the app
     def handle(self,event):
         #should call super() otherwise the compoenent may never appear on screen
         if isinstance(event, ShowFrame):

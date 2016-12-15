@@ -65,12 +65,16 @@ class MovieListFrame(GuiComponent):
     def handle(self, event):
         #super().handle(event)
         if isinstance(event,ShowMovieList):
-            log.info("ME TZHO ZIZikzuk")
+            event.stopPropagate()
             self.emit(ShowFrame(self))
         if isinstance(event,SearchResponse):
+            log.info("-------------- UPDATING LIST OF MOVIES ----------------")
             self.updateWidgets(event.data)
+            self.emit(ShowFrame(self))
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
+            log.info("-------------- UPDATING LIST OF MOVIES ----------------")
             self.updateWidgets(event.data)
+            self.emit(ShowFrame(self))
 
 class ResultRow(QWidget):
 

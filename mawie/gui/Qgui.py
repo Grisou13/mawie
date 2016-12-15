@@ -74,15 +74,16 @@ class BackgorundProcess(QThread):
                 super().__init__(None)
                 self.process = process
             def handle(self, event):
-                if isinstance(event, Response):
+                if isinstance(event, Response) or (isinstance(event,Request) and event.response is not None and isinstance(event.response, Response)):
                     log.info("sending back response from background %s",event)
                     self.process.response.emit(event) #propagate back to foreground
-                    event.propogate = False
+                    event.stopPropagate()
         listener = Local(self)
-        self.app.registerListener(listener,"background") #register it with something extra data
-        #startApp(self.app)
+        self.app.registerListener(listener,"front") #register it with something extra data
+        time.sleep(1.2)
+        startApp(self.app)
         log.info("connected app to gui")
-        QTimer.singleShot(500,lambda : self.app.emit(Start())) #start the background process in a second
+        #QTimer.singleShot(1000,lambda : self.app.emit(Start())) #start the background process in a second
 
 
 
@@ -124,7 +125,7 @@ class Gui(EventManager, metaclass=Singleton):
         super(Gui, self).__init__()
         if not hasattr(self,"app"):
             self.app = app #container for the main QtApplication
-        self.registerListener(self)
+        self.registerListener(self,"self")
         self.backgroundProcessThread = BackgorundProcess()
         self.initSettings()
     def initSettings(self):
@@ -193,9 +194,9 @@ class Gui(EventManager, metaclass=Singleton):
             self.backgroundProcessThread.terminate()
             self.app.quit()
         elif isinstance(event,Request):
-            log.debug("self : %s",self)
             log.info("emitting to background process %s",event)
             self.backgroundProcessThread.request.emit(event)
+            event.stopPropagate() #TODO handle the event a bit better, to look if we don't want to forward the reuqest to compoenents
 
 def start():
     app = QApplication(sys.argv)

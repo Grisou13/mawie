@@ -10,6 +10,18 @@ class Event:
     data = None
     timeout = -1
     propogate = True
+    def stopPropagate(self):
+        self.propogate = False
+    def setTimeout(self,time_):
+        if time_ < -1:
+            raise ValueError("Timeout for an event must be set to a value grater than -1")
+        self.timeout = time_
+    def getData(self):
+        return self.data
+    def setData(self,data):
+        self.data = data
+    def getName(self):
+        return self.name
     def __init__(self, data=None):
         self.name = self.__class__.__name__
         self.data = data
@@ -74,12 +86,12 @@ class EventManager:
             return
 
         for l, extra in self.listeners.copy().items():
-            log.info("emitting on listener %s [%s]",l,extra)
-            if extra == on:#emit on a specific range of listeners
-                l.handle(event)
+            log.info("emitting %s on listener %s [type = %s]",event,l,extra)
+            if on != "" and extra != on:  # emit on a specific range of listeners
                 continue
-            else:
+            if event.propogate != False and event.timeout != 0:
                 l.handle(event)
+        event.timeout -= 1
 
 
 

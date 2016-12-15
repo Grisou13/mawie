@@ -33,7 +33,7 @@ class App(EventManager):
         log.info("Starting background app")
         self.registerListener(self)
         self.queue = Queue(-1)
-        self.tickTime = 1
+        self.tickTime = .3
         for s in self.background:
             self.addBackgroundProcess(s)
 
@@ -43,51 +43,51 @@ class App(EventManager):
         # register the class to the app
         # This allows events to transit between background processes
         # c.registerListener(self)#bind the process, and the app together
-        self.registerListener(c)
+        self.registerListener(c,"back")
         self._processes.append(c)
 
     def run(self):
         pass
 
     def addEvent(self, event):
-        log.info("adding event to background app")
-        # event.timeout = 2 #allow it to cycle twice
-        log.info("before queue size : %s", self.queue.qsize())
-        self.queue.put_nowait(event)
-        log.info("after queue size : %s", self.queue.qsize())
+        self.queue.put(event,True,0.1)
+        log.info("queue size = %s",self.queue.qsize())
 
     def handle(self, event):
         if not isinstance(event,Tick):
-            log.info("handling in bg process event : %s",event)
-            log.info("queue length: %s", self.queue.qsize())
-        elif isinstance(event, Start):
-            next_call = time.time()
+            log.info("handling in bg process event : %s [event queue length = %s]",event,self.queue.qsize())
+        if isinstance(event, Start):
+            #next_call = time.time()
             self._running = True
             while self._running:
-                self.emit(Tick(next_call))
-                next_call = next_call + self.tickTime
-                time.sleep(next_call - time.time())
+                event.stopPropagate()
+                self.emit(Tick(time.time()))
+                #next_call = next_call - self.tickTime
+                time.sleep(self.tickTime)
             for s in self._processes:
                 s.emit(Quit())
-            log.info("Stopping background app")
+            log.info("stopped background app")
         elif isinstance(event, Tick):  # we do stuff on the queue
             with self._lock:
                 self.process()
         elif isinstance(event, Quit):
             self._running = False
-            log.info("quitting background app.... ")
+            log.info("force quitting background app.... ")
             return
         elif isinstance(event, Response):
-            self.emit(event,"background") #emit on the background listener only
-        elif isinstance(event,Request):
-            self.emit(event)
+            self.emit(event,"front") #emit on the background listener only
+        if isinstance(event,Request):
+            if event.response is None:
+                self.emit(event,"back")
+            else:
+                self.emit(event,"front")
     def process(self):
         try:
             event = self.queue.get(True, 0.1)
             self.queue.task_done()
-            log.info("processing event %s [timeout = %s]", event, event.timeout)
-            if isinstance(event,Request):
-                self.emit(event)
+            log.info("processing event %s [timeout = %s, propagate = %s]", event, event.timeout,event.propogate)
+            event.propogate = True
+            self.emit(event,"back")
 
         except Empty:
             return False
@@ -102,9 +102,11 @@ class App(EventManager):
 
 def start(app=None):
     log.info("starting background app")
-    a = App()
+
     if app is not None:
         a = app
+    else:
+        a = App()
 
     a.emit(Start())
     return a
