@@ -6,13 +6,16 @@ from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
 
 import mawie
+from mawie.events import Response
+from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame
+from mawie.events.search import SearchResult, SearchResponse, SearchRequest
 from mawie.gui.components import GuiComponent, Downloader
 from mawie.gui.components.QPoster import QPoster
 from mawie.models.Movie import Movie
 from urllib import request
 import asyncio
-
-from mawie.research.research import Research
+import logging
+log = logging.getLogger("mawie")
 
 
 class MovieListFrame(GuiComponent):
@@ -25,12 +28,16 @@ class MovieListFrame(GuiComponent):
     #     self.updateWidgets(Research().search()) # execute search before showing widget
     def initFrame(self):
         self.createWidgets()
+        list =[Movie.get(0),Movie.get(1),Movie.get(2)]
+        self.updateWidgets(list)
         self.show()
+
     def createWidgets(self):
         grid = QGridLayout(self)
         self.listWidgets = QListWidget(self)
         self.listWidgets.setMinimumSize(670,700)
         self.setLayout(grid)
+
     def updateWidgets(self,data):
         self.listWidgets.clear()
         for film in data:
@@ -55,10 +62,23 @@ class MovieListFrame(GuiComponent):
             self.gui.dispatchAction("show-frame",self)
     def requestAction(self,name):
         pass
+    def handle(self, event):
+        #super().handle(event)
+        if isinstance(event,ShowMovieList):
+            event.stopPropagate()
+            self.emit(ShowFrame(self))
+        if isinstance(event,SearchResponse):
+            log.info("-------------- UPDATING LIST OF MOVIES ----------------")
+            self.updateWidgets(event.data)
+            self.emit(ShowFrame(self))
+        if isinstance(event, Response) and isinstance(event.request, SearchRequest):
+            log.info("-------------- UPDATING LIST OF MOVIES ----------------")
+            self.updateWidgets(event.data)
+            self.emit(ShowFrame(self))
 
 class ResultRow(QWidget):
-    show = pyqtSignal()
 
+    show = pyqtSignal()
     def __init__(self,parent,data):
         super(ResultRow,self).__init__(parent)
         self.film = data
@@ -67,6 +87,7 @@ class ResultRow(QWidget):
         #self.setMinimumSize(650,160)
         #self.setSizePolicy(650,160)
         #self.setMinimumHeight(200)
+
     def initRow(self,data):
         self.createWidgets(data)
         #self.show()
@@ -108,8 +129,7 @@ class ResultRow(QWidget):
         grid.addWidget(lblActors, 2, 2)
         grid.addWidget(self.btnSee, 0, 3,3,2)
         self.setLayout(grid)
-    def seeFilm(self):
-        print(self.film.name)
+
 if __name__ == '__main__':
     from mawie.gui.Qgui import start
     start()

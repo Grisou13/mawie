@@ -1,5 +1,6 @@
 import weakref
-
+import logging
+log = logging.getLogger("mawie")
 
 class Event:
     """Base class for emitting events
@@ -7,15 +8,30 @@ class Event:
     """
     name = None
     data = None
-
+    timeout = -1
+    propogate = True
+    def stopPropagate(self):
+        self.propogate = False
+    def setTimeout(self,time_):
+        if time_ < -1:
+            raise ValueError("Timeout for an event must be set to a value grater than -1")
+        self.timeout = time_
+    def getData(self):
+        return self.data
+    def setData(self,data):
+        self.data = data
+    def getName(self):
+        return self.name
     def __init__(self, data=None):
         self.name = self.__class__.__name__
         self.data = data
 
 
 class Request(Event):
+    response = None
     def createResponse(self,data = None):
-        return Response(request=self,responseData=data)
+        self.response= Response(request=self,responseData=data)
+        return self.response
 
 
 class Response(Event):
@@ -28,7 +44,9 @@ class Response(Event):
 class Start(Event):
     def __init__(self):
         pass
-
+class Quit(Event):
+    def __init__(self):
+        pass
 
 class Listener:
     """
@@ -38,11 +56,11 @@ class Listener:
     def __init__(self, eventManager=None):
         super(Listener, self).__init__()
         if eventManager is not None and isinstance(eventManager, EventManager):
-            print(eventManager)
             eventManager.registerListener(eventManager)  # Automaticly register
-            print("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
+            log.info("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
     def handle(self, event):
-        pass
+        if not event.propogate: #return if we were asked to explicitly not process the event
+            return False
 
 
 class EventManager:
@@ -50,15 +68,32 @@ class EventManager:
         super(EventManager, self).__init__()
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
-    def registerListener(self, cls):
-        self.listeners[cls] = 1  # just register the class name
+    def registerListener(self, cls, extra = "default"):
+        log.info("registering "+cls.__class__.__name__ + " in "+self.__class__.__name__)
+        self.listeners[cls] = extra  # just register the class name
 
     def deleteListener(self, cls):
         del self.listeners[cls]
 
-    def emit(self, event):
-        for l in self.listeners.keys():
-            l.handle(event)
+    def emit(self, event, on = ""):
+        if not event.propogate:
+            del event
+            return
+        elif event.timeout != -1:
+            event.timeout -= 1 #add one to the timeout
+        elif event.timeout == 0:
+            del event
+            return
+
+        for l, extra in self.listeners.items():
+            log.debug("emitting %s on listener %s [type = %s]",event,l,extra)
+            if on != "" and extra != on:  # emit on a specific range of listeners
+                continue
+            if event.propogate != False and (event.timeout < 0 or event.timeout >= 1):
+                l.handle(event)
+        event.timeout -= 1
+
+
 
     # TODO delete the folloing methods and implement above ones
     def register_listener(self, cls):
@@ -67,15 +102,7 @@ class EventManager:
     def delete_listener(self, cls):
         self.deleteListener(cls)
 
-    def dispatchAction(self, actionName, actionData=None):
-        print("dispatching action : " + actionName)
-        for l in self.listeners.keys():
-            l.handleAction(actionName, actionData)
 
-    def requestAction(self, originClass, actionName):
-        for l in self.listeners.keys():
-            if isinstance(l, originClass): continue  # we don't request on the same object... would be pointless
-            originClass.handleAction("request_" + actionName, l.requestAction(actionName))
 
 
 class Eventable(EventManager, Listener):
@@ -87,5 +114,4 @@ class Eventable(EventManager, Listener):
 
     def __init__(self, parent = None):
         super(Eventable, self).__init__()
-        print("registering class " + self.__class__.__name__ + " as a listener ")
         self.registerListener(self)  # this allows the ListenerClass to register ourself in the the event manager, which is ourself

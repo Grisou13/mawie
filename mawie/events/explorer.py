@@ -13,6 +13,18 @@ class MovieNotParsed(Event):
     pass
 
 
+class ParseDirectoryRequest(Request):
+    pass
+
+
+class FileParsed(Event):
+    pass
+
+
+class FileNotParsed(Event):
+    pass
+
+
 class ParsingEnded(Event):
     pass
 

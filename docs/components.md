@@ -68,3 +68,14 @@ class MyAwesomeComponent(GuiComponent):
             pass # do something on start of the app
 ```
 *Reminder* all events are in the **app.events** module.
+
+# Adding an image to the app
+
+If you want to add an image to the app, you hae 2 methods of doing so:
+ - In a folder just drop your jpeg, or png and load it using QPixmap
+ - Or use resources [more info](http://pyqt/resources) TODO complete link
+
+## Adding resource
+
+The folder method works fine, but if you want to be sure that your image doesn't get deleted by the user, or filesystem, you create a QtRessource.
+

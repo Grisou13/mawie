@@ -16,7 +16,6 @@ class ErrorWidget(QWidget):
                             QLabel{
                                 width:%s;
                                 color:#1E8BC3;
-                                width:inherit;
                                 background-color:black;
                                 border-color:#6BB9F0;
                                 font-weight:bold;

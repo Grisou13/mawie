@@ -21,7 +21,7 @@ error = logging.FileHandler(os.path.join(LOG_PATH,'error.log'))
 error.setLevel(logging.WARNING)
 error.setFormatter(formatter)
 debug = logging.FileHandler(os.path.join(LOG_PATH,'debug.log'))
-debugForm = logging.Formatter("[%(asctime)s (%(relativeCreated))6d] [%(threadName)s %(process)d]  [%(levelname)-8s] [%(pathname)s %(module)s %(funcName)s] %(message)s")
+debugForm = logging.Formatter("[%(asctime)s %(relativeCreated)6d] [%(threadName)s %(process)d]  [%(levelname)-8s] [%(pathname)s %(module)s %(funcName)s] %(message)s")
 debug.setLevel(logging.DEBUG)
 debug.setFormatter(debugForm)
 #assign them

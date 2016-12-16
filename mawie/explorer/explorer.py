@@ -38,7 +38,8 @@ class Explorer(Eventable):
     foundFiles = dict()
     notFoundFiles = dict()
     # main func to call.
-
+    def __init__(self):
+        pass
     def parse(self, path):
         """
         Parse and stores the movies in the given folder

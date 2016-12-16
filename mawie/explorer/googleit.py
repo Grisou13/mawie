@@ -26,8 +26,8 @@ class googleIt(Listener):
             except urllib.error.URLError as err:
                 return False
 
-        if not _doWeHaveInternet():
-            raise ConnectionError("No internet connection !")
+        # if not _doWeHaveInternet():
+        #     raise ConnectionError("No internet connection !")
 
 
     def handle(self, event):
