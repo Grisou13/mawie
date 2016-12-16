@@ -2,6 +2,8 @@ import traceback
 
 from . import Event
 
+class ShowAdvancedSearchFrame(Event):
+    pass
 
 class ShowFrame(Event):
     pass

@@ -1,50 +1,22 @@
-import copy
-import os
+import logging
 import sys
 import threading
-import weakref
-
 import time
-from PyQt5 import QtGui
-
-from PyQt5 import QtCore
-from PyQt5.QtCore import QByteArray
-from PyQt5.QtCore import QEasingCurve
-from PyQt5.QtCore import QPropertyAnimation
-
-from PyQt5.QtCore import QResource
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QFrame
-from PyQt5.QtWidgets import QGraphicsOpacityEffect
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QLabel, QLineEdit, QPushButton, QGridLayout, \
-    QScrollBar, QScrollArea, QMainWindow, QStackedWidget
-from PyQt5.QtGui import QPixmap, QFont
-from PyQt5.QtCore import QRect, Qt, QRunnable, QThread, QThreadPool, pyqtSignal, QObject
-
-from mawie.app import App, start as startApp
-from mawie.events import Eventable, Start, Listener, EventManager, Quit, Response, Request
-from mawie.events.app import MoveToForeground
-from mawie.events.search import SearchRequest
-from mawie.gui.components import GuiComponent
-from mawie.gui.components.QAdvancedSearch import AdvancedSearch
-from mawie.gui.components.QResearchWidget import ResearchFrame
-from mawie.gui.components.QStackedWidget import ComponentArea
-from mawie.helpers import Singleton
-from mawie.gui.components.QError import ErrorWidget
-import mawie.gui.resources.images
 
 import qdarkstyle
-import traceback
+from PyQt5 import QtCore
+from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QPushButton, QGridLayout, \
+    QMainWindow
+
+from mawie.app import App, start as startApp
+from mawie.events import Start, Listener, EventManager, Quit, Response, Request
 from mawie.events.gui import *
+from mawie.gui.components.QError import ErrorWidget
 
-import logging
 
-from mawie.models.Movie import Movie
-
-log = logging.getLogger("mawie")
+log = logging.getLogger(__name__)
 started = False  # flag to tell wether the app is started
 
 
@@ -60,12 +32,12 @@ class BackgorundProcess(QThread, Listener):
     def __init__(self):
         super(BackgorundProcess, self).__init__()
         self.app = App()
-        self.request.connect(self.app.addEvent)
+        self.request.connect(self.app.emit)
 
     def dispatchInternal(self, event):
-        with self._lock:
-            self.request.emit(lambda e: self.app.addEvent(
-                e))  # explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
+        # with self._lock:
+        self.request.emit(lambda e: self.app.emit(e))
+        # explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
 
     def run(self):
         class Local(Listener):
@@ -94,7 +66,22 @@ class BackgorundProcess(QThread, Listener):
             event.stopPropagate()
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Listener):
+    """
+    Main window class, contains all the widgets
+
+    starts widget automatically, and shows them
+    """
+    main = None  # reference to the main widget
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Find My movie')
+        self.initWidget()
+        self.center()
+        self.main.show()
+        self.show()
+
     def closeEvent(self, *args, **kwargs):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
         Gui().emit(Quit())
@@ -106,42 +93,98 @@ class MainWindow(QMainWindow):
         self.move(qr.topLeft())
 
     def initWidget(self):
-        self.statusBar().showMessage("hi")
-
+        from mawie.gui.components.QResearchWidget import ResearchFrame
+        from mawie.gui.components.QStackedWidget import ComponentArea
+        # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget
-        self.main = mainWidget
-        self.setCentralWidget(self.main)
-
+        self.setCentralWidget(mainWidget)
         content = QGridLayout(mainWidget)
         self.componentArea = ComponentArea(mainWidget)
-
         mainWidget.setMinimumSize(700, 800)
-        self.center()
         # Make the topbar
         recherche = ResearchFrame(mainWidget)
         btnAdvancedSearch = QPushButton("Advanced search", self)
-        btnAdvancedSearch.clicked.connect(lambda x: Gui().emit(ShowFrame(AdvancedSearch.__name__)))
-        self.setWindowTitle('Find My movie')
+        btnAdvancedSearch.clicked.connect(lambda x: Gui().emit(ShowAdvancedSearchFrame()))
         self.errorWidget = ErrorWidget(self)
         content.addWidget(self.componentArea, 2, 0)
         content.addWidget(recherche, 1, 0)
         content.addWidget(btnAdvancedSearch, 1, 1)
         mainWidget.setLayout(content)
+        self.main = mainWidget
+    def handle(self, event):
+        if isinstance(event, Start):
+            self.initWidget()
+        elif isinstance(event,ErrorEvent):
+            self.statusBar().showMessage("ERROR [{}] : {}".format(event.type, event.value))
+        elif not isinstance(event, Quit):
+            self.componentArea.emit(event)
 
+def singleton(cls):
+    instance = None
+    def ctor(*args, **kwargs):
+        nonlocal instance
+        if not instance:
+            log.info("%s %s",args,kwargs)
+            instance = cls(*args, **kwargs)
+        return instance
+    return ctor
 
-class Gui(EventManager, metaclass=Singleton):
+@singleton
+class Gui(EventManager):
+    started = False
+    # __instance = None
+    main = None  # reference to the main window
+    #
+    # def __new__(cls, *arg, **kwargs):
+    #     if cls.__instance is None:
+    #         cls.__instance = object.__new__(cls)
+    #     else:
+    #         log.info("#################")
+    #         log.info("singleton works")
+    #         log.info("#################")
+    #     log.info("gui started = %s", Gui.__instance.started)
+    #     log.info("%s",cls.__instance)
+    #     return cls.__instance
+
     def __init__(self, app=None):
-        super(Gui, self).__init__()
-        global started
+        super().__init__()
+        #self = Gui.__instance
+        log.info("Gui instance %s [started = %s]", self, self.started)
+
         if not hasattr(self, "app"):
             self.app = app  # container for the main QtApplication
+        if not self.started:
+            self.initUI()
+            self.started = True
+
+    def initUI(self):
+        if self.started:
+            return
+        log.info("#########################################")
+        self.registerSettings()
+        log.info("STARTING GUI COMPONENTS")
+
         self.registerListener(self, "self")
         self.backgroundProcessThread = BackgorundProcess()
         self.main = MainWindow()
-        self.errorWidget = ErrorWidget(self.main)
-        started = True
 
-    def initSettings(self):
+        self.registerListener(self.main, "main")
+        # self.main.initWidget()
+        self.errorWidget = ErrorWidget(self.main)
+        self.errorWidget.show()
+        self.registerExceptions()
+        log.info("GUI ELEMENTS STARTED")
+        thread = self.backgroundProcessThread
+        thread.response.connect(lambda e: Gui().emit(e))
+        thread.started.connect(lambda: log.info("background process started"))
+        thread.finished.connect(lambda: log.info("background process stopped"))
+        log.debug("%s background thread: %s", thread, thread.isRunning())
+        thread.start()
+        log.info("BACKGROUND THREAD STARTED")
+        # self.emit(Start())
+        # QTimer.singleShot(3000, lambda: self.emit(SearchRequest("the")))
+
+    def registerSettings(self):
         settings = QSettings()
 
         firstLaunch = settings.value("firstlaunch")
@@ -158,11 +201,10 @@ class Gui(EventManager, metaclass=Singleton):
         if playerDefault is None:
             settings.setValue("infomovie/player-default", True)
 
-    def initUI(self):
-        if not started:
-            self.main.initWidget()
-            self.main.show()
-
+    # def initUI(self):
+    #     if not started:
+    #         self.main.show()
+    #         self.emit(Start())
     def errorHandling(self, ErrorType, ErrorValue, TraceBack):
         if not isinstance(TraceBack, str):
             traceback.print_exc()
@@ -182,36 +224,15 @@ class Gui(EventManager, metaclass=Singleton):
             QtCore.qInstallMessageHandler(self.errorHandling)
 
     def handle(self, event):
+        log.info("module name %s", __name__)
         if isinstance(event, ErrorEvent):
             log.warning("Error %s: %s \n\n[%s] \n \n", event.type, event.value, event.traceback)
         else:
             log.info("handling events: %s [timeout = %s]", event, event.timeout)
 
         if isinstance(event, Start):
-            global started  # TODO redo this, no global variables... ever
-            log.info("starting everything up")
+            pass
 
-            # self.backgroundApp = BackgorundProcess()
-            thread = self.backgroundProcessThread
-
-            def emit_(event_):
-                log.info("IN GUI GOT EVENT %s", event_)
-                self.emit(event_)
-                pass
-
-            thread.response.connect(emit_)
-            thread.started.connect(lambda: log.info("background process started"))
-            thread.finished.connect(lambda: log.info("background process stopped"))
-            # self.backgroundApp.moveToThread(thread)
-
-
-            # thread.run()
-            log.debug("%s background thread: %s", thread, thread.isRunning())
-            # self.backgroundProcessThread = thread
-            thread.start()
-            QTimer.singleShot(3000, lambda: self.emit(SearchRequest("the")))
-            event.stopPropagate()
-            started = True
         if isinstance(event, Quit):
             self.backgroundProcessThread.terminate()
             self.app.quit()
@@ -219,23 +240,22 @@ class Gui(EventManager, metaclass=Singleton):
             log.info("emitting to background process %s", event)
             self.backgroundProcessThread.request.emit(event)
             # event.stopPropagate() #TODO handle the event a bit better, to look if we don't want to forward the reuqest to compoenents
+        elif isinstance(event, Response):
+            log.info("#########################")
+            log.info("JAJAJAJAJAJA")
+            log.info(event.data)
+            log.info(event.request)
+            self.emit(event, "main")
+            event.stopPropagate()
+            log.info("#########################")
 
 
 def start():
-    global started  # TODO global variable
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
     gui_ = Gui(app)
-    gui_.initSettings()
-    gui_.initUI()
-
-    gui_.registerExceptions()
-    time.sleep(1)
-    started = True
-    gui_.emit(Start())
-
     # QTimer.singleShot(12*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
     code = app.exec()
     traceback.print_exc()

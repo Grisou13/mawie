@@ -2,11 +2,6 @@
 import os
 import socket
 
-from PyQt5.QtCore import QUrl
-from PyQt5.QtGui import QPixmap
-
-from mawie.gui.components import Downloader
-
 _dir = os.path.dirname(os.path.realpath(__file__))
 
 BASE_PATH = os.path.join(_dir,"../")

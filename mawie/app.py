@@ -4,7 +4,7 @@ from queue import Queue, Empty
 
 from mawie.events import Eventable, Start, EventManager, Response, Quit, Request
 from mawie.events.search import SearchRequest
-from mawie.helpers import Singleton
+#from mawie.helpers import Singleton
 
 from mawie.events.app import *
 
@@ -50,8 +50,9 @@ class App(EventManager):
         pass
 
     def addEvent(self, event):
-        self.queue.put(event,True,0.1)
-        log.info("queue size = %s",self.queue.qsize())
+        with self._lock:
+            self.queue.put(event,True,0)
+            log.info("queue size = %s",self.queue.qsize())
 
     def handle(self, event):
         if not isinstance(event,Tick):
@@ -69,7 +70,9 @@ class App(EventManager):
             log.info("stopped background app")
         elif isinstance(event, Tick):  # we do stuff on the queue
             with self._lock:
-                self.process()
+                event_ = self.process()
+            if event_ is not False:
+                self.emit(event_, "back")
         elif isinstance(event, Quit):
             self._running = False
             log.info("force quitting background app.... ")
@@ -83,12 +86,11 @@ class App(EventManager):
                 self.emit(event,"front")
     def process(self):
         try:
-            event = self.queue.get(True, 0.1)
+            event = self.queue.get(True, 0)
             self.queue.task_done()
             log.info("processing event %s [timeout = %s, propagate = %s]", event, event.timeout,event.propogate)
             event.propogate = True
-            self.emit(event,"back")
-
+            return event
         except Empty:
             return False
 

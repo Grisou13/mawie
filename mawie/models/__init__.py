@@ -1,6 +1,7 @@
 from active_alchemy import ActiveAlchemy
-from mawie.helpers import DB_PATH
-db = ActiveAlchemy(DB_PATH)
+from mawie import helpers
+dir(helpers)
+db = ActiveAlchemy(helpers.DB_PATH)
 class NotAModel(Exception): pass
 not_authorized_fields = ["is_deleted","created_at","updated_at","deleted_at"]
 def get_fields(cls):

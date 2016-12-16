@@ -1,5 +1,6 @@
 
 import os
+from itertools import tee
 
 from active_alchemy import BaseQuery
 
@@ -69,9 +70,9 @@ class Research(Listener):
             event.stopPropagate()
             log.info("new query: %s",event.data)
             res = self.search(event.data)
-            self.emit(SearchResponse(res),"front")
-            for i in res:
-                log.info("search result: %s",i)
+            self.emit(SearchResponse(event,res),"front")
+            # for i in tee(res,1)():
+            #     log.info("search result: %s",i)
             #self.emit(event.createResponse(self.search(event.data)))
     def _aggregate_results(self):
         pass

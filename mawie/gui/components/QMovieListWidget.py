@@ -50,10 +50,11 @@ class MovieListFrame(GuiComponent):
                 itemW.btnSee.clicked.connect(lambda ignore, x = film : self.clickedSee(x))
 
             except Exception as e:
-                print(e)
+                pass
 
     def clickedSee(self,film):
-        self.gui.dispatchAction("show-info-film",film)
+        #self.gui.emit(ShowFrame(MovieWidget))
+        pass
     def handleAction(self,name,data):
         if name == "show-movie-list-frame":
             self.gui.dispatchAction("show-frame",self)

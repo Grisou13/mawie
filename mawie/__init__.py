@@ -1,14 +1,12 @@
 import sys
 import os
-
-from mawie.helpers import LOG_PATH
-
 if __name__ == '__main__':#TODO this is a complete hack, this should be fioxed or use relative imports
     sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
     sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+from mawie.helpers import LOG_PATH
 import logging
 import logging.handlers
-s = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
+s = '%(asctime)4s %(name)-16s %(levelname)-8s [%(threadName)-10s] [PID = %(process)-5s]  %(message)s'
 formatter = logging.Formatter(s)
 #basic config
 logging.basicConfig(level=logging.INFO, format=s, filemode = "w+")

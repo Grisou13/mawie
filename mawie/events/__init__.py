@@ -57,7 +57,6 @@ class Listener:
         super(Listener, self).__init__()
         if eventManager is not None and isinstance(eventManager, EventManager):
             eventManager.registerListener(eventManager)  # Automaticly register
-            log.info("registering class " + self.__class__.__name__ + " in "+eventManager.__class__.__name__)
     def handle(self, event):
         if not event.propogate: #return if we were asked to explicitly not process the event
             return False
@@ -65,17 +64,16 @@ class Listener:
 
 class EventManager:
     def __init__(self):
-        super(EventManager, self).__init__()
         self.listeners = weakref.WeakKeyDictionary()  # we don't care about keys, and this might contain more references than 2 components in the futur
 
     def registerListener(self, cls, extra = "default"):
-        log.info("registering "+cls.__class__.__name__ + " in "+self.__class__.__name__)
+        log.info("registering [%s] in [%s] as [type = %s]",cls,self,extra)
         self.listeners[cls] = extra  # just register the class name
 
     def deleteListener(self, cls):
         del self.listeners[cls]
 
-    def emit(self, event, on = ""):
+    def emit(self, event, on = "default"):
         if not event.propogate:
             del event
             return

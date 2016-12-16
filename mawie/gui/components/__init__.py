@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QWidget
 
 from mawie.events import Listener
 from mawie.events.gui import ShowFrame
-
+from mawie.gui.Qgui import Gui
 import logging
 log = logging.getLogger("mawie")
 
@@ -12,7 +12,8 @@ class NotImplemented(Exception): pass
 class GuiComponent(QWidget,Listener):
     def __init__(self,parent = None):
         super(GuiComponent, self).__init__(parent)
-        from mawie.gui.Qgui import Gui
+
+
         self.gui = Gui()
         log.info("registering component %s in gui [%s]",self,self.gui)
         self.gui.registerListener(self)

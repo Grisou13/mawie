@@ -236,7 +236,6 @@ class FileNotParsedWidget(QWidget):
 class ExplorerWidget(GuiComponent):
     def __init__(self,parent):
         super(ExplorerWidget,self).__init__(parent)
-        self.gui = parent.gui
         self.initWidget()
 
     def initWidget(self):
