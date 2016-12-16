@@ -33,9 +33,17 @@ class ParsingStarted(Event):
     pass
 
 
-class GoogleItEvent(Request):
+class GoogleItSearchRequest(Request):
     pass
 
 
 class GoogleItResponse(Response):
+    pass
+
+
+class ExplorerParsingRequest(Request):
+    pass
+
+
+class ExplorerParsingResponse(Response):
     pass

@@ -6,8 +6,8 @@ from imdbpie import Imdb
 import re
 import sys
 from mawie.events import Listener
-from mawie.events.explorer import GoogleItResponse, GoogleItEvent
-
+from mawie.events.explorer import GoogleItResponse, GoogleItSearchRequest
+import requests
 
 class googleIt(Listener):
     #BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
@@ -31,21 +31,43 @@ class googleIt(Listener):
 
 
     def handle(self, event):
-        if isinstance(event, GoogleItEvent):
+        if isinstance(event, GoogleItSearchRequest):
             search = event.data
-            # todo self function call
+            res = self.getMovieID(search)
             self.emit(GoogleItResponse(event, res))
 
-    def _makeSearchTerm(self, movieName):
-        return "https://duckduckgo.com/html/?q=" + movieName + " site:" + self.domainSearch
+    def _makeSearchTerm(self, movieName, domain=True):
+        movieName.replace(" ", "%20")
+        if domain:
+            return "https://duckduckgo.com/html/?q=" + movieName + " :" + self.domainSearch
+        elif not domain:
+            return "https://duckduckgo.com/html/?q=" + movieName
+
         # bing advanced search doesn't work w our request soooo.....
         # return "site:" + self.domainSearch + " " + movieName
 
-    def _GetMovieResearch(self, term, limit=50, format='json'):
-        fp = urllib.request.urlopen(term)
+    def _GetMovieResearch(self, movieTitle, limit=50, format='json'):
+        term = self._makeSearchTerm(movieTitle)
+        h = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+        res = requests.get("https://duckduckgo.com/html/", params={"q":movieTitle + " :imdb"}, headers={"user-agent":h})
+        # res.encoding
+        r = BeautifulSoup(res.text, "html.parser").find_all("a", attrs={"class": u"result__a"}, href=True)
+        return r
+
+        print(term)
+        try:
+            fp = urllib.request.urlopen(term)
+        except urllib.error.HTTPError as e:
+            print(e)
+            term = self._makeSearchTerm(movieTitle, domain=False)
+            try:
+                fp = urllib.request.urlopen(term)
+            except urllib.error.HTTPError:
+                print(term)
+                sys.exit("fuuuuu")
         r = fp.read().decode("utf8")
         fp.close()
-        return BeautifulSoup(r, "html.parser").find_all("a", attrs={"class": u"result__a"}, href=True)
+        return
 
     def _findImdbLinks(self, researchResults):
         # get all the links that contains the domainSearch name (imdb by default)
@@ -67,7 +89,7 @@ class googleIt(Listener):
             raise TypeError("Movie title must be a string")
 
         # get the fifty firsts results of a research
-        researchResults = self._GetMovieResearch(self._makeSearchTerm(movieTitle))
+        researchResults = self._GetMovieResearch(movieTitle)
 
         # find all the links from imdb
         imDBlinks = self._findImdbLinks(researchResults)
@@ -78,12 +100,26 @@ class googleIt(Listener):
         # if you give the format as http://www.imdb.com/title/tt0330373/, return the id
         # mess up if incorrect url. This is why we need a regex here
         if not imDBlinks:
+            # print("ho putain..")
+
+            # h = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+            # res = requests.get("https://duckduckgo.com/html/", params={"q": movieTitle + " :imdb"}, headers={"user-agent": h})
+            # print(res)
+            # print(res.text)
+            # print("et pourtant avec soup...")
+            # print(BeautifulSoup(res.text, "html.parser").find_all("a", attrs={"class": u"result__a"}, href=True))
+
+
+            # print(imDBlinks)
             return False
 
         #print(imDBlinks.split("title/")[1][:-1])
         try:
             movieId = imDBlinks.split("title/")[1][:-1]
         except Exception:
+            # print("ho putain 2")
+            # print("peux pas parser ça :")
+            # print(imDBlinks)
             return False
             #print(imDBlinks)
             #print(movieTitle)
@@ -98,10 +134,13 @@ class googleIt(Listener):
                 if re.match("^[a-z0-9]*$", movieId) and len(movieId):
                     return movieId
 
+            # print("ho putain 3")
+            # print("avec cette merde " + movieId)
             return False
 
         # and if it matches the right size (all id have the same size)
         if not len(movieId) == 9:
+            # print("ho putain 4")
             return False
         return movieId
 

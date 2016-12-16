@@ -6,8 +6,8 @@ from mimetypes import MimeTypes
 from guessit import guessit
 import sys
 
-from mawie.events import Eventable
-from mawie.events.explorer import GoogleItEvent
+from mawie.events import Eventable, Listener
+from mawie.events.explorer import ExplorerParsingRequest, ExplorerParsingResponse, GoogleItSearchRequest
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
@@ -27,7 +27,8 @@ import json
 
 log = logging.getLogger("mawie")
 
-class Explorer(Eventable):
+
+class Explorer(Listener):
 
     googleIt = googleIt()
     MimeTypes = MimeTypes()
@@ -38,8 +39,13 @@ class Explorer(Eventable):
     foundFiles = dict()
     notFoundFiles = dict()
     # main func to call.
-    def __init__(self):
-        pass
+
+    def handle(self, event):
+        if isinstance(event, ExplorerParsingRequest):
+            path = event.data
+            res = self.parse(path)
+            self.emit(ExplorerParsingResponse(event, res))
+
     def parse(self, path):
         """
         Parse and stores the movies in the given folder
@@ -56,6 +62,7 @@ class Explorer(Eventable):
         5. Returns the two lists
         """
         files = self._getMoviesFromPath(path)
+
         foundFiles, notFoundFiles = self._addToDatabase(files)
 
         # assign properties
@@ -82,8 +89,6 @@ class Explorer(Eventable):
         for r, dirs, _files in os.walk(path, topdown=False):
             for f in _files:
                 path = os.path.join(r,f)
-                print(path)
-
                 if self._isAVideo(path):
                     # we parse the files here
                     files.append(self._parseFile(path))
@@ -144,16 +149,18 @@ class Explorer(Eventable):
 
         if len(movieList) <= 0:
             raise LookupError("The given list is empty. ")
-
+        kk = 0
         for f in movieList:
+            kk += 1
             # we try to avoid to search 20 times in a row the same title (as for a série)
             if f["title"] != self._lastTitle["title"]:
                 # get the imdb of that id
-                fromImdb = self.googleIt.getMovieID(f["title"])
-                self.emit(GoogleItEvent(f["title"]))
-
+                #fromImdb = self.googleIt.getMovieID(f["title"])
+                fromImdb = self.emit(GoogleItSearchRequest(f["title"]))
+                print(fromImdb)
                 self._lastTitle["title"] = f["title"]
                 self._lastTitle["imdb_id"] = fromImdb
+
             else:
                 fromImdb = self._lastTitle["imdb_id"]
 
@@ -161,7 +168,6 @@ class Explorer(Eventable):
 
             if f["imdb_id"]:
                 if self._addFile(f):
-
                     foundFiles[f["title"]] = f
                 else:
                     SystemError("Cannot add file {} to database".format(f["title"]))
