@@ -7,6 +7,7 @@ from guessit import guessit
 import sys
 
 from mawie.events import Eventable
+from mawie.events.explorer import GoogleItEvent
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
@@ -148,6 +149,8 @@ class Explorer(Eventable):
             if f["title"] != self._lastTitle["title"]:
                 # get the imdb of that id
                 fromImdb = self.googleIt.getMovieID(f["title"])
+                self.emit(GoogleItEvent(f["title"]))
+
                 self._lastTitle["title"] = f["title"]
                 self._lastTitle["imdb_id"] = fromImdb
             else:

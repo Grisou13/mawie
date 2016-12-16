@@ -5,8 +5,11 @@ import urllib.request
 from imdbpie import Imdb
 import re
 import sys
+from mawie.events import Listener
+from mawie.events.explorer import GoogleItResponse, GoogleItEvent
 
-class googleIt():
+
+class googleIt(Listener):
     #BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
     imdb = object()
@@ -25,6 +28,13 @@ class googleIt():
 
         if not _doWeHaveInternet():
             raise ConnectionError("No internet connection !")
+
+
+    def handle(self, event):
+        if isinstance(event, GoogleItEvent):
+            search = event.data
+            # todo self function call
+            self.emit(GoogleItResponse(event, res))
 
     def _makeSearchTerm(self, movieName):
         return "https://duckduckgo.com/html/?q=" + movieName + " site:" + self.domainSearch

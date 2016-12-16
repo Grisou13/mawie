@@ -39,6 +39,7 @@ class App(Eventable, metaclass=Singleton):
     def handle(self, event):
         if isinstance(event,Start):
             next_call = time.time()
+            self.emit(ExplorerRequestParsing("../"))
             while True:
                 self.emit(Tick(next_call))
                 next_call = next_call + self.tickTime
