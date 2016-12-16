@@ -60,7 +60,7 @@ class ResearchFrame(GuiComponent):
             self._forceFrameChange()
             self._textChangedFlag = False
     def _forceFrameChange(self):
-        log.info("-----FORCE FRAME CHANGE--------")
+        log.info("-RESEARCH FORCE CHANGE -")
         #self.emit(ShowFrame(MovieListFrame.__class__.__name__))
         self.emit(ShowMovieList())
 

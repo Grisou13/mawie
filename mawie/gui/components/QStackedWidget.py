@@ -38,7 +38,6 @@ class ComponentArea(QStackedWidget,GuiComponent):
         w.show()
 
     def addWidget(self,widget):
-
         #print(widget)
         if widget.__class__.__name__ not in self.widgetStore:
             self.widgetStore[widget.__class__.__name__] = widget
@@ -48,17 +47,20 @@ class ComponentArea(QStackedWidget,GuiComponent):
         self.addWidget(MovieWidget(self))
         self.addWidget(MovieListWidget(self))
         self.addWidget(SettingsWidget(self))
-
-        s = ExplorerWidget(self)
-        self.addWidget(s)
         self.addWidget(AdvancedSearch(self))
-        self.setCurrentWidget(s)
+        self.addWidget(ExplorerWidget(self))
+
+        # s = ExplorerWidget(self)
+        # self.addWidget(s)
+        # self.setCurrentWidget(s)
+
         # self.listMovie = MovieListFrame(self, self.gui)
         # self.movie = MovieFrame(self, self.gui)
 
         # self.addWidget(self.movie)
         # self.addWidget(self.listMovie)
         # self.setCurrentWidget(self.listMovie)
+
     # def handleAction(self, name, data):
     #     if name == "show-frame":
     #         print(data.__class__.__name__)
@@ -72,15 +74,12 @@ class ComponentArea(QStackedWidget,GuiComponent):
     # def requestAction(self, name):
     #     pass
     def handle(self,event):
-
-        log.info("-----------STACKED---------------")
-        log.info("handling %s",event)
+        #super().handle(event)
         if isinstance(event, ShowFrame):
-            log.info("stacked w - ")
             if event.data.__class__.__name__ in self.widgetStore:
                 self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
 
+
 if __name__ == '__main__':
     from mawie.gui.Qgui import start
-
     start()

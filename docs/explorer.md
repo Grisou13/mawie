@@ -43,41 +43,6 @@ MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language
 MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language [fr]>), ('format', 'BluRay'), ('audio_codec', 'AC3'), ('video_codec', 'XviD'), ('release_group', '2T'), ('type', 'movie')])
 ```
 
-### Storage
-The "File" and "Movie" can be a little bit fuzzy to discern yet.
-A file is the phsyical element that we want to store.
-
-__File Data Model__:
-
-File  | &nbsp
-------------- | -------------
-path  | string
-base  | string
-movie.id | foreignKey movie.id
-movie | relation to Movie
-created_at | datetime
-
-The model can be found at *app/models/File.py*
-
-__Movie data model__:
-And a movie is simple all the informations about a movie on imdb.
-Movie  | &nbsp  
-------------- | -------------
-name  | string
-imdb_id  | string
-genre | string
-desc | string
-release | date
-runtime  | string
-actors  | string
-directors  | string
-writer  | string
-poster  | string
-rate  | string
-files  | relation to File
-viewed  | boolean
-
-The model can be found at *app/models/Movie.py*
 
 
 ## googleIt Class

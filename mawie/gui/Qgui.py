@@ -67,7 +67,9 @@ class BackgorundProcess(QObject,Listener):
     def handle(self,event):
         self.response.emit(event)
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, GuiComponent):
+    def __init__(self):
+        super().__init__()
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()

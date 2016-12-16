@@ -33,7 +33,7 @@ class ExplorerRun(QThread):
     def __init__(self, explorer, path, parent = None):
         super(ExplorerRun,self).__init__(parent)
         self.setPriority(QThread.IdlePriority)
-        print("new thread started")
+        #print("new thread started")
         self.toParse = path
         self.explorer = copy.deepcopy(explorer) #redundant, maybe use a singleton?
 
@@ -143,7 +143,7 @@ class AddFilesWidget(GuiComponent):
 
 
         else:
-            print("No folder")
+            #print("No folder")
             msgBox = QMessageBox()
             msgBox.setIcon(QMessageBox.Critical)
             msgBox = QMessageBox()
@@ -172,10 +172,8 @@ class AddFilesWidget(GuiComponent):
             urlParsed = urlparse(url)
             urlPath = urlParsed.path
             idMovie = urlPath.split("title/")[1][:-1]
-            #print(idMovie)
 
             if idMovie is not None or idMovie is not "":
-                print(idMovie)
                 row = self.lstFileNotParse.row(item)
                 self.lstFileNotParse.takeItem(row)
                 itemAdd = QListWidgetItem(self.lstFileParse)
@@ -206,15 +204,11 @@ class AddFilesWidget(GuiComponent):
             self.explorer.getFolderContent(dir_)
             self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
             self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
-    def handle(self,event):
-        super().handle(event)
-        if isinstance(event, ShowExplorer):
-            self.emit(ShowFrame(self))
 
-    def handleAction(self, actionName, data):
-        pass
-    def requestAction(self,name):
-        pass
+    def handle(self,event):
+        #super().handle(event)
+        if isinstance(event, ShowExplorer):
+            self.gui.emit(ShowFrame(self))
 
 
 class FileParsedWidget(QWidget):
@@ -261,7 +255,6 @@ class FileNotParsedWidget(QWidget):
     def createWidgets(self):
         grid = QGridLayout()
         lblFile = QLabel(self.file,self)
-        print(self.file)
         faIconCheck = qta.icon("fa.external-link")
         self.btnGiveImdbUrl = QPushButton(faIconCheck,"Give IMDb URL",self)
 
@@ -282,6 +275,12 @@ class ExplorerWidget(GuiComponent):
     def initWidget(self):
         self.add = AddFilesWidget(self)
         self.show()
+
+    def handle(self,event):
+        super().handle(event)
+        if isinstance(event, ShowExplorer):
+            self.emit(ShowFrame(self))
+
 if __name__ == '__main__':
     from mawie.gui.Qgui import start, ShowMovieList, ShowFrame
 

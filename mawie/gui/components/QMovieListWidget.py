@@ -35,18 +35,18 @@ class MovieListWidget(GuiComponent):
 
     def createWidgets(self):
         grid = QGridLayout(self)
-        self.listWidgets = QListWidget(self)
-        self.listWidgets.setMinimumSize(670,700)
+        self.lstWidgets = QListWidget(self)
+        self.lstWidgets.setMinimumSize(670, 700)
         self.setLayout(grid)
 
     def updateWidgets(self,data):
-        self.listWidgets.clear()
+        self.lstWidgets.clear()
         for film in data:
             try:
-                item = QListWidgetItem(self.listWidgets)
+                item = QListWidgetItem(self.lstWidgets)
                 itemW= ResultRow(self,film)
                 item.setSizeHint(itemW.sizeHint())
-                self.listWidgets.setItemWidget(item, itemW)
+                self.lstWidgets.setItemWidget(item, itemW)
                 #itemW.show.connect(lambda x: self.clickedSee(film))
                 itemW.btnSee.clicked.connect(lambda ignore, x = film : self.clickedSee(x))
 
@@ -66,8 +66,8 @@ class MovieListWidget(GuiComponent):
 
     def handle(self, event):
         super().handle(event)
+        log.info("MOVIELIST -- handling %s", event)
         if isinstance(event,ShowMovieList):
-            log.info("ME%TZHO&ZIZikzuk")
             #self.emit(ShowFrame(self.__class__.__name__))
             self.emit(ShowFrame(self))
 
@@ -122,10 +122,16 @@ class ResultRow(QWidget):
             lblRating = QLabel("IMDb Rating: -", self)
         self.btnSee = QPushButton("See info",self)
         #self.btnSee.clicked.connect(lambda x : self.show.emit(self.film))
+
         lblActors.setFixedWidth(400)
         lblTitle.setFixedWidth(400)
-        lblTitle.setMinimumHeight(70)
+        lblTitle.setMinimumHeight(50)
         lblRating.setFixedWidth(400)
+
+        #
+        # lblActors.setMinimumWidth(400)
+        # lblTitle.setMinimumWidth(400)
+        # lblRating.setMinimumWidth(400)
 
         lblActors.setWordWrap(True)
         lblTitle.setWordWrap(True)

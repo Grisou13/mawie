@@ -147,14 +147,6 @@ class SettingsWidget(GuiComponent):
             db.create_all()
             self.lstDir.clear()
 
-    def handle(self,event):
-        super().handle(event)
-
-        if isinstance(event, ShowSettings):
-            self.emit(ShowFrame(self))
-
-
-
     def displayQuestionMessage(self,title="-",text="-",icon=None):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -174,8 +166,8 @@ class SettingsWidget(GuiComponent):
             self.settings.setValue("updator/frequency", 36000)
 
     def handle(self,event):
-        log.info("***************************")
-        if isinstance(event, ShowMovieList):
+        super().handle(event)
+        if isinstance(event, ShowSettings):
             self.emit(ShowFrame(self))
 
 class DirListItem(QWidget):

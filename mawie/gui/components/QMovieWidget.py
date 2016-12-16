@@ -274,9 +274,7 @@ class MovieWidget(GuiComponent):
         #     log.info("ME TZHO ZIZikzuk")
         #     self.emit(ShowFrame(self))
 
-if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
-    Gui.start()
+
 
     def displayErrorMessage(self,title="-",text="-"):
         msgBox = QMessageBox()
@@ -285,7 +283,10 @@ if __name__ == '__main__':
         msgBox.setText(text)
         msgBox.setStandardButtons(QMessageBox.Ok)
         msgBox.exec()
-
+#
+# if __name__ == '__main__':
+#     from mawie.gui.Qgui import Gui
+#     Gui.start()
 
 class FileWidget(QWidget):
     def __init__(self,parent=None,file=None):
