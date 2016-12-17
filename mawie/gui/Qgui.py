@@ -14,7 +14,8 @@ from mawie.app import App, start as startApp
 from mawie.events import Start, Listener, EventManager, Quit, Response, Request
 from mawie.events.gui import *
 from mawie.gui.components.QError import ErrorWidget
-
+from mawie.gui.components.QResearchWidget import ResearchFrame
+from mawie.gui.components.QStackedWidget import ComponentArea
 
 log = logging.getLogger(__name__)
 started = False  # flag to tell wether the app is started
@@ -41,15 +42,6 @@ class BackgorundProcess(QThread, Listener):
         # explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
 
     def run(self):
-        class Local(Listener):
-            """
-                small inner class, so that the Background process doesnt become a listener.
-                It would be too much overhead, and not a good task separation
-            """
-
-            def __init__(self, process):
-                super().__init__(None)
-                self.process = process
 
         # listener = Local(self)
         self.app.registerListener(self, "front")  # register it with something extra data
@@ -64,7 +56,7 @@ class BackgorundProcess(QThread, Listener):
                                                                                                  Response)):
             log.info("IN THREAD SENDING BACK %s", event)
             self.response.emit(event)  # propagate back to foreground
-            event.stopPropagate()
+            #event.stopPropagate()
 
 
 class MainWindow(QMainWindow, Listener):
@@ -86,7 +78,7 @@ class MainWindow(QMainWindow, Listener):
 
     def closeEvent(self, *args, **kwargs):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
-        Gui().emit(Quit())
+        self.gui.emit(Quit())
 
     def center(self):
         qr = self.frameGeometry()
@@ -94,37 +86,52 @@ class MainWindow(QMainWindow, Listener):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    def registerWidget(self,widget):
+        widget.gui = self.gui
+        widget.emit = lambda e: self.gui.emit(e)
+        if not hasattr(widget,"handle"): #we define a dumy handle event if the Component doesn't have one, so that the app doesn't freeze
+            def dummyHandle(self,event):
+                pass
+            widget.handle = dummyHandle
+        self.gui.registerListener(widget)
+        return widget
+
     def initWidget(self):
-        from mawie.gui.components.QResearchWidget import ResearchFrame
-        from mawie.gui.components.QStackedWidget import ComponentArea
+
         # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget
         self.setCentralWidget(mainWidget)
+        mainWidget.setMinimumSize(700, 800)
         content = QGridLayout(mainWidget)
+
+        #main component area (stacked widget)
         self.componentArea = ComponentArea(self.gui,mainWidget)
         self.componentArea.emit = lambda e:self.gui.emit(e)
         self.componentArea.gui = self.gui
         self.gui.registerListener(self.componentArea)
-        mainWidget.setMinimumSize(700, 800)
+
         # Make the topbar
         recherche = ResearchFrame(mainWidget)
         recherche.gui = self.gui
         recherche.emit = lambda e: self.gui.emit(e)
         btnAdvancedSearch = QPushButton("Advanced search", self)
         btnAdvancedSearch.clicked.connect(lambda x: self.gui.emit(ShowAdvancedSearchFrame()))
+
         self.errorWidget = ErrorWidget(self)
+        #self.errorWidget.gui = self.gui
+        #self.gui.registerListener(self.errorWidget)
+
         content.addWidget(self.componentArea, 2, 0)
         content.addWidget(recherche, 1, 0)
         content.addWidget(btnAdvancedSearch, 1, 1)
         mainWidget.setLayout(content)
         self.main = mainWidget
+
     def handle(self, event):
-        if isinstance(event, Start):
-            self.initWidget()
-        elif isinstance(event,ErrorEvent):
+        if isinstance(event,ErrorEvent):
             self.statusBar().showMessage("ERROR [{}] : {}".format(event.type, event.value))
-        elif not isinstance(event, Quit):
-            self.componentArea.emit(event)
+        # elif not isinstance(event, Quit):
+        #     self.componentArea.emit(event)
 
 def singleton(cls):
     #instance = None
@@ -140,15 +147,6 @@ def singleton(cls):
     return ctor
 class Singleton(type):
     _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-class Gui(EventManager):
-    started = False
-    # __instance = None
-    main = None  # reference to the main window
     #
     # def __new__(cls, *arg, **kwargs):
     #     if cls.__instance is None:
@@ -160,6 +158,15 @@ class Gui(EventManager):
     #     log.info("gui started = %s", Gui.__instance.started)
     #     log.info("%s",cls.__instance)
     #     return cls.__instance
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class Gui(EventManager):
+    started = False
+    main = None  # reference to the main window
+
 
     def __init__(self, app=None):
         super().__init__()
@@ -189,7 +196,7 @@ class Gui(EventManager):
         self.registerExceptions()
         log.info("GUI ELEMENTS STARTED")
         thread = self.backgroundProcessThread
-        thread.response.connect(lambda e: Gui().emit(e))
+        thread.response.connect(lambda e: self.emit(e))
         thread.started.connect(lambda: log.info("background process started"))
         thread.finished.connect(lambda: log.info("background process stopped"))
         log.debug("%s background thread: %s", thread, thread.isRunning())
@@ -244,12 +251,14 @@ class Gui(EventManager):
         else:
             log.info("handling events: %s [timeout = %s]", event, event.timeout)
 
-        if isinstance(event, Start):
-            pass
-
+        # if isinstance(event, Start):
+        #     pass
         if isinstance(event, Quit):
             self.backgroundProcessThread.terminate()
-            self.app.quit()
+            if hasattr(self,"app"):
+                self.app.quit()
+            else:
+                QApplication.instance().quit()
         elif isinstance(event, Request):
             log.info("emitting to background process %s", event)
             self.backgroundProcessThread.request.emit(event)
@@ -259,8 +268,8 @@ class Gui(EventManager):
             log.info("JAJAJAJAJAJA")
             log.info(event.data)
             log.info(event.request)
-            self.emit(event, "main")
-            event.stopPropagate()
+            self.emit(event, "default")
+            #event.stopPropagate()
             log.info("#########################")
 
 def instance(*args,**kwargs):

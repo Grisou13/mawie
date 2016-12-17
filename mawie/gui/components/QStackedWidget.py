@@ -30,6 +30,7 @@ class ComponentArea(QStackedWidget):
 
     def addWidget(self,widget):
         widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        widget.show()
         self.gui.registerListener(widget)
         super(ComponentArea, self).addWidget(widget)
     def onCurrentChange(self,index):
@@ -60,6 +61,7 @@ class ComponentArea(QStackedWidget):
         if isinstance(event, ShowFrame):
             if event.data.__class__.__name__ in self.widgetStore:
                 event.stopPropagate()
+                event.timeout = 0
                 self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
 
 if __name__ == '__main__':

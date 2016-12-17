@@ -96,7 +96,7 @@ class App(EventManager):
             event.propogate = True
             return event, to
         except Empty:
-            return False
+            return False, ""
 
 
             # self.emit(event)

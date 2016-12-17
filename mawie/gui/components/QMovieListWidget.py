@@ -42,15 +42,18 @@ class MovieListFrame(GuiComponent):
         self.listWidgets.clear()
         for film in data:
             try:
+                log.info("---- NEW FILM -------- %s",film)
                 item = QListWidgetItem(self.listWidgets)
                 itemW= ResultRow(self,film)
                 item.setSizeHint(itemW.sizeHint())
                 self.listWidgets.setItemWidget(item, itemW)
                 #itemW.show.connect(lambda x: self.clickedSee(film))
-                itemW.btnSee.clicked.connect(lambda ignore, x = film : self.clickedSee(x))
+                itemW.btnSee.clicked.connect(lambda ignore, x=film: self.clickedSee(x))
 
             except Exception as e:
-                pass
+                log.info("ERROR WHILE UPDATING MOVIE LIST")
+                log.info(e)
+        log.info("List of widgets %s", len(self.listWidgets))
 
     def clickedSee(self,film):
         #self.gui.emit(ShowFrame(MovieWidget))
@@ -64,18 +67,19 @@ class MovieListFrame(GuiComponent):
     def requestAction(self,name):
         pass
     def handle(self, event):
-        #super().handle(event)
-        if isinstance(event,ShowMovieList):
-            event.stopPropagate()
-            self.emit(ShowFrame(self))
-        if isinstance(event,SearchResponse):
-            log.info("-------------- UPDATING LIST OF MOVIES ----------------")
-            self.updateWidgets(event.data)
-            self.emit(ShowFrame(self))
+        super().handle(event) #remember kids, always call super
+        # if isinstance(event,ShowMovieList):
+        #     event.stopPropagate()
+        #     self.emit(ShowFrame(self))
+        # if isinstance(event,SearchResponse):
+        #     log.info("-------------- UPDATING LIST OF MOVIES ----------------")
+        #     self.updateWidgets(event.data)
+        #     #self.emit(ShowFrame(self))
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-------------- UPDATING LIST OF MOVIES ----------------")
             self.updateWidgets(event.data)
-            self.emit(ShowFrame(self))
+            event.stopPropagate()
+            #self.emit(ShowFrame(self))
 
 class ResultRow(QWidget):
 

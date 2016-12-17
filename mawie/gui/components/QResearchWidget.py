@@ -70,9 +70,10 @@ class ResearchFrame(GuiComponent):
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
             self.gui.emit(SearchResponse(event.request,event.data))
-
+            self.gui.emit(ShowMovieList())
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
+            self.gui.emit(SearchResponse(event.request, event.data))
             self.gui.emit(ShowMovieList())
 
 
