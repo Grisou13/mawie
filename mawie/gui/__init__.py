@@ -10,3 +10,4 @@
 #     #run()
 #     pass
 #
+from .Qgui import instance

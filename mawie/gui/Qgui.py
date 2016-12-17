@@ -19,6 +19,7 @@ from mawie.gui.components.QError import ErrorWidget
 log = logging.getLogger(__name__)
 started = False  # flag to tell wether the app is started
 
+_gui_instance = None
 
 class NotAComponent(Exception):
     pass
@@ -74,8 +75,9 @@ class MainWindow(QMainWindow, Listener):
     """
     main = None  # reference to the main widget
 
-    def __init__(self):
+    def __init__(self, gui):
         super().__init__()
+        self.gui = gui
         self.setWindowTitle('Find My movie')
         self.initWidget()
         self.center()
@@ -99,12 +101,17 @@ class MainWindow(QMainWindow, Listener):
         mainWidget = QWidget(self)  # central placeholder widget
         self.setCentralWidget(mainWidget)
         content = QGridLayout(mainWidget)
-        self.componentArea = ComponentArea(mainWidget)
+        self.componentArea = ComponentArea(self.gui,mainWidget)
+        self.componentArea.emit = lambda e:self.gui.emit(e)
+        self.componentArea.gui = self.gui
+        self.gui.registerListener(self.componentArea)
         mainWidget.setMinimumSize(700, 800)
         # Make the topbar
         recherche = ResearchFrame(mainWidget)
+        recherche.gui = self.gui
+        recherche.emit = lambda e: self.gui.emit(e)
         btnAdvancedSearch = QPushButton("Advanced search", self)
-        btnAdvancedSearch.clicked.connect(lambda x: Gui().emit(ShowAdvancedSearchFrame()))
+        btnAdvancedSearch.clicked.connect(lambda x: self.gui.emit(ShowAdvancedSearchFrame()))
         self.errorWidget = ErrorWidget(self)
         content.addWidget(self.componentArea, 2, 0)
         content.addWidget(recherche, 1, 0)
@@ -120,16 +127,24 @@ class MainWindow(QMainWindow, Listener):
             self.componentArea.emit(event)
 
 def singleton(cls):
-    instance = None
+    #instance = None
     def ctor(*args, **kwargs):
-        nonlocal instance
+        global instance
         if not instance:
+            log.info("-------------------")
+            log.info("creating class %s",cls)
             log.info("%s %s",args,kwargs)
+            log.info("-----------------")
             instance = cls(*args, **kwargs)
         return instance
     return ctor
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-@singleton
 class Gui(EventManager):
     started = False
     # __instance = None
@@ -154,19 +169,18 @@ class Gui(EventManager):
         if not hasattr(self, "app"):
             self.app = app  # container for the main QtApplication
         if not self.started:
-            self.initUI()
             self.started = True
+            self.initUI()
+
 
     def initUI(self):
-        if self.started:
-            return
         log.info("#########################################")
         self.registerSettings()
         log.info("STARTING GUI COMPONENTS")
 
         self.registerListener(self, "self")
         self.backgroundProcessThread = BackgorundProcess()
-        self.main = MainWindow()
+        self.main = MainWindow(self)
 
         self.registerListener(self.main, "main")
         # self.main.initWidget()
@@ -219,7 +233,7 @@ class Gui(EventManager):
         self.errorWidget.display()
 
     def registerExceptions(self):
-        if not started:
+        if not self.started:
             sys.excepthook = self.errorHandling
             QtCore.qInstallMessageHandler(self.errorHandling)
 
@@ -249,13 +263,18 @@ class Gui(EventManager):
             event.stopPropagate()
             log.info("#########################")
 
-
+def instance(*args,**kwargs):
+    global _gui_instance
+    if _gui_instance is None:
+        log.info("getting instance of gui")
+        _gui_instance = Gui(*args,**kwargs)
+    return _gui_instance
 def start():
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     app.setOrganizationName("CPNV")
     app.setApplicationName("MAWIE")
-    gui_ = Gui(app)
+    gui_ = instance(app)
     # QTimer.singleShot(12*10000,lambda g = ex:ex.emit(Quit())) #after a minute just quit the app, so that debugging is easier
     code = app.exec()
     traceback.print_exc()

@@ -73,7 +73,7 @@ class EventManager:
     def deleteListener(self, cls):
         del self.listeners[cls]
 
-    def emit(self, event, on = "default"):
+    def emit(self, event, on = ""):
         if not event.propogate:
             del event
             return

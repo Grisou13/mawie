@@ -19,9 +19,10 @@ from mawie.gui.components.QSettings import SettingsWidget
 import logging
 log = logging.getLogger("mawie")
 
-class ComponentArea(QStackedWidget,GuiComponent):
-    def __init__(self,parent=None):
+class ComponentArea(QStackedWidget):
+    def __init__(self, gui ,parent=None):
         super().__init__(parent)
+        self.gui = gui
         self.setFixedSize(680, 700)
         self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
@@ -29,6 +30,7 @@ class ComponentArea(QStackedWidget,GuiComponent):
 
     def addWidget(self,widget):
         widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.gui.registerListener(widget)
         super(ComponentArea, self).addWidget(widget)
     def onCurrentChange(self,index):
         w = self.widget(index)
@@ -40,6 +42,9 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def addWidget(self,widget):
         log.info("adding widget %s",widget.__class__.__name__)
         if widget.__class__.__name__ not in self.widgetStore:
+            widget.gui = self.gui
+            widget.emit = lambda e: self.gui.emit(e)
+            self.gui.registerListener(widget)
             self.widgetStore[widget.__class__.__name__] = widget
             #self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)

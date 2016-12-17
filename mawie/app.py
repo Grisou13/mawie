@@ -39,7 +39,7 @@ class App(EventManager):
 
     def addBackgroundProcess(self, cls):
         c = cls()
-        c.emit = self.emit
+        c.emit = self.addEvent
         # register the class to the app
         # This allows events to transit between background processes
         # c.registerListener(self)#bind the process, and the app together
@@ -49,9 +49,9 @@ class App(EventManager):
     def run(self):
         pass
 
-    def addEvent(self, event):
+    def addEvent(self, event, to = ""):
         with self._lock:
-            self.queue.put(event,True,0)
+            self.queue.put([event,to],True,0)
             log.info("queue size = %s",self.queue.qsize())
 
     def handle(self, event):
@@ -70,9 +70,9 @@ class App(EventManager):
             log.info("stopped background app")
         elif isinstance(event, Tick):  # we do stuff on the queue
             with self._lock:
-                event_ = self.process()
+                event_, to = self.process()
             if event_ is not False:
-                self.emit(event_, "back")
+                self.emit(event_, to)
         elif isinstance(event, Quit):
             self._running = False
             log.info("force quitting background app.... ")
@@ -86,11 +86,15 @@ class App(EventManager):
                 self.emit(event,"front")
     def process(self):
         try:
-            event = self.queue.get(True, 0)
+            eventDict = self.queue.get(True, 0)
+            event = eventDict[0]
+            to = eventDict[1]
+            if to is "":
+                to = "back"
             self.queue.task_done()
             log.info("processing event %s [timeout = %s, propagate = %s]", event, event.timeout,event.propogate)
             event.propogate = True
-            return event
+            return event, to
         except Empty:
             return False
 

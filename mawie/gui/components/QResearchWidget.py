@@ -29,7 +29,7 @@ class ResearchFrame(GuiComponent):
     def refreshSearch(self,text):
         if text is not "":
             self._textChangedFlag = True
-            self.emit(SearchRequest(self.inputSearch.text().lower()))
+            self.gui.emit(SearchRequest(self.inputSearch.text().lower()))
             #self._showMovieList()
         else:
             self._textChangedFlag = False
@@ -61,19 +61,19 @@ class ResearchFrame(GuiComponent):
             self._textChangedFlag = False
     def _forceFrameChange(self):
         if len(self.inputSearch.text()) > 0:
-            self.emit(SearchRequest(self.inputSearch.text().lower()))
-        self.emit(ShowMovieList())
+            self.gui.emit(SearchRequest(self.inputSearch.text().lower()))
+        self.gui.emit(ShowMovieList())
 
 
     def handle(self,event):
         #super().handle(event)
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
-            self.emit(SearchResponse(event.request,event.data))
+            self.gui.emit(SearchResponse(event.request,event.data))
 
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
-            self.emit(ShowMovieList())
+            self.gui.emit(ShowMovieList())
 
 
 

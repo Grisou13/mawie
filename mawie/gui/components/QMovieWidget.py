@@ -269,9 +269,7 @@ class MovieWidget(GuiComponent):
     def handle(self,event):
         super().handle(event)
 
-if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
-    Gui.start()
+
 
     def displayErrorMessage(self,title="-",text="-"):
         msgBox = QMessageBox()
@@ -302,3 +300,7 @@ class FileWidget(QWidget):
         grid.addWidget(self.btnShowInDir,1,1)
         grid.addWidget(self.btnDelete,1,2)
         self.setLayout(grid)
+
+if __name__ == '__main__':
+    from mawie.gui.Qgui import start
+    start()

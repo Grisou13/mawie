@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import QWidget
 
 from mawie.events import Listener
 from mawie.events.gui import ShowFrame
-from mawie.gui.Qgui import Gui
+import mawie.gui
 import logging
-log = logging.getLogger("mawie")
+log = logging.getLogger(__name__)
 
 class NotImplemented(Exception): pass
 
@@ -12,13 +12,11 @@ class NotImplemented(Exception): pass
 class GuiComponent(QWidget,Listener):
     def __init__(self,parent = None):
         super(GuiComponent, self).__init__(parent)
-
-
-        self.gui = Gui()
-        log.info("registering component %s in gui [%s]",self,self.gui)
-        self.gui.registerListener(self)
+        #self.gui = mawie.gui.instance()
+        #log.info("registering component %s in gui [%s]",self,self.gui)
+        #self.gui.registerListener(self)
         #self.gui.main.componentArea.addWidget(self) #adds the component automaticly to the QStackedWidget in the main area of the app
-        self.emit = self.gui.emit
+        #self.emit = self.gui.emit
     def registerInComponentArea(self):
         pass
         #self.gui.main.componentArea.addWidget(self) #adds the component automaticly to the QStackedWidget in the main area of the app

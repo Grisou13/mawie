@@ -99,6 +99,6 @@ class QPoster(QLabel):
 
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import Gui
+    from mawie.gui.Qgui import start
 
-    Gui.start()
+    start()
