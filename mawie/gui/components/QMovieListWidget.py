@@ -44,7 +44,7 @@ class MovieListWidget(GuiComponent):
         for film in data:
             try:
                 log.info("---- NEW FILM -------- %s",film)
-                item = QListWidgetItem(self.listWidgets)
+                item = QListWidgetItem(self.lstWidgets)
                 itemW= ResultRow(self,film)
                 item.setSizeHint(itemW.sizeHint())
                 self.lstWidgets.setItemWidget(item, itemW)
@@ -54,7 +54,7 @@ class MovieListWidget(GuiComponent):
             except Exception as e:
                 log.info("ERROR WHILE UPDATING MOVIE LIST")
                 log.info(e)
-        log.info("List of widgets %s", len(self.listWidgets))
+        log.info("List of widgets %s", len(self.lstWidgets))
 
     def clickedSee(self,film):
         self.emit(ShowMovieInfo(film))

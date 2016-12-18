@@ -55,14 +55,14 @@ class ComponentArea(QStackedWidget):
         self.addWidget(AdvancedSearch(self))
         self.addWidget(ExplorerWidget(self))
         self.addWidget(MovieWidget(self))
-        s = MovieListFrame(self)
+        s = MovieListWidget(self)
         self.addWidget(s)
         self.addWidget(ExplorerWidget(self))
         self.addWidget(AdvancedSearch(self))
         self.setCurrentWidget(s)
         log.info("initialized : %s widgets",self.widgetStore)
     def handle(self,event):
-        super().handle(event)
+        #super().handle(event)
         if isinstance(event, ShowFrame):
             if event.data.__class__.__name__ in self.widgetStore:
                 event.stopPropagate()

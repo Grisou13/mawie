@@ -6,32 +6,17 @@ import time
 import qdarkstyle
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QAction
-from PyQt5.QtWidgets import QFrame
-from PyQt5.QtWidgets import QGraphicsOpacityEffect
-from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
-from PyQt5.QtGui import QPixmap,QFont
-from PyQt5.QtCore import QRect,Qt, QRunnable, QThread, QThreadPool, pyqtSignal, QObject
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QPushButton, QGridLayout, \
     QMainWindow
 
-from mawie.app import App, start as startApp
-from mawie.events import Start, Listener, EventManager, Quit, Response, Request
+from mawie.app import App
+from mawie.app import start as startApp
+from mawie.events import Listener, EventManager
+from mawie.events import Quit, Response, Request
 from mawie.events.gui import *
 from mawie.gui.components.QError import ErrorWidget
-from mawie.app import App
-from mawie.events import Eventable, Start, Listener, EventManager
-from mawie.events.search import SearchRequest, SearchResponse
-from mawie.gui.components import GuiComponent
-from mawie.gui.components import QAdvancedSearch
-from mawie.gui.components import QExplorer
-from mawie.gui.components import QMovieListWidget
-from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
 from mawie.gui.components.QStackedWidget import ComponentArea
 
@@ -91,8 +76,8 @@ class MainWindow(QMainWindow, Listener):
         self.setWindowTitle('Find My movie')
         self.initWidget()
         self.center()
-        self.main.show()
         self.show()
+        self.main.show()
 
     def closeEvent(self, *args, **kwargs):
         super(QMainWindow, self).closeEvent(*args, **kwargs)
@@ -132,12 +117,12 @@ class MainWindow(QMainWindow, Listener):
         menu.addAction(quit)
         quit.triggered.connect(self.close)
         menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowMovieList()))
-
-
+        self.setMenuBar(bar)
         # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget
-        self.setCentralWidget(mainWidget)
         mainWidget.setMinimumSize(700, 800)
+        self.setCentralWidget(mainWidget)
+
         content = QGridLayout(mainWidget)
 
         #main component area (stacked widget)
@@ -146,20 +131,22 @@ class MainWindow(QMainWindow, Listener):
         self.componentArea.gui = self.gui
         self.gui.registerListener(self.componentArea)
 
-        # Make the topbar
+        # Search bar
         recherche = ResearchFrame(mainWidget)
         recherche.gui = self.gui
         recherche.emit = lambda e: self.gui.emit(e)
-        btnAdvancedSearch = QPushButton("Advanced search", self)
-        btnAdvancedSearch.clicked.connect(lambda x: self.gui.emit(ShowAdvancedSearchFrame()))
-
-        self.errorWidget = ErrorWidget(self)
+        # btnAdvancedSearch = QPushButton("Advanced search", self)
+        # btnAdvancedSearch.clicked.connect(lambda x: self.gui.emit(ShowAdvancedSearchFrame()))
+        #Error widget
+        self.errorWidget = QWidget(self)#ErrorWidget(self)
+        self.errorWidget.move(0, 500)
         #self.errorWidget.gui = self.gui
         #self.gui.registerListener(self.errorWidget)
 
-        self.errorWidget.move(100,100)
-        self.setWindowTitle('Find My movie')
+        content.addWidget(recherche,1,0)
+
         content.addWidget(self.componentArea, 2, 0)
+
         mainWidget.setLayout(content)
         self.main = mainWidget
 

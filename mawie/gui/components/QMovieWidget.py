@@ -14,7 +14,8 @@ from urllib import request
 
 from PyQt5 import QtCore
 
-from mawie.events.gui import ShowFrame, ShowMovieInfo
+from mawie.events.gui import ShowFrame, ShowMovieInfo, ShowMovieList
+from mawie.events.search import SearchRequest
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QPoster import QPoster
@@ -251,8 +252,10 @@ class MovieWidget(GuiComponent):
             if response == QMessageBox.Yes:
                 fileDel.delete()
                 self.film.delete()
-                self.gui.dispatchAction('search-results',Movie.query())
-                self.gui.dispatchAction('show-frame', MovieListWidget)
+                self.emit(SearchRequest(""))
+                self.emit(ShowMovieList())
+                #self.gui.dispatchAction('search-results',Movie.query())
+                #self.gui.dispatchAction('show-frame', MovieListWidget)
 
 
     def importPosterFilm(self, path=''):

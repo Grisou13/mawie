@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import QFileDialog
 import qtawesome as qta
 from six import unichr
 
+from mawie.events.gui import ShowExplorer, ShowFrame
 from mawie.gui.components import GuiComponent
 from mawie.events import *
 from mawie.events.explorer import *
