@@ -7,6 +7,7 @@ import qdarkstyle
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QPushButton, QGridLayout, \
     QMainWindow
@@ -24,6 +25,7 @@ log = logging.getLogger(__name__)
 started = False  # flag to tell wether the app is started
 
 _gui_instance = None
+
 
 class NotAComponent(Exception):
     pass
@@ -45,7 +47,6 @@ class BackgorundProcess(QThread, Listener):
         # explicitly add an event to the app, it is normal to not call handle, sicne the app is supposed to use a queue to handle the events
 
     def run(self):
-
         # listener = Local(self)
         self.app.registerListener(self, "front")  # register it with something extra data
         time.sleep(1.2)
@@ -59,7 +60,7 @@ class BackgorundProcess(QThread, Listener):
                                                                                                  Response)):
             log.info("IN THREAD SENDING BACK %s", event)
             self.response.emit(event)  # propagate back to foreground
-            #event.stopPropagate()
+            # event.stopPropagate()
 
 
 class MainWindow(QMainWindow, Listener):
@@ -73,8 +74,11 @@ class MainWindow(QMainWindow, Listener):
     def __init__(self, gui):
         super().__init__()
         self.gui = gui
+        self.emit = self.gui.emit
         self.setWindowTitle('Find My movie')
+        self.initMenu()
         self.initWidget()
+
         self.center()
         self.show()
         self.main.show()
@@ -89,45 +93,50 @@ class MainWindow(QMainWindow, Listener):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def registerWidget(self,widget):
+    def registerWidget(self, widget):
         widget.gui = self.gui
         widget.emit = lambda e: self.gui.emit(e)
-        if not hasattr(widget,"handle"): #we define a dumy handle event if the Component doesn't have one, so that the app doesn't freeze
-            def dummyHandle(self,event):
+        if not hasattr(widget,
+                       "handle"):  # we define a dumy handle event if the Component doesn't have one, so that the app doesn't freeze
+            def dummyHandle(self, event):
                 pass
+
             widget.handle = dummyHandle
         self.gui.registerListener(widget)
         return widget
 
-    def initWidget(self):
+    def initMenu(self):
         bar = self.menuBar()
-        menu = bar.addMenu("Menu")
-
+        menu = bar.addMenu("&File")
         menuAddFolder = QAction("Add folder", self)
         menuAddFolder.triggered.connect(lambda: self.emit(ShowExplorer()))
         menu.addAction(menuAddFolder)
-        menuSettings = QAction("Settings", self)
-        menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
-        menu.addAction(menuSettings)
-        menuResearch= menu.addMenu("Research")
 
-
-        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowAdvancedSearch()))
         quit = QAction("Quit", self)
-        menu.addAction(quit)
         quit.triggered.connect(self.close)
-        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowMovieList()))
-        self.setMenuBar(bar)
-        # self.statusBar().showMessage("hi")
-        mainWidget = QWidget(self)  # central placeholder widget
-        mainWidget.setMinimumSize(700, 800)
-        self.setCentralWidget(mainWidget)
+        menu.addAction(quit)
 
+        menuSettings = bar.addAction("Settings")
+        #menuSettings = QAction("Settings", self)
+        menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
+        #menu.addAction(menuSettings)
+
+        menuResearch = bar.addMenu("Research")
+        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowAdvancedSearch()))
+        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowMovieList()))
+        # menu.addAction(menuResearch)
+
+
+
+    def initWidget(self):
+        mainWidget = QWidget(self)  # central placeholder widget
+        self.setCentralWidget(mainWidget)
+        mainWidget.setMinimumSize(700, 800)
         content = QGridLayout(mainWidget)
 
-        #main component area (stacked widget)
-        self.componentArea = ComponentArea(self.gui,mainWidget)
-        self.componentArea.emit = lambda e:self.gui.emit(e)
+        # main component area (stacked widget)
+        self.componentArea = ComponentArea(self.gui, mainWidget)
+        self.componentArea.emit = lambda e: self.gui.emit(e)
         self.componentArea.gui = self.gui
         self.gui.registerListener(self.componentArea)
 
@@ -135,41 +144,43 @@ class MainWindow(QMainWindow, Listener):
         recherche = ResearchFrame(mainWidget)
         recherche.gui = self.gui
         recherche.emit = lambda e: self.gui.emit(e)
-        # btnAdvancedSearch = QPushButton("Advanced search", self)
-        # btnAdvancedSearch.clicked.connect(lambda x: self.gui.emit(ShowAdvancedSearchFrame()))
-        #Error widget
-        self.errorWidget = QWidget(self)#ErrorWidget(self)
-        self.errorWidget.move(0, 500)
-        #self.errorWidget.gui = self.gui
-        #self.gui.registerListener(self.errorWidget)
-
-        content.addWidget(recherche,1,0)
-
+        # Error widget
+        # self.errorWidget = ErrorWidget(self)
+        # self.errorWidget.move(0, 500)
+        # self.errorWidget.gui = self.gui
+        # self.gui.registerListener(self.errorWidget)
+        content.addWidget(recherche, 1, 0)
         content.addWidget(self.componentArea, 2, 0)
 
         mainWidget.setLayout(content)
         self.main = mainWidget
 
     def handle(self, event):
-        if isinstance(event,ErrorEvent):
+        if isinstance(event, ErrorEvent):
             self.statusBar().showMessage("ERROR [{}] : {}".format(event.type, event.value))
-        # elif not isinstance(event, Quit):
-        #     self.componentArea.emit(event)
+            QTimer.singletShot(2000, lambda: self.statusBar().showMessage(""))  # reset the message in 2 seconds
+            # elif not isinstance(event, Quit):
+            #     self.componentArea.emit(event)
+
 
 def singleton(cls):
-    #instance = None
+    # instance = None
     def ctor(*args, **kwargs):
         global instance
         if not instance:
             log.info("-------------------")
-            log.info("creating class %s",cls)
-            log.info("%s %s",args,kwargs)
+            log.info("creating class %s", cls)
+            log.info("%s %s", args, kwargs)
             log.info("-----------------")
             instance = cls(*args, **kwargs)
         return instance
+
     return ctor
+
+
 class Singleton(type):
     _instances = {}
+
     #
     # def __new__(cls, *arg, **kwargs):
     #     if cls.__instance is None:
@@ -186,14 +197,14 @@ class Singleton(type):
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
+
 class Gui(EventManager):
     started = False
     main = None  # reference to the main window
 
-
     def __init__(self, app=None):
         super().__init__()
-        #self = Gui.__instance
+        # self = Gui.__instance
         log.info("Gui instance %s [started = %s]", self, self.started)
 
         if not hasattr(self, "app"):
@@ -201,7 +212,6 @@ class Gui(EventManager):
         if not self.started:
             self.started = True
             self.initUI()
-
 
     def initUI(self):
         log.info("#########################################")
@@ -214,8 +224,8 @@ class Gui(EventManager):
 
         self.registerListener(self.main, "main")
         # self.main.initWidget()
-        self.errorWidget = ErrorWidget(self.main)
-        self.errorWidget.show()
+        # self.errorWidget = ErrorWidget(self.main)
+        # self.errorWidget.show()
         self.registerExceptions()
         log.info("GUI ELEMENTS STARTED")
         thread = self.backgroundProcessThread
@@ -256,7 +266,7 @@ class Gui(EventManager):
             log.warning(TraceBack)
 
         self.emit(ErrorEvent(ErrorType, ErrorValue, TraceBack))
-        self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
+        #self.addError("Error [" + str(ErrorType) + "] : " + str(ErrorValue))
 
     def addError(self, text):
         self.errorWidget.updateText(text)
@@ -278,7 +288,7 @@ class Gui(EventManager):
         #     pass
         if isinstance(event, Quit):
             self.backgroundProcessThread.terminate()
-            if hasattr(self,"app"):
+            if hasattr(self, "app"):
                 self.app.quit()
             else:
                 QApplication.instance().quit()
@@ -292,15 +302,18 @@ class Gui(EventManager):
             log.info(event.data)
             log.info(event.request)
             self.emit(event, "default")
-            #event.stopPropagate()
+            # event.stopPropagate()
             log.info("#########################")
 
-def instance(*args,**kwargs):
+
+def instance(*args, **kwargs):
     global _gui_instance
     if _gui_instance is None:
         log.info("getting instance of gui")
-        _gui_instance = Gui(*args,**kwargs)
+        _gui_instance = Gui(*args, **kwargs)
     return _gui_instance
+
+
 def start():
     app = QApplication(sys.argv)
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())

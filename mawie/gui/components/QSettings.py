@@ -11,7 +11,9 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 from sqlalchemy import event
 
+from mawie.events import Start
 from mawie.events.gui import ShowSettings, ShowFrame
+from mawie.events.updator import UpdatorRequest
 from mawie.gui.components import GuiComponent
 from mawie.models import db
 from mawie.models.File import File
@@ -29,9 +31,9 @@ log = logging.getLogger("mawie")
 
 
 class SettingsWidget(GuiComponent):
-    def __init__(self,parent=None,gui=None):
+    _frequency = (-1,300,1800,6000,36000)
+    def __init__(self,parent=None):
         super(SettingsWidget,self).__init__(parent)
-        self.gui = gui
         self.createWidgets()
 
     def createWidgets(self):
@@ -49,14 +51,17 @@ class SettingsWidget(GuiComponent):
         lblTitle.setFont(font)
         chkDefaultSystemPlayer = QCheckBox("Only use default video player to play movie",self)
         chkUpdatorEnable = QCheckBox("Enabled updator",self)
+        self.chkUpdator = chkUpdatorEnable
         lblFrequency = QLabel("Frequency you want the updator checked your files")
         cboFrequency = QComboBox(self)
+        self.cboFrequency = cboFrequency
         lblDeleteDb = QLabel("Delete the database : it will erase all the movie and associates files in the database",self)
         btnDeleteDb = QPushButton("Erase the database",self)
         lblLstDir = QLabel("List of the directories it will search movies",self)
         lblLstDir.setFont(fontSubTitle)
         self.lstDir = QListWidget(self)
 
+        cboFrequency.addItem("deactivated")
         cboFrequency.addItem("every 30 seconds")
         cboFrequency.addItem("every 3 minutes")
         cboFrequency.addItem("every 10 minutes")
@@ -64,22 +69,30 @@ class SettingsWidget(GuiComponent):
 
         if updatorEnable == 'true':
             chkUpdatorEnable.setChecked(True)
+            cboFrequency.setEnabled(True)
         elif updatorEnable == 'false':
             chkUpdatorEnable.setChecked(False)
+            cboFrequency.setEnabled(False)
 
         if playerDefault == 'true':
             chkDefaultSystemPlayer.setChecked(True)
         elif playerDefault == 'false':
             chkDefaultSystemPlayer.setChecked(False)
 
-        if frequency == 300:
-            cboFrequency.setCurrentIndex(0)
-        elif frequency == 1800:
-            cboFrequency.setCurrentIndex(1)
-        elif frequency == 6000:
-            cboFrequency.setCurrentIndex(2)
-        elif frequency == 36000:
-            cboFrequency.setCurrentIndex(3)
+        for index, f in enumerate(self._frequency):
+            if frequency == f:
+                cboFrequency.setCurrentIndex(index)
+        if frequency == -1:
+            chkUpdatorEnable.setChecked(False)
+        # if frequency == 300:
+        #     cboFrequency.setCurrentIndex(1)
+        # elif frequency == 1800:
+        #     cboFrequency.setCurrentIndex(2)
+        # elif frequency == 6000:
+        #     cboFrequency.setCurrentIndex(3)
+        # elif frequency == 36000:
+        #     cboFrequency.setCurrentIndex(4)
+
 
 
         listDir = File.query(File.base.distinct())
@@ -135,8 +148,14 @@ class SettingsWidget(GuiComponent):
     def updatorChecked(self,status):
         if status == 0:
             self.settings.setValue("updator/updatorEnable",False)
+            self.cboFrequency.setCurrentIndex(0)
+            self.cboFrequency.setEnabled(False)
+            self.settings.setValue("updator/frequency", -1)
         else:
             self.settings.setValue("updator/updatorEnable",True)
+            self.cboFrequency.setCurrentIndex(1)
+            self.cboFrequency.setEnabled(True)
+        self.emit(UpdatorRequest(self.settings.value("updator/frequency")))
 
     def eraseDbClicked(self):
         response = QMessageBox.question(self, "Erase database ?", "Are you sure you want to erase all the database ?"
@@ -156,17 +175,25 @@ class SettingsWidget(GuiComponent):
         msgBox.exec()
 
     def frequencyChanged(self,idx):
+        # val = 0
+        # if idx == 0:
+        #     val = 300
+        # elif idx == 1:
+        #     val = 1800
+        # elif idx == 2:
+        #     val = 6000
+        # elif idx == 3:
+        #     val = 36000
         if idx == 0:
-            self.settings.setValue("updator/frequency",300)
-        elif idx == 1:
-            self.settings.setValue("updator/frequency", 1800)
-        elif idx == 2:
-            self.settings.setValue("updator/frequency", 6000)
-        elif idx == 3:
-            self.settings.setValue("updator/frequency", 36000)
-
+            self.chkUpdator.setChecked(False)
+        else:
+            self.chkUpdator.setChecked(True)
+        self.settings.setValue("updator/frequency", self._frequency[idx])
+        self.emit(UpdatorRequest(self._frequency[idx]))
     def handle(self,event):
-        super().handle(event)
+        #super().handle(event)
+        if isinstance(event,Start):
+            self.emit(UpdatorRequest(self._frequency[self.cboFrequency.currentIndex()]))
         if isinstance(event, ShowSettings):
             self.emit(ShowFrame(self))
 
@@ -186,3 +213,7 @@ class DirListItem(QWidget):
         grid.addWidget(lblDirPath,0,0)
         grid.addWidget(self.btnDelDir,0,1)
         self.setLayout(grid)
+
+if __name__ == '__main__':
+    from mawie.gui.Qgui import start
+    start()

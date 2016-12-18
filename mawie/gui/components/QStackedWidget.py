@@ -59,6 +59,7 @@ class ComponentArea(QStackedWidget):
         self.addWidget(s)
         self.addWidget(ExplorerWidget(self))
         self.addWidget(AdvancedSearch(self))
+        self.addWidget(SettingsWidget(self))
         self.setCurrentWidget(s)
         log.info("initialized : %s widgets",self.widgetStore)
     def handle(self,event):
