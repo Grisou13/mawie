@@ -11,7 +11,7 @@ from mawie.events.gui import ShowFrame
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 #from mawie.gui.components.QExplorer import AddFilesWidget
-from mawie.gui.components.QMovieListWidget import MovieListFrame
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import ExplorerWidget
@@ -33,6 +33,7 @@ class ComponentArea(QStackedWidget):
         widget.show()
         self.gui.registerListener(widget)
         super(ComponentArea, self).addWidget(widget)
+
     def onCurrentChange(self,index):
         w = self.widget(index)
         w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
@@ -49,7 +50,10 @@ class ComponentArea(QStackedWidget):
             self.widgetStore[widget.__class__.__name__] = widget
             #self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)
+
     def initWidget(self):
+        self.addWidget(AdvancedSearch(self))
+        self.addWidget(ExplorerWidget(self))
         self.addWidget(MovieWidget(self))
         s = MovieListFrame(self)
         self.addWidget(s)
@@ -58,6 +62,7 @@ class ComponentArea(QStackedWidget):
         self.setCurrentWidget(s)
         log.info("initialized : %s widgets",self.widgetStore)
     def handle(self,event):
+        super().handle(event)
         if isinstance(event, ShowFrame):
             if event.data.__class__.__name__ in self.widgetStore:
                 event.stopPropagate()
@@ -66,5 +71,4 @@ class ComponentArea(QStackedWidget):
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start
-
     start()

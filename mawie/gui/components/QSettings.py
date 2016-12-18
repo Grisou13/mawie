@@ -9,10 +9,16 @@ from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
+from sqlalchemy import event
 
+from mawie.events.gui import ShowSettings, ShowFrame
+from mawie.gui.components import GuiComponent
 from mawie.models import db
 from mawie.models.File import File
 from mawie.models.Movie import Movie
+
+import logging
+log = logging.getLogger("mawie")
 
 #TODO:
 
@@ -22,9 +28,9 @@ from mawie.models.Movie import Movie
 # Folder deleting V
 
 
-class SettingsWidget(QWidget):
+class SettingsWidget(GuiComponent):
     def __init__(self,parent=None,gui=None):
-        super(SettingsWidget, self).__init__(parent)
+        super(SettingsWidget,self).__init__(parent)
         self.gui = gui
         self.createWidgets()
 
@@ -79,7 +85,7 @@ class SettingsWidget(QWidget):
         listDir = File.query(File.base.distinct())
         for dir in listDir :
             directoryPath = dir[0]
-            print(directoryPath)
+            #print(directoryPath)
             item = QListWidgetItem(self.lstDir)
             itemW = DirListItem(self.lstDir, directoryPath)
             item.setSizeHint(itemW.sizeHint())
@@ -141,7 +147,6 @@ class SettingsWidget(QWidget):
             db.create_all()
             self.lstDir.clear()
 
-
     def displayQuestionMessage(self,title="-",text="-",icon=None):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -160,11 +165,16 @@ class SettingsWidget(QWidget):
         elif idx == 3:
             self.settings.setValue("updator/frequency", 36000)
 
+    def handle(self,event):
+        super().handle(event)
+        if isinstance(event, ShowSettings):
+            self.emit(ShowFrame(self))
+
 class DirListItem(QWidget):
     def __init__(self,parent = None,dirPathFile=None):
         super(DirListItem, self).__init__(parent)
         self.dirPath = dirPathFile
-        print(self.dirPath)
+        log.info(self.dirPath)
         self.createWidgets()
 
     def createWidgets(self):

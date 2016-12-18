@@ -11,7 +11,7 @@ from mawie.events.gui import SearchResults, ShowFrame, ShowMovieList
 from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
-from mawie.gui.components.QMovieListWidget import MovieListFrame
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.research.research import Research
 import re
 import logging

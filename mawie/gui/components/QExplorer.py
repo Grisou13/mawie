@@ -78,8 +78,8 @@ class AddFilesWidget(GuiComponent):
         self.lblLstNotParseFile = QLabel("list of  non parsable files")
         self.lstFileNotParse = FileNotParsedListWidget(self)
         #self.lstFileNotParse = QListWidget(self)
-        #self.lstFileParse.setMinimumSize(660,200)
-        #self.lstFileNotParse.setMinimumSize(660,200)
+        self.lstFileParse.setMinimumSize(660,200)
+        self.lstFileNotParse.setMinimumSize(660,200)
 
         content.addWidget(self.inputPath, 0, 0)
         content.addWidget(self.btnOpenDir,0,1)
@@ -88,6 +88,7 @@ class AddFilesWidget(GuiComponent):
         content.addWidget(self.lstFileNotParse,2,0,1,3)
         content.addWidget(self.lblLstParseFile,3,0)
         content.addWidget(self.lstFileParse,4,0,1,3)
+
 
 
         self.setLayout(content)
@@ -101,7 +102,7 @@ class AddFilesWidget(GuiComponent):
             if os.path.isdir(self.dirPath):
                 self.emit(ParseDirectoryRequest(self.dirPath))
         else:
-            print("No folder")
+            #print("No folder")
             msgBox = QMessageBox()
             msgBox.setIcon(QMessageBox.Critical)
             msgBox = QMessageBox()
@@ -118,7 +119,7 @@ class AddFilesWidget(GuiComponent):
 
     def getFilmInfoByUrl(self,item,file):
         """
-        TODO move this to nonparsedlist component
+        TODO: move this to nonparsedlist component
         """
         idMovie = None
         url = None
@@ -130,10 +131,8 @@ class AddFilesWidget(GuiComponent):
             urlParsed = urlparse(url)
             urlPath = urlParsed.path
             idMovie = urlPath.split("title/")[1][:-1]
-            print(idMovie)
 
             if idMovie is not None or idMovie is not "":
-                print(idMovie)
                 row = self.lstFileNotParse.row(item)
                 self.lstFileNotParse.takeItem(row)
                 itemAdd = QListWidgetItem(self.lstFileParse)
@@ -221,7 +220,6 @@ class FileNotParsedWidget(QWidget):
     def createWidgets(self):
         grid = QGridLayout()
         lblFile = QLabel(self.file,self)
-        print(self.file)
         faIconCheck = qta.icon("fa.external-link")
         self.btnGiveImdbUrl = QPushButton(faIconCheck,"Give IMDb URL",self)
 
@@ -241,6 +239,9 @@ class ExplorerWidget(GuiComponent):
     def initWidget(self):
         self.add = AddFilesWidget(self)
         self.show()
-if __name__ == '__main__':
-    from mawie.gui.Qgui import start
-    start()
+
+    def handle(self,event):
+        super().handle(event)
+        if isinstance(event, ShowExplorer):
+            self.emit(ShowFrame(self))
+

@@ -6,6 +6,16 @@ import time
 import qdarkstyle
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QAction
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
+from PyQt5.QtGui import QPixmap,QFont
+from PyQt5.QtCore import QRect,Qt, QRunnable, QThread, QThreadPool, pyqtSignal, QObject
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QPushButton, QGridLayout, \
     QMainWindow
@@ -14,6 +24,14 @@ from mawie.app import App, start as startApp
 from mawie.events import Start, Listener, EventManager, Quit, Response, Request
 from mawie.events.gui import *
 from mawie.gui.components.QError import ErrorWidget
+from mawie.app import App
+from mawie.events import Eventable, Start, Listener, EventManager
+from mawie.events.search import SearchRequest, SearchResponse
+from mawie.gui.components import GuiComponent
+from mawie.gui.components import QAdvancedSearch
+from mawie.gui.components import QExplorer
+from mawie.gui.components import QMovieListWidget
+from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QResearchWidget import ResearchFrame
 from mawie.gui.components.QStackedWidget import ComponentArea
 
@@ -97,6 +115,24 @@ class MainWindow(QMainWindow, Listener):
         return widget
 
     def initWidget(self):
+        bar = self.menuBar()
+        menu = bar.addMenu("Menu")
+
+        menuAddFolder = QAction("Add folder", self)
+        menuAddFolder.triggered.connect(lambda: self.emit(ShowExplorer()))
+        menu.addAction(menuAddFolder)
+        menuSettings = QAction("Settings", self)
+        menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
+        menu.addAction(menuSettings)
+        menuResearch= menu.addMenu("Research")
+
+
+        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowAdvancedSearch()))
+        quit = QAction("Quit", self)
+        menu.addAction(quit)
+        quit.triggered.connect(self.close)
+        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowMovieList()))
+
 
         # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget
@@ -121,9 +157,9 @@ class MainWindow(QMainWindow, Listener):
         #self.errorWidget.gui = self.gui
         #self.gui.registerListener(self.errorWidget)
 
+        self.errorWidget.move(100,100)
+        self.setWindowTitle('Find My movie')
         content.addWidget(self.componentArea, 2, 0)
-        content.addWidget(recherche, 1, 0)
-        content.addWidget(btnAdvancedSearch, 1, 1)
         mainWidget.setLayout(content)
         self.main = mainWidget
 

@@ -6,9 +6,9 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
 from PyQt5.QtWidgets import QDialog
 
 
-class VideoPlayer(QDialog):
+class MoviePlayer(QDialog):
     def __init__(self, parent=None, path = None):
-        super(VideoPlayer, self).__init__(parent)
+        super(MoviePlayer, self).__init__(parent)
         moviePath = path
         #moviePath='C:/Users/ilias.goujgali/Videos/Wildlife.wmv'
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
@@ -27,6 +27,7 @@ class VideoPlayer(QDialog):
         self.positionSlider.sliderMoved.connect(self.setPosition)
 
         self.volumeSlider = QSlider(Qt.Horizontal)
+        self.volumeSlider.setFixedWidth(100)
         self.volumeSlider.setRange(0,100)
         self.volumeSlider.setValue(100)
 
@@ -107,5 +108,5 @@ class VideoWidget(QVideoWidget):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
-    player = VideoPlayer()
+    player = MoviePlayer()
     sys.exit(app.exec_())

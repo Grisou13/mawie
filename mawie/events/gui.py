@@ -35,3 +35,15 @@ class ErrorEvent(Event):
 
 class ShowMovieList(Event):
     pass
+
+class ShowExplorer(Event):
+    pass
+
+class ShowSettings(Event):
+    pass
+
+class ShowMovieInfo(Event):
+    pass
+
+class ShowAdvancedSearch(Event):
+    pass

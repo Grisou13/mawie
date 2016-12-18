@@ -3,6 +3,8 @@ import subprocess
 import sys
 
 import time
+
+from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
@@ -12,21 +14,26 @@ from urllib import request
 
 from PyQt5 import QtCore
 
+from mawie.events.gui import ShowFrame, ShowMovieInfo
 from mawie.gui.components import GuiComponent
-from mawie.gui.components.QMovieListWidget import MovieListFrame
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QPoster import QPoster
-from mawie.gui.components.QMoviePlayer import VideoPlayer
+from mawie.gui.components.QMoviePlayer import MoviePlayer
 from mawie.models.File import File
 from mawie.models.Movie import Movie
+import logging
+log = logging.getLogger("mawie")
 
 class MovieWidget(GuiComponent):
     def __init__(self,parent=None):
         super().__init__(parent)
+        self.settings = QSettings()
         self.initFrame()
 
     def initFrame(self):
         self.createWidgets()
         self.show()
+
     def createWidgets(self):
         grid = QGridLayout()
         fontTitle = QFont('Arial',20)
@@ -106,11 +113,11 @@ class MovieWidget(GuiComponent):
         self.setLayout(grid)
 
     def updateWidgets(self,film):
-
-        self.lblImg.updateUrl(film.poster)
+        self.film = film
+        self.lblImg.updateUrl(self.film.poster)
         #self.lblImg.setPixmap(poster)
-        if film.name is not None:
-            self.lblTitle.setText(film.name)
+        if self.film.name is not None:
+            self.lblTitle.setText(self.film.name)
         else:
             self.lblTitle.setText("*no title*")
         if self.film.writer is not None:
@@ -169,10 +176,14 @@ class MovieWidget(GuiComponent):
             self.btnLaunchFilm.hide()
             self.btnShowInDir.hide()
             self.btnDeleteFile.hide()
+        elif len(self.film.files)==0:
+            self.lstFile.hide()
+            self.btnShowInDir.hide()
+            self.btnDeleteFile.hide()
+            self.btnLaunchFilm.hide()
 
     def btnShowInDirClicked(self, file=None):
         path = None
-
         if file is not None and file.path is not None :
            path = file.path
         elif file is None and len(self.film.files) == 1 and self.film.files[0].path is not None :
@@ -189,6 +200,7 @@ class MovieWidget(GuiComponent):
 
 
     def btnPlayFileClicked(self, file=None):
+        defaultPlayer = self.settings.value("infomovie/player-default")
         path = None
         if file is not None and file.path is not None:
              path = file.path
@@ -198,9 +210,10 @@ class MovieWidget(GuiComponent):
 
         if path is not None:
             if os.path.isfile(path):
-                if self.defaultPlayer == 'true':
+                print(defaultPlayer)
+                if defaultPlayer == 'false':
                     if path.lower().endswith(('.wmv','.avi')):
-                        moviePlayer = VideoPlayer(path=path)
+                        moviePlayer = MoviePlayer(path=path)
                         moviePlayer.exec_()
                     else:
                         os.startfile(path)
@@ -239,7 +252,7 @@ class MovieWidget(GuiComponent):
                 fileDel.delete()
                 self.film.delete()
                 self.gui.dispatchAction('search-results',Movie.query())
-                self.gui.dispatchAction('show-frame',MovieListFrame)
+                self.gui.dispatchAction('show-frame', MovieListWidget)
 
 
     def importPosterFilm(self, path=''):
@@ -256,18 +269,21 @@ class MovieWidget(GuiComponent):
             print("a problem with the connection or the url has occurred")
         return pixMap
 
-    def handleAction(self, name, data):
-        if name == "show-info-film":
-            print(self)
-            self.updateWidgets(data)
-
-            self.gui.dispatchAction("show-frame",self)
-
-    def requestAction(self, name):
-        pass
+    # def handleAction(self, name, data):
+    #     if name == "show-info-film":
+    #         print(self)
+    #         self.updateWidgets(data)
+    #         self.gui.dispatchAction("show-frame",self)
+    #
+    # def requestAction(self, name):
+    #     pass
 
     def handle(self,event):
         super().handle(event)
+        if isinstance(event, ShowMovieInfo):
+            #log.info("MOVIE INFO-- %s",event.data)
+            self.emit(ShowFrame(self))
+            self.updateWidgets(event.data)
 
 
 
@@ -278,7 +294,10 @@ class MovieWidget(GuiComponent):
         msgBox.setText(text)
         msgBox.setStandardButtons(QMessageBox.Ok)
         msgBox.exec()
-
+#
+# if __name__ == '__main__':
+#     from mawie.gui.Qgui import Gui
+#     Gui.start()
 
 class FileWidget(QWidget):
     def __init__(self,parent=None,file=None):
