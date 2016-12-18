@@ -27,6 +27,7 @@ class MoviePlayer(QDialog):
         self.positionSlider.sliderMoved.connect(self.setPosition)
 
         self.volumeSlider = QSlider(Qt.Horizontal)
+        self.volumeSlider.setFixedWidth(100)
         self.volumeSlider.setRange(0,100)
         self.volumeSlider.setValue(100)
 

@@ -15,7 +15,7 @@ class GuiComponent(QWidget,Listener):
         from mawie.gui.Qgui import Gui
         self.gui = Gui()
         print(self.__class__.__name__)
-        print("registering compoenent in gui")
+        print("registering component in gui")
         self.gui.registerListener(self)
         self.emit = self.gui.emit
 

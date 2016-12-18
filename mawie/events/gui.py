@@ -28,3 +28,9 @@ class ShowExplorer(Event):
 
 class ShowSettings(Event):
     pass
+
+class ShowMovieInfo(Event):
+    pass
+
+class ShowAdvancedSearch(Event):
+    pass

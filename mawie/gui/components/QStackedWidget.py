@@ -22,7 +22,7 @@ log = logging.getLogger("mawie")
 class ComponentArea(QStackedWidget,GuiComponent):
     def __init__(self,parent=None):
         super().__init__(parent)
-        self.setFixedSize(680, 700)
+        #self.setFixedSize(680, 700)
         self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()
@@ -30,12 +30,14 @@ class ComponentArea(QStackedWidget,GuiComponent):
     def addWidget(self,widget):
         widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         super(ComponentArea, self).addWidget(widget)
+
     def onCurrentChange(self,index):
-        w = self.widget(index)
-        #w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
-        #self.adjustSize()
-        #w.adjustSize()
-        w.show()
+        pass
+        # w = self.widget(index)
+        # w.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Minimum)
+        # #self.adjustSize()
+        # #w.adjustSize()
+        # #w.show()
 
     def addWidget(self,widget):
         #print(widget)
@@ -43,12 +45,15 @@ class ComponentArea(QStackedWidget,GuiComponent):
             self.widgetStore[widget.__class__.__name__] = widget
             #self.gui.register_listener(widget)
             super(ComponentArea,self).addWidget(widget)
+
     def initWidget(self):
+        self.addWidget(AdvancedSearch(self))
+        self.addWidget(ExplorerWidget(self))
         self.addWidget(MovieWidget(self))
         self.addWidget(MovieListWidget(self))
         self.addWidget(SettingsWidget(self))
-        self.addWidget(AdvancedSearch(self))
-        self.addWidget(ExplorerWidget(self))
+
+
 
         # s = ExplorerWidget(self)
         # self.addWidget(s)
@@ -74,11 +79,10 @@ class ComponentArea(QStackedWidget,GuiComponent):
     # def requestAction(self, name):
     #     pass
     def handle(self,event):
-        #super().handle(event)
+        super().handle(event)
         if isinstance(event, ShowFrame):
             if event.data.__class__.__name__ in self.widgetStore:
-                self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
-
+                self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__])
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

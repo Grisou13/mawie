@@ -1,8 +1,6 @@
 # GUI
-At the beginning of the project, we chose to use Tkinter but we find a little bit incomplete for what we would to do
-some we decide to change to pyqt.
-
-
+At the beginning of the project, we chose to use Tkinter but we find a little bit incomplete for what we would  like to do
+so, we decide to change to pyqt.
 
 ## Listing of frame
 We chose to put a "Q" in the front of the filename of every graphical component. These components are all in the
@@ -20,15 +18,49 @@ QMoviePlayer| MoviePlayer| This is the player media player. The file format/code
 QError|ErrorWidget|Display error that we didn't catch|
 QPoster|QPoster| This is a label that's enable to load movie poster asynchronously
 QStackedWidget|ComponentArea|This is frame is where all the frames are stored.
+QSettings|SettingsWidget| This frame is used to change the settings.
 
-###QMovieListWidget
+###MovieListWidget
 #### Method updateWidgets(films)
-This method clear the list of result and displays the new one
-#### Class ResultRow inherited of QWidget
-This is the widget that 
+argument films: a generator of objects model Movie
+This method updates the list of films
+
+#### Class ResultRow inherited QWidget
+This class is the widget of a row in the MovieListWidget
+
+###MovieWidget
+#### Method updateWidgets(film)
+argument film: a object model Movie
+This method updates widgets with the information of the given film in argument
+
+###SettingsWidget
+The location where the settings are stored depend of your system:
+Windows: HKEY_CURRENT_USER\Software\CPNV\MAWIE
+MacOs: $HOME/Library/Preferences/com.CPNV.MAWIE.plist
+Linux: $HOME/.config/CPNV/MAWIE.conf
+
+####Settings available
+
+CPNV->MAWIE->first launch
+description: this is used to know if it's the first time the program is lauchned
+default value : true
+CPNV->MAWIE->infomovie->player-default
+description: this allows to only use the default media player when you're in the MovieInfo and you clicked on "play film"
+default value : true
+CPNV->MAWIE->updator->updator-enabled
+description: this setting enable/disable the updator
+default value: true
+CPNV->MAWIE->updator->frequency
+description: if the updator is enabled this setting set the frequency the updator will execute its checking.
+there are predefined values : 300,1800,6000 and 3600 (there are in milliseconds)
+default value : 1800  
 
 
+###ComponentArea
+#### addWidget(widget)
+This method is used to add a widget to the ComponentArea.
 
+###
 
 ## How to add a widget
 To create a graphical component, create a file in ```mawie.gui.components``` (the location has no effect but it's just to keep the structure of the project).

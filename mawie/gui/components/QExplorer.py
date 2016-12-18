@@ -18,8 +18,7 @@ from PyQt5.uic.properties import QtGui
 from PyQt5.QtWidgets import QFileDialog
 import qtawesome as qta
 from six import unichr
-
-from mawie.events.gui import ShowExplorer
+from mawie.events.gui import ShowExplorer,ShowFrame
 from mawie.explorer.explorer import Explorer
 from mawie.gui.components import GuiComponent
 from mawie.events import *
@@ -79,7 +78,6 @@ class AddFilesWidget(GuiComponent):
         super(AddFilesWidget,self).__init__(parent)
         self.dirPath = None
         self.explorer = Explorer()
-
         self.initWidget()
         self.show()
 
@@ -205,11 +203,6 @@ class AddFilesWidget(GuiComponent):
             self.gui.dispatchAction("parsed-list",self.explorer.parsedFiles)
             self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
 
-    def handle(self,event):
-        #super().handle(event)
-        if isinstance(event, ShowExplorer):
-            self.gui.emit(ShowFrame(self))
-
 
 class FileParsedWidget(QWidget):
     def __init__(self, parent, file_=None):
@@ -281,7 +274,3 @@ class ExplorerWidget(GuiComponent):
         if isinstance(event, ShowExplorer):
             self.emit(ShowFrame(self))
 
-if __name__ == '__main__':
-    from mawie.gui.Qgui import start, ShowMovieList, ShowFrame
-
-    start()

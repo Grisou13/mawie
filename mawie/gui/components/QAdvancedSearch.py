@@ -30,9 +30,11 @@ from mawie.gui.components import GuiComponent
 from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.models.File import File
 from mawie.models.Movie import Movie
-from mawie.events.gui import SearchResults, ShowFrame
+from mawie.events.gui import ShowFrame, ShowAdvancedSearch
 
 from mawie.gui.components.QDateRangeInput import DateRangeInput
+import logging
+log = logging.getLogger("mawie")
 
 
 
@@ -49,7 +51,6 @@ class AdvancedSearch(GuiComponent):
 
     def initWidget(self):
         masterLayout = QBoxLayout(QBoxLayout.TopToBottom,self)
-
         for model in self.models:
             #self.data[model] = {}
             layout = QFormLayout(self)
@@ -86,14 +87,16 @@ class AdvancedSearch(GuiComponent):
     def query(self):
         if len(self.data.keys()) < 1:
             return
-        print(self.data)
-        self.gui.emit(SearchRequest(self.data))
+        #print(self.data)
+        #self.gui.emit(SearchRequest(self.data))
 
     def handle(self,event):
         super().handle(event)
-        if isinstance(event,Response) and isinstance(event.request, SearchRequest):
-            self.emit(SearchResults(event.data))
-            self.emit(ShowFrame(MovieListWidget.__class__.__name__))
+        if isinstance(event, ShowAdvancedSearch):
+            self.emit(ShowFrame(self))
+        # if isinstance(event,Response) and isinstance(event.request, SearchRequest):
+        #     self.emit(SearchResults(event.data))
+        #     self.emit(ShowFrame(MovieListWidget.__class__.__name__))
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

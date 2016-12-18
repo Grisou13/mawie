@@ -87,9 +87,9 @@ class MainWindow(QMainWindow, GuiComponent):
         menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
         menu.addAction(menuSettings)
 
-        # menuResearch= menu.addMenu("Research")
-        # menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowFrame(QAdvancedSearch.__class__.__name__)))
-        # menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowFrame(QMovieListWidget.__class__.__name__)))
+        menuResearch= menu.addMenu("Research")
+        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowAdvancedSearch()))
+        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowMovieList()))
 
         quit = QAction("Quit", self)
         quit.triggered.connect(self.close)

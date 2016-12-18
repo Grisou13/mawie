@@ -1,13 +1,14 @@
 import os
 
 from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 from PyQt5.QtGui import QPixmap,QImage
 from PyQt5.QtCore import QRect,pyqtSignal
 
 import mawie
 from mawie.events import Response
-from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame
+from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame, ShowMovieInfo
 from mawie.events.search import SearchResult, SearchResponse, SearchRequest
 from mawie.gui.components import GuiComponent, Downloader
 from mawie.gui.components.QPoster import QPoster
@@ -29,14 +30,14 @@ class MovieListWidget(GuiComponent):
     #     self.updateWidgets(Research().search()) # execute search before showing widget
     def initFrame(self):
         self.createWidgets()
-        list =[Movie.get(0),Movie.get(1),Movie.get(2)]
+        list =[Movie.get(1),Movie.get(2),Movie.get(3)]
         self.updateWidgets(list)
         self.show()
 
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
-        self.lstWidgets.setMinimumSize(670, 700)
+        grid.addWidget(self.lstWidgets)
         self.setLayout(grid)
 
     def updateWidgets(self,data):
@@ -54,7 +55,7 @@ class MovieListWidget(GuiComponent):
                 print(e)
 
     def clickedSee(self,film):
-        self.gui.dispatchAction("show-info-film",film)
+        self.emit(ShowMovieInfo(film))
     def handleAction(self,name,data):
         if name == "show-movie-list-frame":
             self.gui.dispatchAction("show-frame",self)
@@ -66,22 +67,8 @@ class MovieListWidget(GuiComponent):
 
     def handle(self, event):
         super().handle(event)
-        log.info("MOVIELIST -- handling %s", event)
         if isinstance(event,ShowMovieList):
-            #self.emit(ShowFrame(self.__class__.__name__))
             self.emit(ShowFrame(self))
-
-        if isinstance(event, SearchResponse):
-            self.updateWidgets(event.data)
-        if isinstance(event, Response) and isinstance(event.request, SearchRequest):
-            self.updateWidgets(event.data)
-
-    # def handle(self, event):
-    #     super().handle(event)
-    #     if isinstance(event,ShowMovieList):
-    #         log.info("ME TZHO ZIZikzuk")
-    #         self.emit(ShowFrame(self.__class__.__name__))
-    #
     #     if isinstance(event, SearchResponse):
     #         self.updateWidgets(event.data)
 
@@ -121,17 +108,10 @@ class ResultRow(QWidget):
         else:
             lblRating = QLabel("IMDb Rating: -", self)
         self.btnSee = QPushButton("See info",self)
-        #self.btnSee.clicked.connect(lambda x : self.show.emit(self.film))
 
-        lblActors.setFixedWidth(400)
-        lblTitle.setFixedWidth(400)
-        lblTitle.setMinimumHeight(50)
-        lblRating.setFixedWidth(400)
-
-        #
-        # lblActors.setMinimumWidth(400)
-        # lblTitle.setMinimumWidth(400)
-        # lblRating.setMinimumWidth(400)
+        lblTitle.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        lblActors.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        lblRating.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         lblActors.setWordWrap(True)
         lblTitle.setWordWrap(True)
@@ -142,7 +122,7 @@ class ResultRow(QWidget):
         grid.addWidget(lblTitle, 0, 2)
         grid.addWidget(lblRating, 1, 2)
         grid.addWidget(lblActors, 2, 2)
-        grid.addWidget(self.btnSee, 0, 3,3,2)
+        grid.addWidget(self.btnSee, 1,3)
         self.setLayout(grid)
 
 if __name__ == '__main__':
