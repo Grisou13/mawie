@@ -40,6 +40,8 @@ class GoogleItSearchRequest(Request):
 class GoogleItResponse(Response):
     pass
 
+class GoogleItResult(Event):
+    pass
 
 class ExplorerParsingRequest(Request):
     pass

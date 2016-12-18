@@ -5,12 +5,13 @@ import Levenshtein.StringMatcher as lev
 from mimetypes import MimeTypes
 from guessit import guessit
 import sys
-
-from mawie.events import Eventable, Listener
-from mawie.events.explorer import ExplorerParsingRequest, ExplorerParsingResponse, GoogleItSearchRequest
+from time import sleep as wait
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
+
+from mawie.events import Eventable, Listener
+from mawie.events.explorer import ExplorerParsingRequest, ExplorerParsingResponse, GoogleItSearchRequest, GoogleItResult, GoogleItResponse
 
 from mawie.models.Movie import Movie
 import urllib.request
@@ -20,7 +21,7 @@ import re
 import mawie.models.File as modelFile
 import mawie.models.Movie as modelMovie
 from datetime import datetime
-from mawie.explorer.googleit import googleIt
+from mawie.explorer.googleit import GoogleIt
 import logging
 import time
 import json
@@ -30,21 +31,43 @@ log = logging.getLogger("mawie")
 
 class Explorer(Listener):
 
-    googleIt = googleIt()
+    googleIt = GoogleIt()
     MimeTypes = MimeTypes()
     _lastTitle = dict()
     _lastTitle["title"] = ""
     _lastTitle["imdb_id"] = ""
+
     count = 0
     foundFiles = dict()
     notFoundFiles = dict()
-    # main func to call.
+
 
     def handle(self, event):
         if isinstance(event, ExplorerParsingRequest):
             path = event.data
             res = self.parse(path)
             self.emit(ExplorerParsingResponse(event, res))
+
+        if isinstance(event, GoogleItResult):
+            #TODO get file
+            #TODO update list files
+            movieTitle = event.data[0]
+            movieId = event.data[1]
+            print(movieTitle)
+            print(movieId)
+            if not movieId and movieTitle:
+                self.emit(GoogleItSearchRequest([movieTitle, True]))
+
+            self._lastTitle["title"] = movieTitle
+
+            self._lastTitle["imdb_id"] = movieId
+
+            print(movieTitle)
+            print(movieId)
+
+            #file = self._filesevent.data.0
+            #file.imdbId = event.data.1
+            #self.emit(ExplorerParsingResponse/file)
 
     def parse(self, path):
         """
@@ -70,7 +93,6 @@ class Explorer(Listener):
         self.notFoundFiles = notFoundFiles
 
         return foundFiles, notFoundFiles
-
 
     ###################################################
     ####                                           ####
@@ -149,20 +171,29 @@ class Explorer(Listener):
 
         if len(movieList) <= 0:
             raise LookupError("The given list is empty. ")
-        kk = 0
+
         for f in movieList:
-            kk += 1
+
             # we try to avoid to search 20 times in a row the same title (as for a série)
             if f["title"] != self._lastTitle["title"]:
-                # get the imdb of that id
-                #fromImdb = self.googleIt.getMovieID(f["title"])
-                fromImdb = self.emit(GoogleItSearchRequest(f["title"]))
-                print(fromImdb)
-                self._lastTitle["title"] = f["title"]
-                self._lastTitle["imdb_id"] = fromImdb
+            # get the imdb of that id
+            #fromImdb = self.googleIt.getMovieID(f["title"])
+                time.sleep(1)
+                self.emit(GoogleItSearchRequest([f["title"], False]))
+            #ici
+            #self._lastTitle["title"] = f["title"]
+            #self._lastTitle["imdb_id"] = fromImdb
 
             else:
-                fromImdb = self._lastTitle["imdb_id"]
+                self.emit(GoogleItResult([self._lastTitle["title"], self._lastTitle["imdb_id"]]))
+
+
+            continue #anyway
+
+        #else:
+            #self.emit(GoogleItResponse[self._lastTitle["title"], self._lastTitle["imdb_id"]])
+            #continue
+                #fromImdb = self._lastTitle["imdb_id"]
 
             f["imdb_id"] = fromImdb
 
