@@ -10,7 +10,7 @@ from mawie.events.app import *
 
 from mawie.explorer.explorer import Explorer
 from mawie.research.research import Research
-from mawie.explorer.googleit import googleIt
+from mawie.explorer.googleit import GoogleIt
 import logging
 
 from mawie.updator import Updator
@@ -25,7 +25,7 @@ class AppComponent(Eventable):
 class App(EventManager):
     # based out of tornado ioloop https://github.com/tornadoweb/tornado/blob/master/tornado/ioloop.py
     _instance_lock = threading.Lock()
-    background = [Explorer, googleIt, Research, Updator]
+    background = [Explorer, GoogleIt, Research, Updator]
     _processes = []
     _running = False
     _lock = threading.Lock()
