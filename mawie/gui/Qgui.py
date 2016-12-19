@@ -17,7 +17,9 @@ from mawie.events import Listener, EventManager
 from mawie.events import Quit, Response, Request
 from mawie.events.gui import *
 from mawie.gui.components.QError import ErrorWidget
+from mawie.gui.components.QExplorer import ExplorerWidget
 from mawie.gui.components.QResearchWidget import ResearchFrame
+from mawie.gui.components.QSettings import SettingsWidget
 from mawie.gui.components.QStackedWidget import ComponentArea
 
 log = logging.getLogger(__name__)
@@ -100,27 +102,28 @@ class MainWindow(QMainWindow, Listener):
         return widget
 
     def initWidget(self):
+
         bar = self.menuBar()
         menu = bar.addMenu("Menu")
 
         menuAddFolder = QAction("Add folder", self)
-        menuAddFolder.triggered.connect(lambda: self.emit(ShowExplorer()))
+        menuAddFolder.triggered.connect(lambda: self.gui.emit(ShowFrame(ExplorerWidget.__name__)))
         menu.addAction(menuAddFolder)
         menuSettings = QAction("Settings", self)
-        menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
+        menuSettings.triggered.connect(lambda: self.gui.emit(ShowFrame(SettingsWidget.__name__)))
         menu.addAction(menuSettings)
+
         menuResearch= menu.addMenu("Research")
 
-
-        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.emit(ShowAdvancedSearch()))
+        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.gui.emit(ShowAdvancedSearch()))
         quit = QAction("Quit", self)
         menu.addAction(quit)
         quit.triggered.connect(self.close)
-        menuResearch.addAction("Standard research").triggered.connect(lambda: self.emit(ShowMovieList()))
+        menuResearch.addAction("Standard research").triggered.connect(lambda: self.gui.emit(ShowMovieList()))
         self.setMenuBar(bar)
         # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget
-        mainWidget.setMinimumSize(700, 800)
+        mainWidget.setMinimumWidth(700)
         self.setCentralWidget(mainWidget)
 
         content = QGridLayout(mainWidget)
@@ -135,11 +138,10 @@ class MainWindow(QMainWindow, Listener):
         recherche = ResearchFrame(mainWidget)
         recherche.gui = self.gui
         recherche.emit = lambda e: self.gui.emit(e)
-        # btnAdvancedSearch = QPushButton("Advanced search", self)
-        # btnAdvancedSearch.clicked.connect(lambda x: self.gui.emit(ShowAdvancedSearchFrame()))
+
         #Error widget
-        self.errorWidget = QWidget(self)#ErrorWidget(self)
-        self.errorWidget.move(0, 500)
+        #self.errorWidget = QWidget(self) #ErrorWidget(self)
+        #self.errorWidget.move(0, 500)
         #self.errorWidget.gui = self.gui
         #self.gui.registerListener(self.errorWidget)
 
@@ -214,8 +216,8 @@ class Gui(EventManager):
 
         self.registerListener(self.main, "main")
         # self.main.initWidget()
-        self.errorWidget = ErrorWidget(self.main)
-        self.errorWidget.show()
+        #self.errorWidget = ErrorWidget(self.main)
+        #self.errorWidget.show()
         self.registerExceptions()
         log.info("GUI ELEMENTS STARTED")
         thread = self.backgroundProcessThread

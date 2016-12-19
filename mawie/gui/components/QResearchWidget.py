@@ -35,9 +35,8 @@ class ResearchFrame(GuiComponent):
             self._textChangedFlag = False
     def createWidget(self):
         grid = QGridLayout(self)
-        self.lbl = QLabel("Please enter a research", self)
         self.inputSearch = QLineEdit(self)
-        self.inputSearch.setFixedWidth(200)
+        self.inputSearch.setMinimumWidth(400)
         self.completer = QCompleter()
         self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -50,8 +49,8 @@ class ResearchFrame(GuiComponent):
         self.btnOk = QPushButton("Launch the research", self)
         self.btnOk.clicked.connect(self._forceFrameChange)
 
-        grid.addWidget(self.lbl,0,0)
-        grid.addWidget(self.inputSearch,0,1)
+
+        grid.addWidget(self.inputSearch,0,0,1,2)
         grid.addWidget(self.btnOk,0,2)
 
         self.setLayout(grid)
@@ -62,7 +61,9 @@ class ResearchFrame(GuiComponent):
     def _forceFrameChange(self):
         if len(self.inputSearch.text()) > 0:
             self.gui.emit(SearchRequest(self.inputSearch.text().lower()))
-        self.gui.emit(ShowMovieList())
+        self.gui.emit(ShowFrame(MovieListWidget.__name__))
+
+        #self.gui.emit(ShowMovieList())
 
 
     def handle(self,event):
@@ -70,13 +71,12 @@ class ResearchFrame(GuiComponent):
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
             self.gui.emit(SearchResponse(event.request,event.data))
-            self.gui.emit(ShowMovieList())
+            self.gui.emit(ShowFrame(MovieListWidget.__name__))
+            #self.gui.emit(ShowMovieList())
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
             self.gui.emit(SearchResponse(event.request, event.data))
-            self.gui.emit(ShowMovieList())
-
-
+            self.gui.emit(ShowFrame(MovieListWidget.__name__))
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

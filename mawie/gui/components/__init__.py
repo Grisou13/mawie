@@ -23,8 +23,8 @@ class GuiComponent(QWidget,Listener):
     def handle(self,event):
         #should call super() otherwise the compoenent may never appear on screen
         if isinstance(event, ShowFrame):
-            log.info("HANDLING FRAME CHANGE asking frame %s [self = %s]",event.data.__class__.__name__,self.__class__.__name__)
-            if event.data == self.__class__.__name__:
+            log.info("HANDLING FRAME CHANGE asking frame %s [self = %s]",event.frame.__class__.__name__,self.__class__.__name__)
+            if event.frame == self.__class__.__name__:
                 self.gui.emit(ShowFrame(self))
 '''
 https://gist.github.com/bootchk/9025575

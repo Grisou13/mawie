@@ -11,6 +11,7 @@ from mawie.events import Response
 from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame, ShowMovieInfo
 from mawie.events.search import SearchResult, SearchResponse, SearchRequest
 from mawie.gui.components import GuiComponent, Downloader
+from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QPoster import QPoster
 from mawie.models.Movie import Movie
 from urllib import request
@@ -29,8 +30,6 @@ class MovieListWidget(GuiComponent):
     #     self.updateWidgets(Research().search()) # execute search before showing widget
     def initFrame(self):
         self.createWidgets()
-        list =[Movie.get(1),Movie.get(2),Movie.get(3)]
-        self.updateWidgets(list)
         self.show()
 
     def createWidgets(self):
@@ -57,15 +56,9 @@ class MovieListWidget(GuiComponent):
         log.info("List of widgets %s", len(self.lstWidgets))
 
     def clickedSee(self,film):
-        self.emit(ShowMovieInfo(film))
-    def handleAction(self,name,data):
-        if name == "show-movie-list-frame":
-            self.gui.dispatchAction("show-frame",self)
-        if name == "search-results":
-            self.updateWidgets(data)
-            self.gui.dispatchAction("show-frame",self)
-    def requestAction(self,name):
-        pass
+        self.emit(ShowFrame(MovieWidget.__name__,film))
+
+
 
     def handle(self, event):
         super().handle(event) #remember kids, always call super

@@ -23,7 +23,7 @@ class ComponentArea(QStackedWidget):
     def __init__(self, gui ,parent=None):
         super().__init__(parent)
         self.gui = gui
-        self.setFixedSize(680, 700)
+
         self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()
@@ -55,6 +55,7 @@ class ComponentArea(QStackedWidget):
         self.addWidget(AdvancedSearch(self))
         self.addWidget(ExplorerWidget(self))
         self.addWidget(MovieWidget(self))
+        self.addWidget(SettingsWidget(self))
         s = MovieListWidget(self)
         self.addWidget(s)
         self.addWidget(ExplorerWidget(self))

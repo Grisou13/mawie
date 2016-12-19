@@ -40,7 +40,6 @@ MacOs: $HOME/Library/Preferences/com.CPNV.MAWIE.plist
 Linux: $HOME/.config/CPNV/MAWIE.conf
 
 ####Settings available
-
 CPNV->MAWIE->first launch
 description: this is used to know if it's the first time the program is lauchned
 default value : true
@@ -60,7 +59,6 @@ default value : 1800
 #### addWidget(widget)
 This method is used to add a widget to the ComponentArea.
 
-###
 
 ## How to add a widget
 To create a graphical component, create a file in ```mawie.gui.components``` (the location has no effect but it's just to keep the structure of the project).
@@ -73,7 +71,7 @@ class MyWidget(QGuiComponent):
         super().__init__(parent)
 ```
 
-Then, you have to add the method ```handle```. 
+Then, you have to add the method ```handle```. it will allow you to receive Event and do something with it
 ```Python
 def handle(event):
     super().handle(event)
@@ -89,12 +87,15 @@ def handle(event):
 ## Events
 ### Listing of emit events
 ### How to create a event
-To create a event, go to the 
+To create a event, go to the event
+
+
 
 
 ### How to switch the frame
-To switch frame, you've to emit a event, handle it in the frame you want to display, then emit the event ```ShowFrame``` from the frame you to display with itself at argument
-it should look like:
+To switch frame you have to emit the Event ShowFrame(FrameYouWantToShow.__name__). if you want to pass data with it as a film
+for example, you can do it this way : ShowFrame(FrameYouWantToShow.__name__, film)
+
 
 ```Python
 #the widget where from you want to change frame

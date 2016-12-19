@@ -180,9 +180,10 @@ class DirListItem(QWidget):
     def createWidgets(self):
         grid = QGridLayout()
         lblDirPath = QLabel(self.dirPath,self)
-        lblDirPath.setFixedWidth(400)
+        lblDirPath.setMinimumWidth(400)
 
         self.btnDelDir = QPushButton("Delete this folder",self)
+        self.btnDelDir.setMaximumWidth(300)
         grid.addWidget(lblDirPath,0,0)
         grid.addWidget(self.btnDelDir,0,1)
         self.setLayout(grid)

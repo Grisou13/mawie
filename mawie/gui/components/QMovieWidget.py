@@ -17,7 +17,6 @@ from PyQt5 import QtCore
 from mawie.events.gui import ShowFrame, ShowMovieInfo, ShowMovieList
 from mawie.events.search import SearchRequest
 from mawie.gui.components import GuiComponent
-from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QPoster import QPoster
 from mawie.gui.components.QMoviePlayer import MoviePlayer
 from mawie.models.File import File
@@ -41,6 +40,7 @@ class MovieWidget(GuiComponent):
         fontInfo = QFont('Arial',8)
 
         self.lblImg = QPoster(self) #QLabel(self)
+        #self.lblImg.setFixedSize(300, 465)
         self.lblImg.setFixedSize(300, 465)
         self.lblImg.setScaledContents(True)
 
@@ -83,22 +83,22 @@ class MovieWidget(GuiComponent):
         self.lblPlot.setWordWrap(True)
 
         self.btnLaunchFilm = QPushButton("Play Film",self)
-        self.btnLaunchFilm.setMinimumWidth(300)
+        self.btnLaunchFilm.setMinimumWidth(200)
         self.btnLaunchFilm.clicked.connect(lambda : self.btnPlayFileClicked(file=None))
 
         self.btnShowInDir = QPushButton("Show in Explorer")
-        self.btnShowInDir.setMinimumWidth(300)
+        self.btnShowInDir.setMinimumWidth(200)
         self.btnShowInDir.clicked.connect(lambda: self.btnShowInDirClicked(file=None))
 
         self.btnDeleteFile = QPushButton("Delete File from Database")
-        self.btnDeleteFile.setMinimumWidth(300)
+        self.btnDeleteFile.setMinimumWidth(200)
         self.btnDeleteFile.clicked.connect(lambda : self.btnDeleteFileClicked(file=None,item=None))
 
 
-        grid.addWidget(self.lblImg, 1, 0, 8, 0)
+        grid.addWidget(self.lblImg, 1, 0, 8, 2)
 
         grid.addWidget(self.lblTitle,0, 0, 1, 2)
-        grid.addWidget(self.lblScenarist,1,1)
+        grid.addWidget(self.lblScenarist,1,1,1,1,Qt.AlignLeft)
         grid.addWidget(self.lblDirector,2,1)
         grid.addWidget(self.lblActors,3,1)
         grid.addWidget(self.lblRuntime,4,1)
@@ -108,9 +108,9 @@ class MovieWidget(GuiComponent):
         grid.addWidget(self.lblRelease,8,1)
         grid.addWidget(self.lblPlot,9,0,1,2)
         grid.addWidget(self.lstFile,10,0,1,2)
-        grid.addWidget(self.btnLaunchFilm,10,0,2,2,QtCore.Qt.AlignCenter)
-        grid.addWidget(self.btnShowInDir,11,0,2,2,QtCore.Qt.AlignCenter)
-        grid.addWidget(self.btnDeleteFile,12,0,2,2,QtCore.Qt.AlignCenter)
+        grid.addWidget(self.btnLaunchFilm,10,0)
+        grid.addWidget(self.btnShowInDir,10,1)
+        grid.addWidget(self.btnDeleteFile,10,2)
         self.setLayout(grid)
 
     def updateWidgets(self,film):
@@ -254,8 +254,7 @@ class MovieWidget(GuiComponent):
                 self.film.delete()
                 self.emit(SearchRequest(""))
                 self.emit(ShowMovieList())
-                #self.gui.dispatchAction('search-results',Movie.query())
-                #self.gui.dispatchAction('show-frame', MovieListWidget)
+
 
 
     def importPosterFilm(self, path=''):
@@ -272,21 +271,14 @@ class MovieWidget(GuiComponent):
             print("a problem with the connection or the url has occurred")
         return pixMap
 
-    # def handleAction(self, name, data):
-    #     if name == "show-info-film":
-    #         print(self)
-    #         self.updateWidgets(data)
-    #         self.gui.dispatchAction("show-frame",self)
-    #
-    # def requestAction(self, name):
-    #     pass
-
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, ShowMovieInfo):
+        if isinstance(event, ShowFrame):
+            log.info("%s -- %s", event.frame, event.data)
+        #if isinstance(event, ShowFrame) and event.data is not None:
             #log.info("MOVIE INFO-- %s",event.data)
-            self.emit(ShowFrame(self))
-            self.updateWidgets(event.data)
+            #self.emit(ShowFrame(self))
+            #self.updateWidgets(event.data)
 
 
 
