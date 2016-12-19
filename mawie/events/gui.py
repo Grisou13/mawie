@@ -7,6 +7,10 @@ class ShowAdvancedSearchFrame(Event):
 
 class ShowFrame(Event):
     pass
+    # def __init__(self,frame, data = None):
+    #     self.frame = frame
+    #     self.data = data
+
 
 
 class SearchResults(Event):

@@ -86,7 +86,13 @@ class Research(Listener):
         self.cols = [] # no more defaul cols when reassigning the model
     # only implement local research for films
     def search(self, query = "", filters=None):
-        """ :return generator"""
+        """
+        Searches the defined model (default = Movie).
+
+        :return: Returns a generator with all the results
+        :rtype: generator
+
+        """
         m = self.model
         cols = self.cols
         if isinstance(filters, list):

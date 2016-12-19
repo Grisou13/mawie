@@ -1,7 +1,7 @@
 # Why events and not just python async?
 
 I can understand the question, and the answer is very simple. Qt doesn't play well with async.
-The other problem is, how would it be possible to add data passing through compoenents at runtime with signals, well that's ok for Gui compoenents, what about background processes then?
+The other problem is, how would it be possible to add data passing through compoenents at runtime with signals, well that's ok for Gui compoenents, what about background processes then, bound them to Qt so if we want to create a web service or a cli we need to recreate them?
 
 We decided to create a very simple event system. It allows us to pass data back and forth in the app and all it's components. Simple?
 
@@ -108,3 +108,22 @@ Events are objects allowing compoenents (any compoenent) to talk to each other.
 
 Events have timeouts, by default they don't (event.timeout == 1), this means that it will be able to cycle only once in the app before getting destroyed.
 
+# How events work with the gui
+
+Events are passed between Gui events if they need to change frames.
+
+We created 2 special event classes
+- *Request*
+- *Response*
+
+These 2 classes are dispatched between the background process and the gui. So to get data from Gui to the background you would emit a sublass, or a Request. And then in a background process you would emit a Reponse (or sublclass).
+
+# List of events
+
+Everything below will be listed from the namespace mawie.events
+
+| Event class | props                         | data type | usage                                          |
+|-------------|-------------------------------|-----------|------------------------------------------------|
+| Event       | data : any                    | any       | Main event class.                              |
+| Request     | data : any                    | any       | Event forwarded to background process          |
+| Response    | request : Request, data : any | any       | Event that is forwarded from background to gui |
