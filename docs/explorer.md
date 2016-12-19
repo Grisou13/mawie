@@ -1,3 +1,6 @@
+# todo Corrections here
+# ex : example gooogleIt with movieName need itearator example
+
 # Mais Jamie, c'est quoi l'explorer ?
 
 [![THEME SONG](http://img.youtube.com/vi/v4IC7qaNr7I/0.jpg)](http://www.youtube.com/watch?v=v4IC7qaNr7I)

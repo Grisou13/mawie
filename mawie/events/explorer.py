@@ -1,4 +1,4 @@
-from . import Event, Request
+from . import Event, Request, Response
 
 
 class SearchStarted(Event):
@@ -30,4 +30,22 @@ class ParsingEnded(Event):
 
 
 class ParsingStarted(Event):
+    pass
+
+
+class GoogleItSearchRequest(Request):
+    pass
+
+
+class GoogleItResponse(Response):
+    pass
+
+class GoogleItResult(Event):
+    pass
+
+class ExplorerParsingRequest(Request):
+    pass
+
+
+class ExplorerParsingResponse(Response):
     pass

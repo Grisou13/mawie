@@ -5,46 +5,94 @@ import Levenshtein.StringMatcher as lev
 from mimetypes import MimeTypes
 from guessit import guessit
 import sys
-
-from mawie.events import Listener
+from time import sleep as wait
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
+
+from mawie.events import Eventable, Listener
+from mawie.events.explorer import ExplorerParsingRequest, ExplorerParsingResponse, GoogleItSearchRequest, GoogleItResult, GoogleItResponse
+
 from mawie.models.Movie import Movie
 import urllib.request
-import libs.PTN
+import libs.PTN as PTN
 import json
 import re
 import mawie.models.File as modelFile
 import mawie.models.Movie as modelMovie
 from datetime import datetime
-from mawie.explorer.googleit import googleIt
-
+from mawie.explorer.googleit import GoogleIt
+import logging
 import time
 import json
 
+log = logging.getLogger("mawie")
+
+
 class Explorer(Listener):
 
-    googleIt = googleIt()
+    googleIt = GoogleIt()
     MimeTypes = MimeTypes()
     _lastTitle = dict()
     _lastTitle["title"] = ""
     _lastTitle["imdb_id"] = ""
+
     count = 0
     foundFiles = dict()
     notFoundFiles = dict()
-    # main func to call.
-    def __init__(self):
-        pass
+
+
+    def handle(self, event):
+        if isinstance(event, ExplorerParsingRequest):
+            path = event.data
+            res = self.parse(path)
+            self.emit(ExplorerParsingResponse(event, res))
+
+        if isinstance(event, GoogleItResult):
+            #TODO get file
+            #TODO update list files
+            movieTitle = event.data[0]
+            movieId = event.data[1]
+            print(movieTitle)
+            print(movieId)
+            if not movieId and movieTitle:
+                self.emit(GoogleItSearchRequest([movieTitle, True]))
+
+            self._lastTitle["title"] = movieTitle
+
+            self._lastTitle["imdb_id"] = movieId
+
+            print(movieTitle)
+            print(movieId)
+
+            #file = self._filesevent.data.0
+            #file.imdbId = event.data.1
+            #self.emit(ExplorerParsingResponse/file)
+
     def parse(self, path):
+        """
+        Parse and stores the movies in the given folder
+        :param path: Folder containing the movie files
+        :return: two lists of movies. The first one is the parsed (and stores in db).
+        The second list contains the unparsed files
+
+        So the function :
+        1. Get the name of every movie in the folder
+        2. Parse the name of the file
+        3. Get the IMDB's ID of that movie
+        4. If the IMDB's ID is found, the file is in the found list and stored in the db
+        6. Also stores each found movie with IMDB.com's information
+        5. Returns the two lists
+        """
         files = self._getMoviesFromPath(path)
+
         foundFiles, notFoundFiles = self._addToDatabase(files)
 
+        # assign properties
         self.foundFiles = foundFiles
         self.notFoundFiles = notFoundFiles
 
         return foundFiles, notFoundFiles
-
 
     ###################################################
     ####                                           ####
@@ -63,8 +111,6 @@ class Explorer(Listener):
         for r, dirs, _files in os.walk(path, topdown=False):
             for f in _files:
                 path = os.path.join(r,f)
-                print(path)
-
                 if self._isAVideo(path):
                     # we parse the files here
                     files.append(self._parseFile(path))
@@ -72,7 +118,7 @@ class Explorer(Listener):
             # for d in dirs:
             #     # as Thomas said : Recursion bitch
             #     files.extend(self.getMoviesFromPath(os.path.join(r,d)))
-        sys.exit("yoj")
+
         return files
 
     def _parseFile(self, filePath):
@@ -113,7 +159,6 @@ class Explorer(Listener):
         # and finally check if it is a video in array ex: (video, avi)
         return "video" in mime[0]
 
-
     ###################################################
     ####                                           ####
     ####               DATABASE stuff              ####
@@ -123,24 +168,37 @@ class Explorer(Listener):
     def _addToDatabase(self, movieList):
         foundFiles = dict()
         notFoundFiles = dict()
+
         if len(movieList) <= 0:
             raise LookupError("The given list is empty. ")
 
         for f in movieList:
-            # we try to avoid to search 20 times in a row the same title (for example for a série)
+
+            # we try to avoid to search 20 times in a row the same title (as for a série)
             if f["title"] != self._lastTitle["title"]:
-                # todo search in fucking database
-                fromImdb = self.googleIt.getMovieID(f["title"])
-                self._lastTitle["title"] = f["title"]
-                self._lastTitle["imdb_id"] = fromImdb
+            # get the imdb of that id
+            #fromImdb = self.googleIt.getMovieID(f["title"])
+                time.sleep(1)
+                self.emit(GoogleItSearchRequest([f["title"], False]))
+            #ici
+            #self._lastTitle["title"] = f["title"]
+            #self._lastTitle["imdb_id"] = fromImdb
+
             else:
-                fromImdb = self._lastTitle["imdb_id"]
+                self.emit(GoogleItResult([self._lastTitle["title"], self._lastTitle["imdb_id"]]))
+
+
+            continue #anyway
+
+        #else:
+            #self.emit(GoogleItResponse[self._lastTitle["title"], self._lastTitle["imdb_id"]])
+            #continue
+                #fromImdb = self._lastTitle["imdb_id"]
 
             f["imdb_id"] = fromImdb
 
             if f["imdb_id"]:
                 if self._addFile(f):
-
                     foundFiles[f["title"]] = f
                 else:
                     SystemError("Cannot add file {} to database".format(f["title"]))
@@ -210,19 +268,6 @@ def r():
         return json.load(outfile)
 
 if __name__ == '__main__':
-    parsed = PTN.parse("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T")
-    secondParsed = guessit("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T", {"T": parsed["title"]})
-    print(secondParsed)
-
-    sys.exit("fuck yo bro")
-    explorer = Explorer()
-    #for l in r():
-        #r = explorer._parseName(l)
-        #print(explorer.googleIt.getMovieID(r["title"]))
-
-    startTime = time.process_time()
-    pth = "../../stubs/FILM_a_trier"
-    found, notFound = explorer.parse(pth)
-
-    for l in notFound:
-        print(l)
+    ex = Explorer()
+    ex.parse("../../stubs/FILM_a_trier")
+    pass
