@@ -73,7 +73,7 @@ or ```setColumns([ListofColumnsToQuery])```.
 
 | Event class    | props                 | data type        | usage                                                               |
 |----------------|-----------------------|------------------|---------------------------------------------------------------------|
-| SearchRequest  | data                  | str,dict         | Send a request to the search api, and it will emit a SearchResponse |
+| SearchRequest  | data                  | str or dict      | Send a request to the search api, and it will emit a SearchResponse |
 | SearchResponse | request, responseData | Event, generator | Request response                                                    |
 
 # Where it searches

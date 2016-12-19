@@ -122,8 +122,8 @@ These 2 classes are dispatched between the background process and the gui. So to
 
 Everything below will be listed from the namespace mawie.events
 
-| Event class | props                         | data type | usage                                          |
-|-------------|-------------------------------|-----------|------------------------------------------------|
-| Event       | data : any                    | any       | Main event class.                              |
-| Request     | data : any                    | any       | Event forwarded to background process          |
-| Response    | request : Request, data : any | any       | Event that is forwarded from background to gui |
+| Event class | props                         | data type          | usage                                          |
+|-------------|-------------------------------|--------------------|------------------------------------------------|
+| Event       | data                          | any                | Main event class.                              |
+| Request     | data                          | any                | Event forwarded to background process          |
+| Response    | request , data                | Request, any       | Event that is forwarded from background to gui |

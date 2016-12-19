@@ -88,7 +88,16 @@ class Research(Listener):
     def search(self, query = "", filters=None):
         """
         Searches the defined model (default = Movie).
+        The query can either be a simple string. This way, every movie title that matches the query will be sent back to you.
+        You could add filters and a querystring. This will search every field in the filters and match them with the query string. (can be usefull, not all the time).
+        Filters can be sent by list (easiest) or seperated by [;,:] in a string ("awesomeCol,awesomeCol2;awesomeCol3")
+        You could pass in a very compelx query on multiple models with a dict {ModelClass:{ComplexQuery}}. The query syntax uses ElasticSearch query like syntax. Please check out https://github.com/loverajoel/sqlalchemy-elasticquery
+        Nota on the query syntax, you do not have to provide a 'filters' key, it will automaticly added if non present.
 
+        :param query: The query to perform
+        :type query: (str,dict)
+        :param filters: Filters to apply on a simple query (for convinience)
+        :type filters: (list,str,set,tuple)
         :return: Returns a generator with all the results
         :rtype: generator
 

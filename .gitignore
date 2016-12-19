@@ -1,7 +1,6 @@
 .idea
 .idea/workspace.xml
-.cache/*
-!.cache/noPoster.jpg
+
 # Created by https://www.gitignore.io/api/intellij
 
 ### Intellij ###
