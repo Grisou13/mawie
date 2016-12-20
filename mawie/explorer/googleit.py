@@ -70,7 +70,7 @@ class GoogleIt(Listener):
             else:
                 if search["movie"] not in self._searching:
                     self._searching[search["movie"]] = {"files": []}
-                self._searching[search["movie"]]["files"].append(search["file"])
+                self._searching[search["movie"]]["files"].append(search["filePath"])
                 if search["movie"] not in self._searching.keys():  # if we aren't already searching the movie
                     self.getMovieID(search["movie"])
 
