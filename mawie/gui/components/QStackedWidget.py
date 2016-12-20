@@ -62,13 +62,14 @@ class ComponentArea(QStackedWidget):
         self.addWidget(AdvancedSearch(self))
         self.setCurrentWidget(s)
         log.info("initialized : %s widgets",self.widgetStore)
+
     def handle(self,event):
         #super().handle(event)
         if isinstance(event, ShowFrame):
-            if event.data.__class__.__name__ in self.widgetStore:
+            if event.frame.__class__.__name__ in self.widgetStore:
                 event.stopPropagate()
                 event.timeout = 0
-                self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
+                self.setCurrentWidget(self.widgetStore[event.frame.__class__.__name__ ])
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

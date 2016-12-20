@@ -5,8 +5,11 @@ import sys
 import time
 
 from PyQt5.QtCore import QSettings
+from PyQt5.QtWidgets import QBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
 from PyQt5.QtGui import QPixmap,QFont,QImage
 from PyQt5.QtCore import QRect,Qt
@@ -40,24 +43,22 @@ class MovieWidget(GuiComponent):
         fontInfo = QFont('Arial',8)
 
         self.lblImg = QPoster(self) #QLabel(self)
-        #self.lblImg.setFixedSize(300, 465)
-        self.lblImg.setFixedSize(300, 465)
+        self.lblImg.setMaximumSize(300, 465)
         self.lblImg.setScaledContents(True)
 
-        self.lblTitle = QLabel("*No Title*",self)
+        self.lblTitle = QLabel("<b>*No Title*</b>",self)
         #self.lblImg.setPixmap(imgPix)
-        self.lblScenarist = QLabel("Writer : -", self)
-        self.lblDirector = QLabel("Director: -", self)
-        self.lblActors = QLabel("Actor(s): -",self)
-        self.lblRuntime = QLabel("Runtime: -",self)
-        self.lblRate = QLabel("IMDb Rate: -",self)
-        self.lblAwards = QLabel("Awards : -",self)
-        self.lblCountry = QLabel("Country : -",self)
-        self.lblRelease = QLabel("Release date : -",self)
-        self.lblPlot = QLabel("Plot: -",self)
+        self.lblScenarist = QLabel("<b>Writer : -</b>", self)
+        self.lblDirector = QLabel("<b>Director: -</b>", self)
+        self.lblActors = QLabel("<b>Actor(s): -</b>",self)
+        self.lblRuntime = QLabel("<b>Runtime: -</b>",self)
+        self.lblRate = QLabel("<b>IMDb Rate: -</b>",self)
+
+        self.lblRelease = QLabel("<b>Release date : -</b>",self)
+        self.lblPlot = QLabel("<b>Plot: -</b>",self)
 
         self.lstFile = QListWidget(self)
-        self.lstFile.setMaximumHeight(200)
+        self.lstFile.setMaximumHeight(100)
 
         #Set font to labels
         self.lblTitle.setFont(fontTitle)
@@ -66,8 +67,7 @@ class MovieWidget(GuiComponent):
         self.lblActors.setFont(fontInfo)
         self.lblRuntime.setFont(fontInfo)
         self.lblRate.setFont(fontInfo)
-        self.lblAwards.setFont(fontInfo)
-        self.lblCountry.setFont(fontInfo)
+
         self.lblRelease.setFont(fontInfo)
         self.lblPlot.setFont(fontInfo)
 
@@ -77,8 +77,7 @@ class MovieWidget(GuiComponent):
         self.lblActors.setWordWrap(True)
         self.lblRuntime.setWordWrap(True)
         self.lblRate.setWordWrap(True)
-        self.lblAwards.setWordWrap(True)
-        self.lblCountry.setWordWrap(True)
+
         self.lblRelease.setWordWrap(True)
         self.lblPlot.setWordWrap(True)
 
@@ -94,23 +93,24 @@ class MovieWidget(GuiComponent):
         self.btnDeleteFile.setMinimumWidth(200)
         self.btnDeleteFile.clicked.connect(lambda : self.btnDeleteFileClicked(file=None,item=None))
 
+        #this BoxLayout is used to put the button launch, show in explorer and delete File one the same line
+        btnBoxlayout = QHBoxLayout()
+        btnBoxlayout.addWidget(self.btnLaunchFilm)
+        btnBoxlayout.addWidget(self.btnShowInDir)
+        btnBoxlayout.addWidget(self.btnDeleteFile)
 
-        grid.addWidget(self.lblImg, 1, 0, 8, 2)
+        grid.addWidget(self.lblImg, 1, 0, 6, 2)
 
         grid.addWidget(self.lblTitle,0, 0, 1, 2)
-        grid.addWidget(self.lblScenarist,1,1,1,1,Qt.AlignLeft)
+        grid.addWidget(self.lblScenarist,1,1,1,1)
         grid.addWidget(self.lblDirector,2,1)
         grid.addWidget(self.lblActors,3,1)
         grid.addWidget(self.lblRuntime,4,1)
         grid.addWidget(self.lblRate,5,1)
-        grid.addWidget(self.lblAwards,6,1)
-        grid.addWidget(self.lblCountry,7,1)
-        grid.addWidget(self.lblRelease,8,1)
-        grid.addWidget(self.lblPlot,9,0,1,2)
-        grid.addWidget(self.lstFile,10,0,1,2)
-        grid.addWidget(self.btnLaunchFilm,10,0)
-        grid.addWidget(self.btnShowInDir,10,1)
-        grid.addWidget(self.btnDeleteFile,10,2)
+        grid.addWidget(self.lblRelease,6,1)
+        grid.addWidget(self.lblPlot,7,0,1,2)
+        grid.addWidget(self.lstFile,9,0,1,2)
+        grid.addLayout(btnBoxlayout,9,0,1,2)
         self.setLayout(grid)
 
     def updateWidgets(self,film):
@@ -120,39 +120,32 @@ class MovieWidget(GuiComponent):
         if self.film.name is not None:
             self.lblTitle.setText(self.film.name)
         else:
-            self.lblTitle.setText("*no title*")
+            self.lblTitle.setText("<b>*no title*")
         if self.film.writer is not None:
-            self.lblScenarist.setText("Scenarist: "+self.film.writer)
+            self.lblScenarist.setText("<b>Scenarist: </b>"+self.film.writer)
         else:
-            self.lblScenarist.setText("Scenarist: -")
+            self.lblScenarist.setText("<b>Scenarist: </b>-")
         if self.film.directors is not None:
-            self.lblDirector.setText("Directors: "+self.film.directors)
+            self.lblDirector.setText("<b>Directors: </b>"+self.film.directors)
         else:
-            self.lblDirector.setText("Directors: -")
+            self.lblDirector.setText("<b>Directors: </b>-")
         if self.film.actors is not None:
-            self.lblActors.setText("Actors :"+self.film.actors)
+            self.lblActors.setText("<b>Actors :</b>"+self.film.actors)
         else:
-            self.lblActors.setText("Actors : -")
+            self.lblActors.setText("<b>Actors : </b>-")
         if self.film.runtime is not None :
-            self.lblRuntime.setText("Runtime: " + self.film.runtime)
+            self.lblRuntime.setText("<b>Runtime: </b>" + self.film.runtime)
         else:
-            self.lblRuntime.setText("Runtime: -")
+            self.lblRuntime.setText("<b>Runtime: </b>-")
         if self.film.rate is not None:
-            self.lblRate.setText("Rate IMDb: "+ self.film.rate)
+            self.lblRate.setText("<b>Rate IMDb: </b>"+ self.film.rate)
         else:
-            self.lblRate.setText("Rate IMDb: -")
-        # if film.awards is not None:
-        #     self.lblAwards.setText("Awards: "+film.awards)
-        # else:
-        #     self.lblAwards.setText("Awards: -")
-        # if film.Country is not None:
-        #     self.lblCountry.setText("Country: "+film.Country)
-        # else:
-        #     self.lblCountry.setText("Country: -")
+            self.lblRate.setText("<b>Rate IMDb: -</b>")
+
         if self.film.release is not None:
-            self.lblRelease.setText("Release: "+str(self.film.release))
+            self.lblRelease.setText("<b>Release: </b>"+str(self.film.release))
         else:
-            self.lblRelease.setText("Release: -")
+            self.lblRelease.setText("<b>Release: </b>-")
         if self.film.desc is not None:
             self.lblPlot.setText("Plot: "+self.film.desc)
         else:
@@ -273,14 +266,12 @@ class MovieWidget(GuiComponent):
 
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, ShowFrame):
-            log.info("%s -- %s", event.frame, event.data)
+        if isinstance(event, ShowFrame) and event.frame == self.__class__.__name__:
+            self.updateWidgets(event.data)
         #if isinstance(event, ShowFrame) and event.data is not None:
             #log.info("MOVIE INFO-- %s",event.data)
             #self.emit(ShowFrame(self))
             #self.updateWidgets(event.data)
-
-
 
     def displayErrorMessage(self,title="-",text="-"):
         msgBox = QMessageBox()
@@ -302,7 +293,6 @@ class FileWidget(QWidget):
     def createWidget(self,file):
         grid = QGridLayout()
         fileLabel = QLabel(file.path)
-        fileLabel.setFixedWidth(500)
         fileLabel.setWordWrap(True)
 
         self.btnPlayFile= QPushButton("Play this file")

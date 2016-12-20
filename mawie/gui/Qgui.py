@@ -16,8 +16,10 @@ from mawie.app import start as startApp
 from mawie.events import Listener, EventManager
 from mawie.events import Quit, Response, Request
 from mawie.events.gui import *
+from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QError import ErrorWidget
 from mawie.gui.components.QExplorer import ExplorerWidget
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QResearchWidget import ResearchFrame
 from mawie.gui.components.QSettings import SettingsWidget
 from mawie.gui.components.QStackedWidget import ComponentArea
@@ -115,11 +117,11 @@ class MainWindow(QMainWindow, Listener):
 
         menuResearch= menu.addMenu("Research")
 
-        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.gui.emit(ShowAdvancedSearch()))
+        menuResearch.addAction("Advanced research").triggered.connect(lambda: self.gui.emit(ShowFrame(AdvancedSearch.__name__)))
         quit = QAction("Quit", self)
         menu.addAction(quit)
         quit.triggered.connect(self.close)
-        menuResearch.addAction("Standard research").triggered.connect(lambda: self.gui.emit(ShowMovieList()))
+        menuResearch.addAction("Standard research").triggered.connect(lambda: self.gui.emit(ShowFrame(MovieListWidget.__name__)))
         self.setMenuBar(bar)
         # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget

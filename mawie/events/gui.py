@@ -7,7 +7,6 @@ class ShowAdvancedSearchFrame(Event):
 
 class ShowFrame(Event):
     def __init__(self,frame,data=None):
-        super(ShowFrame, self).__init__()
         self.frame = frame
         self.data = data
 

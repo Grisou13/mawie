@@ -58,8 +58,6 @@ class MovieListWidget(GuiComponent):
     def clickedSee(self,film):
         self.emit(ShowFrame(MovieWidget.__name__,film))
 
-
-
     def handle(self, event):
         super().handle(event) #remember kids, always call super
         # if isinstance(event,ShowMovieList):
@@ -86,14 +84,9 @@ class ResultRow(QWidget):
         super(ResultRow,self).__init__(parent)
         self.film = data
         self.initRow(data)
-        #self.setGeometry(QRect(0,0,700,160))
-        #self.setMinimumSize(650,160)
-        #self.setSizePolicy(650,160)
-        #self.setMinimumHeight(200)
 
     def initRow(self,data):
         self.createWidgets(data)
-        #self.show()
 
     def createWidgets(self,data):
         grid = QGridLayout(self)
