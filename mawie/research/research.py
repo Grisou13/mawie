@@ -70,6 +70,7 @@ class Research(Listener):
             event.stopPropagate()
             log.info("new query: %s",event.data)
             res = self.search(event.data)
+
             self.emit(SearchResponse(event,res),"front")
             # for i in tee(res,1)():
             #     log.info("search result: %s",i)
@@ -115,7 +116,6 @@ class Research(Listener):
 
 
         if len(cols) <=0:
-            self.emit(SearchResponse([]))
             yield [] #return an empty iterator
         if isinstance(query, dict):
             q = self.queryModelOnMultipleColumns(query)

@@ -1,11 +1,11 @@
 import os
-import Levenshtein.StringMatcher as lev
+# import Levenshtein.StringMatcher as lev
 # import mimetypes
 # mimetypes.init()
 from mimetypes import MimeTypes
 from guessit import guessit
 import sys
-from time import sleep as wait
+#from time import sleep as wait
 
 if __name__ == '__main__':
     sys.path.append(os.path.join(os.getcwd(), "../../"))
@@ -33,28 +33,45 @@ class Explorer(Listener):
 
     googleIt = GoogleIt()
     MimeTypes = MimeTypes()
-    _lastTitle = dict()
-    _lastTitle["title"] = ""
-    _lastTitle["imdb_id"] = ""
+    _lastTitle = {"title":"","imdb_id":""}
 
     count = 0
     foundFiles = dict()
     notFoundFiles = dict()
-    _files = {}
+
+    _notParsed = {}
     """
+    Keeps track of all non parsed files
+    {
+        file: {
+            links : [
+                {
+                    tried : bool,
+                    url: str,
+                    data : None | {imdbpie.objects.Title}
+                }
+            ]
+        }
+    }
+    """
+    _parsed = {}
+    """
+    keeps track of all parsed files
     {
       file : {
         root: str,
-        links : [
-          {
-            tried : True|False,
-            url : href,
-            data : None | { title : Movie Title, id : Imdb Id  }
-          }
-        ],
+
         data : None | dict, # best data according to googleit
-        title : None | str
+        title : None | str,
+        found : bool
       }
+    }
+    """
+    _parsing = {}
+    """
+    keeps track of all files being currently parsed
+    {
+        filepath : parsed title
     }
     """
     def handle(self, event):
@@ -67,8 +84,10 @@ class Explorer(Listener):
             #TODO get file
             #TODO update list files
             movieData = event.data
-            self._lastTitle["title"] = movieData.title
-            self._lastTitle["imdb_id"] = movieData.imdb_id
+            if movieData["found"]:
+                self._parsed[movieData["originalTitle"]] = movieData
+            else:
+                self._notParsed.append(movieData)
 
             #file = self._filesevent.data.0
             #file.imdbId = event.data.1
@@ -89,15 +108,18 @@ class Explorer(Listener):
         6. Also stores each found movie with IMDB.com's information
         5. Returns the two lists
         """
-        files = self._getMoviesFromPath(path)
+        if hasattr(self,"emit"):
+            self._getMoviesFromPath(path)
+        else:
+            files = self._getMoviesFromPath(path)
 
-        foundFiles, notFoundFiles = self._addToDatabase(files)
+            foundFiles, notFoundFiles = self._addToDatabase(files)
 
-        # assign properties
-        self.foundFiles = foundFiles
-        self.notFoundFiles = notFoundFiles
+            # assign properties
+            self.foundFiles = foundFiles
+            self.notFoundFiles = notFoundFiles
 
-        return foundFiles, notFoundFiles
+            return foundFiles, notFoundFiles
 
     ###################################################
     ####                                           ####
@@ -118,8 +140,15 @@ class Explorer(Listener):
                 path = os.path.join(r,f)
                 if self._isAVideo(path):
                     # we parse the files here
-                    files.append(self._parseFile(path))
-
+                    parsed = self._parseFile(path)
+                    files.append(parsed)
+                    if hasattr(self,"emit"): #if the explorer is bound to the App and uses event, then use them, otherwise we just return files
+                        if not parsed["title"] in [d["title"] for d in self._parsed.values()]:#check if haven't already parsed the same movie title (it can be a series)
+                            self._parsing[path] = parsed["title"]
+                            self.emit(GoogleItSearchRequest(parsed))
+                        else:
+                            #if self._parsed[""]
+                            self._parsed[parsed["filePath"]] = self._parsed[parsed["title"]]
             # for d in dirs:
             #     # as Thomas said : Recursion bitch
             #     files.extend(self.getMoviesFromPath(os.path.join(r,d)))
@@ -132,6 +161,7 @@ class Explorer(Listener):
 
         path, filename = os.path.split(filePath)
         parsed = self._parseName(filename)
+
         parsed["filePath"] = filePath
 
         return parsed
@@ -175,11 +205,11 @@ class Explorer(Listener):
         notFoundFiles = dict()
 
         if len(movieList) <= 0:
-            raise LookupError("The given list is empty. ")
+            raise ValueError("The given list is empty. ")
 
         for f in movieList:
 
-            # we try to avoid to search 20 times in a row the same title (as for a série)
+            # we try to avoid to search 20 times in a row the same title (as for a series)
             if f["title"] != self._lastTitle["title"]:
             # get the imdb of that id
             #fromImdb = self.googleIt.getMovieID(f["title"])

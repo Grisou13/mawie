@@ -64,13 +64,15 @@ class GoogleItInternalRequest(Event):
 
 class GoogleItResult(Event):
     pass
+
 class TryLink(Event):
     """
     Used when trying an imdb (or any other source) link. This allows us to fetch the title
     """
-    def __init__(self,url,expectedTitle):
+    def __init__(self,url,expectedTitle, path):
         self.url = url
         self.expectedTitle = expectedTitle
+        self.path = path
 
 
 class TryLinkResult(Event):

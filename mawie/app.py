@@ -1,8 +1,10 @@
+import os
 import threading
 import time
-from queue import Queue, Empty
+from queue import Queue, Empty, LifoQueue
 
 from mawie.events import Eventable, Start, EventManager, Response, Quit, Request
+from mawie.events.explorer import ExplorerParsingRequest
 from mawie.events.search import SearchRequest
 #from mawie.helpers import Singleton
 
@@ -34,7 +36,7 @@ class App(EventManager):
         super().__init__()
         log.info("Starting background app")
         self.registerListener(self)
-        self.queue = Queue(-1)
+        self.queue = LifoQueue(-1)#Queue(-1)
         self.tickTime = .005 # clock the app at 200hz
         for s in self.background:
             self.addBackgroundProcess(s)
@@ -115,6 +117,7 @@ def start(app=None):
         a = app
     else:
         a = App()
+        a.addEvent(ExplorerParsingRequest(os.path.dirname(__file__)+"/../stubs/"))
 
     a.emit(Start())
     return a

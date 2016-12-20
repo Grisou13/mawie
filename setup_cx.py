@@ -3,8 +3,6 @@ from cx_Freeze import setup, Executable
 # Dependencies are automatically detected, but it might need
 # fine tuning.
 deps = [
-    "appdirs",
-    "packaging.version",
     "re",
     "os",
     "sys"
