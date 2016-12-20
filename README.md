@@ -1,10 +1,12 @@
 Mawie
 ===========
 
-[![THEME SONG](http://img.youtube.com/vi/OC2R5fvJsxo/0.jpg)](http://www.youtube.com/watch?v=OC2R5fvJsxo)
 # What is this all about
 
-Pyton is one of technologies that you hear myths about, and always want to test. This is the perfect way to test alot of functionnality from it. From database queries, to handling files, and having a gui application behind.
+Mawie is a project with educative purpose. The concept is simple : the application manage for you your movies files. It parses it, get the information about your movies, and display it to you with little extras. 
+
+
+Python is one of technologies that you hear myths about, and always want to test. This is the perfect way to test alot of functionnality from it. From database queries, to handling files, and having a gui application behind.
 
 Python was used, because we knew it would fit our needs and even more. We were able to achieve a good balance between readable code, and efficient code, and all that thanks to python builtins, and simple module system.
 
@@ -30,20 +32,13 @@ And to start the app simply
 python3.5 mawie
 ```
 
-Easy, huh ?
-
-# Architecture
-
-# Relies on
-Link the libs used here
-
 # Bugs issues
 
 # Tests performed
 
 # License
 
-Copyright [yyyy] [name of copyright owner]
+Copyright [2016] [Ilias - Thomas - Eric]
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
