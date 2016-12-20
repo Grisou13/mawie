@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import QSettings
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QCheckBox
@@ -29,7 +31,18 @@ log = logging.getLogger("mawie")
 
 
 class SettingsWidget(GuiComponent):
+    """
+    Short
+    Long
+    """
     def __init__(self,parent=None,gui=None):
+        """
+        Short
+        Long
+        :param parent:
+        :type parent: QWidget
+        :param gui:
+        """
         super(SettingsWidget,self).__init__(parent)
         self.gui = gui
         self.createWidgets()
@@ -167,8 +180,7 @@ class SettingsWidget(GuiComponent):
 
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, ShowSettings):
-            self.emit(ShowFrame(self))
+
 
 class DirListItem(QWidget):
     def __init__(self,parent = None,dirPathFile=None):

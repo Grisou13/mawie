@@ -60,7 +60,7 @@ class ImporterThread(QThread):
 
 class QPoster(QLabel):
     """
-    Qposter is an image placeholder label, that uses a background thread to load the image. This allows a huge performance boost for the mawie
+    QPoster is an image placeholder label, that uses a background thread to load the image. This allows a huge performance boost for the mawie
     """
     image_size = QSize(100,160)
 

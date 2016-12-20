@@ -17,8 +17,15 @@ from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import ExplorerWidget
 from mawie.gui.components.QSettings import SettingsWidget
 import logging
-log = logging.getLogger("mawie")
 
+from mawie.models.Movie import Movie
+
+log = logging.getLogger("mawie")
+'''
+ComponentArea is a QStackedWidget which
+
+
+'''
 class ComponentArea(QStackedWidget):
     def __init__(self, gui ,parent=None):
         super().__init__(parent)
@@ -52,8 +59,8 @@ class ComponentArea(QStackedWidget):
             super(ComponentArea,self).addWidget(widget)
 
     def initWidget(self):
-        self.addWidget(AdvancedSearch(self))
         self.addWidget(ExplorerWidget(self))
+        self.addWidget(AdvancedSearch(self))
         self.addWidget(MovieWidget(self))
         self.addWidget(SettingsWidget(self))
         s = MovieListWidget(self)
@@ -61,6 +68,12 @@ class ComponentArea(QStackedWidget):
         self.addWidget(ExplorerWidget(self))
         self.addWidget(AdvancedSearch(self))
         self.setCurrentWidget(s)
+
+        if Movie.query().count() == 0:
+            self.setCurrentWidget(s)
+        else:
+            self.setCurrentWidget(self.widgetStore[ExplorerWidget.__name__])
+
         log.info("initialized : %s widgets",self.widgetStore)
 
     def handle(self,event):

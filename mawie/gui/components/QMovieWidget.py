@@ -1,6 +1,6 @@
 import os
 import subprocess
-import sys
+import platform
 
 import time
 
@@ -185,8 +185,8 @@ class MovieWidget(GuiComponent):
         if path is not None:
             if os.name.lower() == "nt":  # because windows
                 path = path.replace("/", "\\")
-
             if os.path.isfile(path):
+                #TODO look for MAC AND LINUX DE MERDE
                 subprocess.Popen(r'explorer /select,"{}"'.format(path))
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
@@ -204,22 +204,21 @@ class MovieWidget(GuiComponent):
 
         if path is not None:
             if os.path.isfile(path):
-                print(defaultPlayer)
                 if defaultPlayer == 'false':
-                    if path.lower().endswith(('.wmv','.avi')):
                         moviePlayer = MoviePlayer(path=path)
                         moviePlayer.exec_()
-                    else:
-                        os.startfile(path)
                 else:
-                    os.startfile(path)
+                    if platform.system() == "Windows":
+                        os.startfile(path)
+                    elif platform.system() == "Darwin":
+                        subprocess.Popen(["open", path])
+                    else:
+                        subprocess.Popen(["xdg-open", path])
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
                                                                     "it has maybe been deleted or moved in an other folder")
 
-
     def btnDeleteFileClicked(self, file=None,item=None):
-
         fileDel = None
         if file is None:
             fileDel = self.film.files[0]

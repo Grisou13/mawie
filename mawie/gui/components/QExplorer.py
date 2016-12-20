@@ -66,7 +66,7 @@ class AddFilesWidget(GuiComponent):
 
     def initWidget(self):
         content = QGridLayout(self)
-        self.inputPath = QLineEdit(self,placeholderText="No folder selected")
+        self.inputPath = QLineEdit(self)
         self.inputPath.setReadOnly(True)
 
         self.btnOpenDir = QPushButton("Select a directory to scan")
@@ -82,7 +82,7 @@ class AddFilesWidget(GuiComponent):
         self.lstFileParse.setMinimumSize(660,200)
         self.lstFileNotParse.setMinimumSize(660,200)
 
-        content.addWidget(self.inputPath, 0, 0)
+        content.addWidget(self.inputPath, 0,0)
         content.addWidget(self.btnOpenDir,0,1)
         #content.addWidget(self.btnScan,0,2)
         content.addWidget(self.lblLstNotParseFile,1,0)

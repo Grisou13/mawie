@@ -35,6 +35,9 @@ class MovieListWidget(GuiComponent):
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
+        #TODO add a default item there isn't any file
+
+
         grid.addWidget(self.lstWidgets)
         self.setLayout(grid)
 
@@ -42,7 +45,6 @@ class MovieListWidget(GuiComponent):
         self.lstWidgets.clear()
         for film in data:
             try:
-                log.info("---- NEW FILM -------- %s",film)
                 item = QListWidgetItem(self.lstWidgets)
                 itemW= ResultRow(self,film)
                 item.setSizeHint(itemW.sizeHint())
