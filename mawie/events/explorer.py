@@ -69,10 +69,9 @@ class TryLink(Event):
     """
     Used when trying an imdb (or any other source) link. This allows us to fetch the title
     """
-    def __init__(self,url,expectedTitle, path):
+    def __init__(self,url,expectedTitle):
         self.url = url
         self.expectedTitle = expectedTitle
-        self.path = path
 
 
 class TryLinkResult(Event):

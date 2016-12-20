@@ -84,7 +84,9 @@ class Explorer(Listener):
             #TODO get file
             #TODO update list files
             movieData = event.data
-            if movieData["found"]:
+            if isinstance(movieData,Movie):
+                self._parsed[movieData.name] = movieData
+            elif movieData["found"]:
                 self._parsed[movieData["originalTitle"]] = movieData
             else:
                 self._notParsed.append(movieData)

@@ -2,6 +2,8 @@
 import re
 
 import time
+from contextlib import suppress
+
 from bs4 import BeautifulSoup
 import urllib.request
 from imdbpie import Imdb
@@ -14,7 +16,8 @@ import requests
 from difflib import SequenceMatcher
 
 from mawie.models.Movie import Movie
-
+import logging
+log = logging.getLogger(__name__)
 
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
@@ -24,6 +27,20 @@ class GoogleIt(Listener):
     # BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
     imdb = Imdb()
+    _links = {}
+    """
+    Keeps track of all urls found with a certain url
+    {
+        url : [links(str)]
+    }
+    """
+    _searchables = {}
+    """
+    keeps track of original title and generated title
+    {
+        google it title: original title
+    }
+    """
     _searching = {}
     """
     Keeps track of all movies that are currently being searched by the explorer
@@ -63,28 +80,38 @@ class GoogleIt(Listener):
     def handle(self, event):
 
         if isinstance(event, GoogleItSearchRequest):
+            log.info("starting googleit search")
             search = event.data
-            search["movie"] = search["title"].replace(" ","_") #just because i don't wwan tto refactor my beuatifull code
+            search["movie"] = search["title"]#.replace(" ","_") #just because i don't wwan tto refactor my beautiful code
             if search["movie"] in self._searched.keys():  # we already searched the movie
+                log.info("movie %s was already searched",search["movie"])
                 self.emit(GoogleItResult({"found": True, "file":self._searched[search["movie"]] , "data": self._searched[search["movie"]]}))
             else:
                 if search["movie"] not in self._searching:
+                    #self._searchables[search["movie"]] = search["title"]
                     self._searching[search["movie"]] = {"files": []}
-                self._searching[search["movie"]]["files"].append(search["filePath"])
-                if search["movie"] not in self._searching.keys():  # if we aren't already searching the movie
-                    self.getMovieID(search["movie"])
+                    self._searching[search["movie"]]["files"].append(search["filePath"])
+                    log.info("going to search movie %s",search["movie"])
+                    self.getMovieID(search["title"])
+                else:
+                    self._searching[search["movie"]]["files"].append(search["filePath"])
 
         elif isinstance(event, TryLink):  # we need to try a link on api
-            id = re.search(self.domainRegex, event.url).group(0)  # uses the domain search
+            id = re.search(self.domainRegex, event.url).group(1)  # uses the domain search
             res = self.imdb.get_title_by_id(id)  # TODO unbind us to the imdb api
             expected = event.expectedTitle
-            if similar(res["title"], expected) >= 0.8:  # close enough
+            if similar(res.title, expected) >= 0.8:  # close enough
                 self._searched[expected] = {"originalTitle": expected, "file": self._searching[expected]["files"],
-                                            "imdb_id": res["imdb_id"], "found": True, "title": res["title"],
+                                            "imdb_id": res.imdb_id, "found": True, "title": res.title,
                                             "data": res}
                 self.emit(GoogleItResult(self._searched[expected]))
             else:
-                self.emit(GoogleItResult({"title": expected, "found": False, "imdb_id": None}))
+                if event.url in self._links[expected]:
+                    with suppress(ValueError, AttributeError):#found this practical thing on the internet
+                        #suppresses all raise of ValueError or AttributeError in this context
+                        self._links[expected].remove(event.url)
+                if len(self._links[expected]) <=0: #only when we have not checked every link can we say the google it didn't find it
+                    self.emit(GoogleItResult({"title": expected, "found": False, "imdb_id": None}))
 
                 # self.emit(TryLinkResult(event.expectedTitle,res))
                 # elif isinstance(event, TryLinkResult):
@@ -109,9 +136,11 @@ class GoogleIt(Listener):
             for l in link.find_all("a"):
                 url = l.get("href")
 
+                log.info("found url %s for title %s", url, title)
                 if re.search(self.domainRegex, url):
-                    id_ = re.search(self.domainRegex, url).group(1)
-                    self.emit(TryLink(url, title))
+                    #id_ = re.search(self.domainRegex, url).group(1)
+                    self._links[title].append(url)
+        return self._links[title]
 
     def _findOnDuck(self, title):
         res = requests.get("https://duckduckgo.com/html/", params={"q": title + " :imdb"},
@@ -119,9 +148,12 @@ class GoogleIt(Listener):
         links = BeautifulSoup(res.text, "html.parser").find_all("a", attrs={"class": u"result__a"}, href=True)
         for link in links:
             url = link.get("href")
+
+            log.info("found url %s for title %s",url,title)
             if re.search(self.domainRegex, url):  # it's a valid url for the domain we want to search data in
-                id_ = re.search(self.domainRegex, url).group(1)
-                self.emit(TryLink(url, title))
+                #id_ = re.search(self.domainRegex, url).group(1)
+                self._links[title].append(url)
+        return self._links[title]
 
     def _GetMovieResearch(self, movieTitle, limit=50, format='json', bing=False):
         h = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
@@ -168,17 +200,27 @@ class GoogleIt(Listener):
                     return link.find("a").get("href")
 
     def _searchMovie(self, title):
-        query = Movie.query().filter(Movie.title == title)
+        query = Movie.query().filter(Movie.name == title)
+        log.info("searching db first to see if we dont already have the movie %s",title)
         if query.count():
+            log.info("already have it")
             self.emit(GoogleItResult(query.first()))
         else:
+            self._links[title] = []
+            log.info("searching .... ")
             try:
                 time.sleep(.2)  # add some sleep before anything else can be done, so that we don't get ip banned
-                self._findOnDuck(title)
+                self._findOnDuck(title) #links found are stored in self._links[title]
+
             except: #if something went wrong with duck duck go
                 time.sleep(.2)
-                self._findOnBing(title)
-
+                self._findOnBing(title) #links found are stored in self._links[title]
+            finally: #now try the links
+                if len(self._links[title]):
+                    for link in self._links[title].copy():
+                        self.emit(TryLink(link,title))
+                else:#couldn't find any link ???
+                    self.emit(GoogleItResult({"found":False,"title":None}))
 
     def getMovieTitle(self, movieId):
         pass
@@ -195,6 +237,7 @@ class GoogleIt(Listener):
             raise TypeError("Movie title must be a string")
 
         if hasattr(self, "emit"):  # use events and async to get movie data
+            log.info("searching for movie %s", movieTitle)
             self._searchMovie(movieTitle)
         else:  # otherwise do it in a blocking way
             # get the ffirst page of a research
