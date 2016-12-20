@@ -3,8 +3,11 @@ import logging
 log = logging.getLogger("mawie")
 
 class Event:
-    """Base class for emitting events
+    """
+    Base class for emitting events
     Every event that is sent in the app must extend this base class, otherwise things might go south.
+    :param: data
+    :type data: any
     """
     name = None
     data = None

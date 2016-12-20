@@ -35,7 +35,7 @@ class App(EventManager):
         log.info("Starting background app")
         self.registerListener(self)
         self.queue = Queue(-1)
-        self.tickTime = .3
+        self.tickTime = .005 # clock the app at 200hz
         for s in self.background:
             self.addBackgroundProcess(s)
 

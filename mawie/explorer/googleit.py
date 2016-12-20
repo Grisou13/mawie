@@ -6,17 +6,21 @@ from imdbpie import Imdb
 import re
 import sys
 from mawie.events import Listener
-from mawie.events.explorer import GoogleItResponse, GoogleItSearchRequest, GoogleItResult
+from mawie.events.explorer import *
 import requests
-
+#found on http://stackoverflow.com/questions/17388213/find-the-similarity-percent-between-two-strings
+from difflib import SequenceMatcher
+def similar(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 class GoogleIt(Listener):
     #BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
-    imdb = object()
+    imdb = Imdb()
+    _searching = {}
 
     def __init__(self, domainSearch="imdb"):
         self.domainSearch = domainSearch
-        self.imdb = Imdb()
+        self.domainRegex = r"(?:https?\:)\/\/\w+\.{}\.com\/title\/([a-z]{2}[0-9a-z]{7})\/(?:.+)?".format(domainSearch)
 
         def _doWeHaveInternet():
             try:
@@ -33,23 +37,44 @@ class GoogleIt(Listener):
     def handle(self, event):
 
         if isinstance(event, GoogleItSearchRequest):
-
-            search = event.data[0]
-            secondTry = event.data[1]
-
-            res = self.getMovieID(search, secondTry)
-            self.emit(GoogleItResponse(event, res))
-
-    def _makeSearchTerm(self, movieName, domain=True):
-        movieName.replace(" ", "%20")
-        if domain:
-            return "https://duckduckgo.com/html/?q=" + movieName + " :" + self.domainSearch
-        elif not domain:
-            return "https://duckduckgo.com/html/?q=" + movieName
+            search = event.data
+            self.getMovieID(search)
+            #self.emit(GoogleItResponse(event, res))
+        # elif isinstance(event, GoogleItInternalRequest):
+        #     tries = event.tries
+        #     self.getMovieID()
+        elif isinstance(event,TryLink):
+            id = re.search(self.domainRegex,event.url).group(0) # uses the domain search
+            self.imdb.get_title_by_id(id)
+        elif isinstance(event, TryLinkResult):
+            movieTitle = event.expected
+            movieData = event.data
+            if similar(movieData.title, movieTitle) >= 0.8:#close enough
+                self.emit(GoogleItResult(movieData))
 
         # bing advanced search doesn't work w our request soooo.....
         # return "site:" + self.domainSearch + " " + movieName
+    def defaultHeader(self):
+        return "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
+    def _findOnBing(self,title):
+        res = requests.get("http://www.bing.com/search",params = {"q": title + " :imdb"}, headers={"user-agent": self.defaultHeader()})
+        links = BeautifulSoup(res.text, "html.parser").find_all('li', attrs={'class': 'b_algo'})
+        for link in links:
+            for l in link.find_all("a"):
+                url = l.get("href")
+                if re.search(self.domainRegex,url):
+                    id_ = re.search(self.domainRegex,url).group(1)
+                    self.emit(TryLink(url,title))
 
+    def _findOnDuck(self,title):
+        res = requests.get("https://duckduckgo.com/html/", params={"q": title + " :imdb"},
+                           headers={"user-agent": self.defaultHeader()})
+        links = BeautifulSoup(res.text, "html.parser").find_all("a", attrs={"class": u"result__a"}, href=True)
+        for link in links:
+            url = link.get("href")
+            if re.search(self.domainRegex,url): #it's a valid url for the domain we want to search data in
+                id_ = re.search(self.domainRegex,url).group(1)
+                self.emit(TryLink(url,title))
     def _GetMovieResearch(self, movieTitle, limit=50, format='json', bing=False):
         h = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36"
         if not bing:
@@ -93,14 +118,17 @@ class GoogleIt(Listener):
         elif bing:
             for link in researchResults:
                 if (re.search(self.domainSearch+".com", link.find("a").get("href"))):
+                    for l in link.find_all("a"):
+                        href = l.get("href")
+                        self.emit(TryLink(href))
                     return link.find("a").get("href")
 
     def getMovieID(self, movieTitle, secondTry = False):
         """
-            Find a movie id based on the title
-            movieTitle (string) is simply the movieTitle.
-            Try to not use # number (ex : Harry potter 4)
-            return the id as a string (ex : tt0330373)
+        Find a movie id based on the title
+        movieTitle (string) is simply the movieTitle.
+        Try to not use # number (ex : Harry potter 4)
+        return the id as a string (ex : tt0330373)
         """
 
         if not isinstance(movieTitle, str):
@@ -118,34 +146,34 @@ class GoogleIt(Listener):
 
         # if you give the format as http://www.imdb.com/title/tt0330373/, return the id
         # mess up if incorrect url. This is why we need a regex here
-        if not imDBlinks:
-            self.emit(GoogleItResult([movieTitle, False]))
-
-        #print(imDBlinks.split("title/")[1][:-1])
-        try:
-            movieId = imDBlinks.split("title/")[1][:-1]
-        except Exception:
-            self.emit(GoogleItResult([movieTitle, False]))
-
-
-        # check wether the id is only made of min letters and digit
-        if not re.match("^[a-z0-9]*$", movieId):
-            # we might find an id + a parameter (ex: tt1077097/fullcredit)
-            if "/" in movieId:
-                movieId = movieId.split("/", 1)[0]
-
-                if not re.match("^[a-z0-9]*$", movieId) and len(movieId):
-                    self.emit(GoogleItResult([movieTitle, False]))
-            else:
-                self.emit(GoogleItResult([movieTitle, False]))
-
-        # and if it matches the right size (all id have the same size)
-        if len(movieId) == 9:
-            # print("ho putain 4")
-            self.emit(GoogleItResult([movieTitle, False]))
-
-
-        self.emit(GoogleItResult([movieTitle, movieId]))
+        # if not imDBlinks:
+        #     self.emit(GoogleItResult([movieTitle, False]))
+        #
+        # #print(imDBlinks.split("title/")[1][:-1])
+        # try:
+        #     movieId = imDBlinks.split("title/")[1][:-1]
+        # except Exception:
+        #     self.emit(GoogleItResult([movieTitle, False]))
+        #
+        #
+        # # check wether the id is only made of min letters and digit
+        # if not re.match("^[a-z0-9]*$", movieId):
+        #     # we might find an id + a parameter (ex: tt1077097/fullcredit)
+        #     if "/" in movieId:
+        #         movieId = movieId.split("/", 1)[0]
+        #
+        #         if not re.match("^[a-z0-9]*$", movieId) and len(movieId):
+        #             self.emit(GoogleItResult([movieTitle, False]))
+        #     else:
+        #         self.emit(GoogleItResult([movieTitle, False]))
+        #
+        # # and if it matches the right size (all id have the same size)
+        # if len(movieId) == 9:
+        #     # print("ho putain 4")
+        #     self.emit(GoogleItResult([movieTitle, False]))
+        #
+        #
+        # self.emit(GoogleItResult([movieTitle, movieId]))
 
         return movieId
 

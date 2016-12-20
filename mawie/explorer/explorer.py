@@ -40,30 +40,35 @@ class Explorer(Listener):
     count = 0
     foundFiles = dict()
     notFoundFiles = dict()
-
-
+    _files = {}
+    """
+    {
+      file : {
+        root: str,
+        links : [
+          {
+            tried : True|False,
+            url : href,
+            data : None | { title : Movie Title, id : Imdb Id  }
+          }
+        ],
+        data : None | dict, # best data according to googleit
+        title : None | str
+      }
+    }
+    """
     def handle(self, event):
         if isinstance(event, ExplorerParsingRequest):
             path = event.data
             res = self.parse(path)
-            self.emit(ExplorerParsingResponse(event, res))
+            #self.emit(ExplorerParsingResponse(event, res))
 
         if isinstance(event, GoogleItResult):
             #TODO get file
             #TODO update list files
-            movieTitle = event.data[0]
-            movieId = event.data[1]
-            print(movieTitle)
-            print(movieId)
-            if not movieId and movieTitle:
-                self.emit(GoogleItSearchRequest([movieTitle, True]))
-
-            self._lastTitle["title"] = movieTitle
-
-            self._lastTitle["imdb_id"] = movieId
-
-            print(movieTitle)
-            print(movieId)
+            movieData = event.data
+            self._lastTitle["title"] = movieData.title
+            self._lastTitle["imdb_id"] = movieData.imdb_id
 
             #file = self._filesevent.data.0
             #file.imdbId = event.data.1
@@ -106,7 +111,7 @@ class Explorer(Listener):
             raise FileExistsError("The given path doesn't exists")
         if self._isFolderEmpty(path):
             raise FileExistsError("The given path is empty")
-
+        rootpath = path
         files = []
         for r, dirs, _files in os.walk(path, topdown=False):
             for f in _files:
