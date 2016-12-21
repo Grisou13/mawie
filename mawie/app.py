@@ -25,7 +25,16 @@ class AppComponent(Eventable):
 
 
 class App(EventManager):
+    """
+    Main app class. This runs all important process that handle data : searching, looking for files and indexing, etc...
+    It is a special EventManager. It uses a queue to handle events.
+    This allows for events to get around the app smoothly without python freaking out.
+
+    Every listener (BackgroundProcess) added to this class will receive a special kind of emit.
+    That emit will actually just add the event to the event queue.
+    """
     # based out of tornado ioloop https://github.com/tornadoweb/tornado/blob/master/tornado/ioloop.py
+    # doesn't work though
     _instance_lock = threading.Lock()
     background = [Explorer, GoogleIt, Research, Updator]
     _processes = []

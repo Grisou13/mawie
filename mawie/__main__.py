@@ -1,9 +1,13 @@
-import sys
 import os
+import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-def run():
-    from mawie.gui.Qgui import start
-    app = start()
+
 if __name__ == '__main__':
-    run()
+    if len(sys.argv):
+        from . import cli
+        cli()
+    else:
+        from . import gui
+        gui()

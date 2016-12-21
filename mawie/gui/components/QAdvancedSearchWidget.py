@@ -1,39 +1,22 @@
-import calendar
-import json
+import logging
 
-import math
-from PyQt5 import QtCore
-
-from PyQt5.QtCore import QDate
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QBoxLayout
-from PyQt5.QtWidgets import QDateEdit
 from PyQt5.QtWidgets import QFormLayout
 from PyQt5.QtWidgets import QFrame
-from PyQt5.QtWidgets import QGridLayout
-from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QSlider
-from PyQt5.QtWidgets import QWidget
 from sqlalchemy import Date
-from sqlalchemy import distinct
-from sqlalchemy import func
-from datetime import date, datetime, time
 
 from mawie import models
-from mawie.events import Response
+from mawie.events.gui import ShowFrame
 from mawie.events.search import SearchRequest
 from mawie.gui.components import GuiComponent
+from mawie.gui.components.QDateRangeInput import DateRangeInput
 from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.models.File import File
 from mawie.models.Movie import Movie
-from mawie.events.gui import ShowFrame, ShowAdvancedSearch
 
-from mawie.gui.components.QDateRangeInput import DateRangeInput
-import logging
 log = logging.getLogger("mawie")
 
 
@@ -99,5 +82,5 @@ class AdvancedSearch(GuiComponent):
         #     self.emit(ShowFrame(MovieListWidget.__class__.__name__))
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
     start()

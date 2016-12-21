@@ -10,7 +10,11 @@ class ShowFrame(Event):
         self.frame = frame
         self.data = data
 
+class HideSearch(Event):
+    pass
 
+class ShowSearch(Event):
+    pass
 
 class SearchResults(Event):
     pass
