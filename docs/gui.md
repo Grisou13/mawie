@@ -10,8 +10,8 @@ directory ``` mawie.gui.components ```.
 
 | Filename         | Class name      | Description                                                                                                                                                                                                                          | Inherited from |
 |------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
-| QResearchWidget  | ResearchWidget  | This component communicates with ```mawie.research.search```,to launch research and then emit an event to QMovieListWidget to show results                                                                                           |                | 
-| QAdvancedSearch  | AdvancedSearch  | display the form to do advanced research                                                                                                                                                                                             | Inherited from |
+| QResearchWidget  | ResearchWidget  | This component communicates with ```mawie.research.search```,to launch research and then emit an event to QMovieListWidget to show results                                                                                           | GuiComponent   | 
+| QAdvancedSearch  | AdvancedSearch  | display the form to do advanced research                                                                                                                                                                                             | GuiComponent   |
 | QMovieWidget     | MovieWidget     | Display the info of the movie. it allows you to show you the movie file in your browser, play the movie in your default media player or in our customized media player, you can also delete the file associates to the movie         | GuiComponent   |
 | QExplorer        | ExplorerWidget  | This component purpose is to add the folder you want the search movies files in and add it to the databases, in case a file can be parsed you can provide an IMDb url and it will get the info of the film                           | GuiComponent   | 
 | QMovieListWidget | MovieListWidget | This widget displays the movies of a research                                                                                                                                                                                        | GuiComponent   |
@@ -23,15 +23,15 @@ directory ``` mawie.gui.components ```.
                                                                                                                                                                                                                     
 ### MovieListWidget
 #### Method updateWidgets(films)
-| method name   | param                           | description                                                  |
+| Method name   |  Parameters                     | description                                                  |
 |---------------|---------------------------------|--------------------------------------------------------------|
 | updateWidgets | films:generator of movie model  | updates the list of films with the filmes in the param films |
 ResultRow is the class which is an item in the MovieListWidget
 
 ### MovieWidget
-| method name   | param       | description                                                        |
-|---------------|-------------|--------------------------------------------------------------------|
-| updateWidgets | movie model | updates widgets with the information of the given film in argument |
+| Method name   | Parameters       | description                                                        |
+|---------------|------------------|--------------------------------------------------------------------|
+| updateWidgets | data:movie model | updates widgets with the information of the given film in argument |
 
 
 If the movie have one file 3 buttons are displayed: Play the movie, Show in explorer, Delete file from database and if the movie have more than one file a QListWidget appear with the different
@@ -73,10 +73,25 @@ moviePlayer.exec_()
 
 ### ExplorerWidget
 TODO REXPLIQUER CETTE MERDE
-There is three other classes in the file `mawie.gui.component.QExplorer`: AddFilesWidget,FileParsedWidget and FileNotParsedWidget
-AddFilesWidget holds the two lists : the list inherits from FileParsedWidget and the list inherits from FileNotParsedWidget.
-FileParsedWidget and FileNotParsedWidget inherit from QListWidget and Listener. The first one is the list who displays the parsed file
-and the second one the files which can't be parsed. the lists add the file as the explorer processed them
+This class holds the class `AddFilesWidget`.
+In `AddFilesWidget`, there are two more classes `FileParsedWidget` which displays the parsed file and `FileNotParsedWidget` which displays
+the not parsed file.
+
+#### AddFilesWidget
+##### Methods
+| Method Name      | Parameter                               | Description                                                                                    |
+|------------------|-----------------------------------------|------------------------------------------------------------------------------------------------|
+| scanDir          | None                                    | Emit the event ParseDirectoryRequest with the selected dirdirectory path in chooseDir          |
+| chooseDir        | None                                    | Display a QFileDialog to choose a directory, when we chose a directory call the method scanDir |
+| getFilmInfoByUrl | item : QListWidgetItem \|\|  file : str | ask for the IMDb url of the movie then add it to the db                                        |
+
+#### FileParsedWidget
+##### Methods
+
+
+#### FileNotParsedWidget
+##### Methods
+
 
 ### ResearchWidget
 #### Event used
@@ -85,8 +100,8 @@ and the second one the files which can't be parsed. the lists add the file as th
 | SearchRequest  | is used to send a search                                                                                                        |
 | SearchResponse | When handled, this event will call updateWidgets(event.data) with the response data (search results)       |
 
-### ComponentArea
-#### How to add a widget to the ComponentArea
+
+#### How to create a Gui component
 create a file in ```mawie.gui.components``` (the location has no effect but it's just to keep the structure of the project).
 You have to inherits the class of your graphical component from GuiComponent which allows to receive event. 
 
@@ -97,7 +112,7 @@ class MyWidget(GuiComponent):
     def __init__(self,parent = None):
         super().__init__(parent)
 ```
-This is literally it. This will register your component in the main window, and adds it to the event management loop. Now your class can receive events if you create the method handle(self,event)
+This will register your component in the main window, and adds it to the event management loop. Now your class can receive events if you create the method handle(self,event)
 
 The components use PyQt5 grid system, if you choose to use PySide or use a Qt design editor, this doc cannot help you... Please note that GuiComponent is internally a QWidget.
 
@@ -141,9 +156,9 @@ class MyAwesomeComponent(GuiComponent):
         if isinstance(event,Start):
             pass # do something on start of the app
 ```
-
-
-Now you have to add it to the ComponentArea, In the file `QStackedWidget` in the method `initWidget` add this line:
+### ComponentArea
+#### How to add a widget to the ComponentArea
+First you have to create a Gui Component then, you have to add it to the ComponentArea, In the file `QStackedWidget` in the method `initWidget` add this line:
 `self.addWidget(MyWidget(self))`
 
 #### How to display your frame store in ComponentArea

@@ -19,11 +19,15 @@ from PyQt5 import QtCore
 
 from mawie.events.gui import ShowFrame, ShowMovieInfo, ShowMovieList
 from mawie.events.search import SearchRequest
+
 from mawie.gui.components import GuiComponent
+
+
 from mawie.gui.components.QPoster import QPoster
 from mawie.gui.components.QMoviePlayer import MoviePlayer
 from mawie.models.File import File
 from mawie.models.Movie import Movie
+import qtawesome as qta
 import logging
 log = logging.getLogger("mawie")
 
@@ -39,14 +43,26 @@ class MovieWidget(GuiComponent):
 
     def createWidgets(self):
         grid = QGridLayout()
+        headerLayout = QHBoxLayout()
         fontTitle = QFont('Arial',20)
         fontInfo = QFont('Arial',8)
+        goBackIcon = qta.icon('fa.chevron-left',
+                                 active='fa.chevron-left',
+                                 color='white',
+                                 color_active='white')
 
         self.lblImg = QPoster(self) #QLabel(self)
         self.lblImg.setMaximumSize(300, 465)
         self.lblImg.setScaledContents(True)
 
+        self.btnGoBack = QPushButton(goBackIcon,"Return",self)
+        self.btnGoBack.setMaximumWidth(100)
+        self.btnGoBack.clicked.connect(self.btnGoBackClicked)
         self.lblTitle = QLabel("<b>*No Title*</b>",self)
+        headerLayout.addWidget(self.btnGoBack)
+        headerLayout.addWidget(self.lblTitle)
+
+
         #self.lblImg.setPixmap(imgPix)
         self.lblScenarist = QLabel("<b>Writer : -</b>", self)
         self.lblDirector = QLabel("<b>Director: -</b>", self)
@@ -99,9 +115,8 @@ class MovieWidget(GuiComponent):
         btnBoxlayout.addWidget(self.btnShowInDir)
         btnBoxlayout.addWidget(self.btnDeleteFile)
 
+        grid.addLayout(headerLayout, 0, 0, 1, 2)
         grid.addWidget(self.lblImg, 1, 0, 6, 2)
-
-        grid.addWidget(self.lblTitle,0, 0, 1, 2)
         grid.addWidget(self.lblScenarist,1,1,1,1)
         grid.addWidget(self.lblDirector,2,1)
         grid.addWidget(self.lblActors,3,1)
@@ -175,6 +190,8 @@ class MovieWidget(GuiComponent):
             self.btnShowInDir.hide()
             self.btnDeleteFile.hide()
             self.btnLaunchFilm.hide()
+    def btnGoBackClicked(self):
+        self.gui.emit(ShowFrame('MovieListWidget'))
 
     def btnShowInDirClicked(self, file=None):
         path = None

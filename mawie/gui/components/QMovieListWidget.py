@@ -35,10 +35,12 @@ class MovieListWidget(GuiComponent):
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
-        #TODO add a default item there isn't any file
+        self.updateWidgets(Movie.query())
+
+        #TODO add a default item if there isn't any file
 
 
-        grid.addWidget(self.lstWidgets)
+        grid.addWidget(self.lstWidgets,0,0)
         self.setLayout(grid)
 
     def updateWidgets(self,data):
@@ -74,10 +76,9 @@ class MovieListWidget(GuiComponent):
             self.updateWidgets(event.data)
             event.stopPropagate()
             #self.emit(ShowFrame(self))
-        if isinstance(event,ShowMovieList):
-            self.emit(ShowFrame(self))
-    #     if isinstance(event, SearchResponse):
-    #         self.updateWidgets(event.data)
+        if isinstance(event, ShowFrame) and event.frame == self.__class__.__name__ and event.data is not None:
+            self.updateWidgets(event.data)
+
 
 class ResultRow(QWidget):
 
@@ -93,10 +94,14 @@ class ResultRow(QWidget):
     def createWidgets(self,data):
         grid = QGridLayout(self)
         lblImg = QPoster(self, data.poster)
+        dateRelease = ""
+        if data.release is not None:
+            dateRelease = str(data.release)
+
         #self.importPosterFilm(data.poster)
         if data.name is not None:
             if data.genre is not None:
-                lblTitle = QLabel(data.name + "(" + data.genre + ")", self)
+                lblTitle = QLabel(data.name +" ( " + data.genre + " )", self)
             else:
                 lblTitle = QLabel("Title: " + data.name, self)
         else:

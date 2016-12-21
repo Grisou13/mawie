@@ -59,21 +59,20 @@ class ComponentArea(QStackedWidget):
             super(ComponentArea,self).addWidget(widget)
 
     def initWidget(self):
-        self.addWidget(ExplorerWidget(self))
+
         self.addWidget(AdvancedSearch(self))
         self.addWidget(MovieWidget(self))
         self.addWidget(SettingsWidget(self))
         s = MovieListWidget(self)
         self.addWidget(s)
-        self.addWidget(ExplorerWidget(self))
         self.addWidget(AdvancedSearch(self))
+        self.addWidget(ExplorerWidget(self))
         self.setCurrentWidget(s)
 
-        if Movie.query().count() == 0:
+        if Movie.query().count() >0:
             self.setCurrentWidget(s)
         else:
             self.setCurrentWidget(self.widgetStore[ExplorerWidget.__name__])
-
         log.info("initialized : %s widgets",self.widgetStore)
 
     def handle(self,event):

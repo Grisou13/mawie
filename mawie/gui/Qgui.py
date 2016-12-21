@@ -125,7 +125,7 @@ class MainWindow(QMainWindow, Listener):
         self.setMenuBar(bar)
         # self.statusBar().showMessage("hi")
         mainWidget = QWidget(self)  # central placeholder widget
-        mainWidget.setMinimumWidth(700)
+        mainWidget.setMinimumWidth(650)
         self.setCentralWidget(mainWidget)
 
         content = QGridLayout(mainWidget)

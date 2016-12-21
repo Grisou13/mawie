@@ -12,6 +12,7 @@ from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QMovieListWidget import MovieListWidget
+from mawie.models.Movie import Movie
 from mawie.research.research import Research
 import re
 import logging
@@ -35,8 +36,10 @@ class ResearchFrame(GuiComponent):
             self._textChangedFlag = False
     def createWidget(self):
         grid = QGridLayout(self)
+        self.btnAllMovies = QPushButton("All the movies")
+        self.btnAllMovies.setMaximumWidth(100)
         self.inputSearch = QLineEdit(self)
-        self.inputSearch.setMinimumWidth(400)
+        self.inputSearch.setMinimumWidth(300)
         self.completer = QCompleter()
         self.completer.setCompletionMode(QCompleter.PopupCompletion)
         self.completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -47,13 +50,17 @@ class ResearchFrame(GuiComponent):
         self.completer.setModel(self.model)
         self.model.setStringList([])
         self.btnOk = QPushButton("Launch the research", self)
+        self.btnAllMovies.clicked.connect(self._displayAllMovies)
         self.btnOk.clicked.connect(self._forceFrameChange)
 
-
-        grid.addWidget(self.inputSearch,0,0,1,2)
+        grid.addWidget(self.btnAllMovies,0,0)
+        grid.addWidget(self.inputSearch,0,1)
         grid.addWidget(self.btnOk,0,2)
 
         self.setLayout(grid)
+    def _displayAllMovies(self):
+        self.gui.emit(ShowFrame(MovieListWidget.__name__, data=Movie.query()))
+
     def _showMovieList(self,*args,**kwargs):
         if self._textChangedFlag:
             self._forceFrameChange()

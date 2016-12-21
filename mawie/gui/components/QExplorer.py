@@ -65,8 +65,10 @@ class AddFilesWidget(GuiComponent):
         self.show()
 
     def initWidget(self):
-        content = QGridLayout(self)
+        content = QGridLayout()
+
         self.inputPath = QLineEdit(self)
+        self.inputPath.setPlaceholderText("No folder selected")
         self.inputPath.setReadOnly(True)
 
         self.btnOpenDir = QPushButton("Select a directory to scan")
@@ -84,14 +86,10 @@ class AddFilesWidget(GuiComponent):
 
         content.addWidget(self.inputPath, 0,0)
         content.addWidget(self.btnOpenDir,0,1)
-        #content.addWidget(self.btnScan,0,2)
         content.addWidget(self.lblLstNotParseFile,1,0)
         content.addWidget(self.lstFileNotParse,2,0,1,3)
         content.addWidget(self.lblLstParseFile,3,0)
         content.addWidget(self.lstFileParse,4,0,1,3)
-
-
-
         self.setLayout(content)
 
         self.btnOpenDir.clicked.connect(self.chooseDir)
@@ -195,7 +193,7 @@ class FileParsedWidget(QWidget):
 
         # = QLabel(self,faIconCheck)
 
-        # styling_icon = qta.icon('fa.music',
+        #styling_icon = qta.icon('fa.music',
         #                         active='fa.legal',
         #                         color='blue',
         #                         color_active='orange')
@@ -238,8 +236,11 @@ class ExplorerWidget(GuiComponent):
         self.initWidget()
 
     def initWidget(self):
+        grid = QGridLayout()
         self.add = AddFilesWidget(self)
-        self.show()
+        grid.addWidget(self.add)
+        self.setLayout(grid)
+
 
     def handle(self,event):
         super().handle(event)
