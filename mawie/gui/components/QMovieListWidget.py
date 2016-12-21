@@ -11,6 +11,7 @@ from mawie.events import Response
 from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame, ShowMovieInfo
 from mawie.events.search import SearchResult, SearchResponse, SearchRequest
 from mawie.gui.components import GuiComponent, Downloader
+from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QPoster import QPoster
 from mawie.models.Movie import Movie
 from urllib import request
@@ -29,21 +30,21 @@ class MovieListWidget(GuiComponent):
     #     self.updateWidgets(Research().search()) # execute search before showing widget
     def initFrame(self):
         self.createWidgets()
-        list =[Movie.get(1),Movie.get(2),Movie.get(3)]
-        self.updateWidgets(list)
         self.show()
 
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
-        grid.addWidget(self.lstWidgets)
+        self.updateWidgets(Movie.query())
+
+
+        grid.addWidget(self.lstWidgets,0,0)
         self.setLayout(grid)
 
     def updateWidgets(self,data):
         self.lstWidgets.clear()
         for film in data:
             try:
-                log.info("---- NEW FILM -------- %s",film)
                 item = QListWidgetItem(self.lstWidgets)
                 itemW= ResultRow(self,film)
                 item.setSizeHint(itemW.sizeHint())
@@ -57,15 +58,7 @@ class MovieListWidget(GuiComponent):
         log.info("List of widgets %s", len(self.lstWidgets))
 
     def clickedSee(self,film):
-        self.emit(ShowMovieInfo(film))
-    def handleAction(self,name,data):
-        if name == "show-movie-list-frame":
-            self.gui.dispatchAction("show-frame",self)
-        if name == "search-results":
-            self.updateWidgets(data)
-            self.gui.dispatchAction("show-frame",self)
-    def requestAction(self,name):
-        pass
+        self.emit(ShowFrame(MovieWidget.__name__,film))
 
     def handle(self, event):
         super().handle(event) #remember kids, always call super
@@ -81,10 +74,9 @@ class MovieListWidget(GuiComponent):
             self.updateWidgets(event.data)
             event.stopPropagate()
             #self.emit(ShowFrame(self))
-        if isinstance(event,ShowMovieList):
-            self.emit(ShowFrame(self))
-    #     if isinstance(event, SearchResponse):
-    #         self.updateWidgets(event.data)
+        if isinstance(event, ShowFrame) and event.frame == self.__class__.__name__ and event.data is not None:
+            self.updateWidgets(event.data)
+
 
 class ResultRow(QWidget):
 
@@ -93,22 +85,21 @@ class ResultRow(QWidget):
         super(ResultRow,self).__init__(parent)
         self.film = data
         self.initRow(data)
-        #self.setGeometry(QRect(0,0,700,160))
-        #self.setMinimumSize(650,160)
-        #self.setSizePolicy(650,160)
-        #self.setMinimumHeight(200)
 
     def initRow(self,data):
         self.createWidgets(data)
-        #self.show()
 
     def createWidgets(self,data):
         grid = QGridLayout(self)
         lblImg = QPoster(self, data.poster)
+        dateRelease = ""
+        if data.release is not None:
+            dateRelease = str(data.release)
+
         #self.importPosterFilm(data.poster)
         if data.name is not None:
             if data.genre is not None:
-                lblTitle = QLabel(data.name + "(" + data.genre + ")", self)
+                lblTitle = QLabel(data.name +" ( " + data.genre + " )", self)
             else:
                 lblTitle = QLabel("Title: " + data.name, self)
         else:

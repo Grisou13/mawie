@@ -7,10 +7,13 @@ from PyQt5.QtWidgets import QDialog
 
 
 class MoviePlayer(QDialog):
-    def __init__(self, parent=None, path = None):
-        super(MoviePlayer, self).__init__(parent)
+    def __init__(self,path = None):
+        super(MoviePlayer, self).__init__()
+
+        self.createWidgets(path)
+
+    def createWidgets(self,path=None):
         moviePath = path
-        #moviePath='C:/Users/ilias.goujgali/Videos/Wildlife.wmv'
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.mediaPlayer.setMedia(QMediaContent(QUrl.fromLocalFile(moviePath)))
         self.mediaPlayer.setVolume(100)
@@ -54,8 +57,6 @@ class MoviePlayer(QDialog):
         self.mediaPlayer.stateChanged.connect(self.mediaStateChanged)
         self.mediaPlayer.positionChanged.connect(self.positionChanged)
         self.mediaPlayer.durationChanged.connect(self.durationChanged)
-
-
 
 
     def play(self):

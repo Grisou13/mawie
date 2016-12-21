@@ -17,8 +17,12 @@ from mawie.app import start as startApp
 from mawie.events import Listener, EventManager
 from mawie.events import Quit, Response, Request
 from mawie.events.gui import *
+from mawie.gui.components.QAdvancedSearch import AdvancedSearch
 from mawie.gui.components.QError import ErrorWidget
+from mawie.gui.components.QExplorer import ExplorerWidget
+from mawie.gui.components.QMovieListWidget import MovieListWidget
 from mawie.gui.components.QResearchWidget import ResearchFrame
+from mawie.gui.components.QSettings import SettingsWidget
 from mawie.gui.components.QStackedWidget import ComponentArea
 
 log = logging.getLogger(__name__)
@@ -109,7 +113,7 @@ class MainWindow(QMainWindow, Listener):
         bar = self.menuBar()
         menu = bar.addMenu("&File")
         menuAddFolder = QAction("Add folder", self)
-        menuAddFolder.triggered.connect(lambda: self.emit(ShowExplorer()))
+        menuAddFolder.triggered.connect(lambda: self.gui.emit(ShowFrame(ExplorerWidget.__name__)))
         menu.addAction(menuAddFolder)
 
         quit = QAction("Quit", self)

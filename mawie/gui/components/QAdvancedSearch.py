@@ -88,12 +88,12 @@ class AdvancedSearch(GuiComponent):
         if len(self.data.keys()) < 1:
             return
         #print(self.data)
-        #self.gui.emit(SearchRequest(self.data))
+        self.gui.emit(SearchRequest(self.data))
+        self.gui.emit(ShowFrame(MovieListWidget.__name__))
 
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, ShowAdvancedSearch):
-            self.emit(ShowFrame(self))
+
         # if isinstance(event,Response) and isinstance(event.request, SearchRequest):
         #     self.emit(SearchResults(event.data))
         #     self.emit(ShowFrame(MovieListWidget.__class__.__name__))

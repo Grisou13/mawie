@@ -78,8 +78,10 @@ class ExplorerWidget(GuiComponent):
         self.show()
 
     def initWidget(self):
-        content = QGridLayout(self)
-        self.inputPath = QLineEdit(self,placeholderText="No folder selected")
+        content = QGridLayout()
+
+        self.inputPath = QLineEdit(self)
+        self.inputPath.setPlaceholderText("No folder selected")
         self.inputPath.setReadOnly(True)
 
         self.btnOpenDir = QPushButton("Select a directory to scan")
@@ -95,16 +97,12 @@ class ExplorerWidget(GuiComponent):
         self.lstFileParse.setMinimumSize(660,200)
         self.lstFileNotParse.setMinimumSize(660,200)
 
-        content.addWidget(self.inputPath, 0, 0)
+        content.addWidget(self.inputPath, 0,0)
         content.addWidget(self.btnOpenDir,0,1)
-        #content.addWidget(self.btnScan,0,2)
         content.addWidget(self.lblLstNotParseFile,1,0)
         content.addWidget(self.lstFileNotParse,2,0,1,3)
         content.addWidget(self.lblLstParseFile,3,0)
         content.addWidget(self.lstFileParse,4,0,1,3)
-
-
-
         self.setLayout(content)
 
         self.btnOpenDir.clicked.connect(self.chooseDir)
@@ -208,7 +206,7 @@ class FileParsedWidget(QWidget):
 
         # = QLabel(self,faIconCheck)
 
-        # styling_icon = qta.icon('fa.music',
+        #styling_icon = qta.icon('fa.music',
         #                         active='fa.legal',
         #                         color='blue',
         #                         color_active='orange')

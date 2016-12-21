@@ -17,13 +17,20 @@ from mawie.gui.components.QResearchWidget import  ResearchFrame
 from mawie.gui.components.QExplorer import ExplorerWidget
 from mawie.gui.components.QSettings import SettingsWidget
 import logging
-log = logging.getLogger("mawie")
 
+from mawie.models.Movie import Movie
+
+log = logging.getLogger("mawie")
+'''
+ComponentArea is a QStackedWidget which
+
+
+'''
 class ComponentArea(QStackedWidget):
     def __init__(self, gui ,parent=None):
         super().__init__(parent)
         self.gui = gui
-        self.setFixedSize(680, 700)
+
         self.widgetStore = {}
         self.currentChanged.connect(self.onCurrentChange)
         self.initWidget()
@@ -52,23 +59,29 @@ class ComponentArea(QStackedWidget):
             super(ComponentArea,self).addWidget(widget)
 
     def initWidget(self):
+
         self.addWidget(AdvancedSearch(self))
-        self.addWidget(ExplorerWidget(self))
         self.addWidget(MovieWidget(self))
+        self.addWidget(SettingsWidget(self))
         s = MovieListWidget(self)
         self.addWidget(s)
-        self.addWidget(ExplorerWidget(self))
         self.addWidget(AdvancedSearch(self))
-        self.addWidget(SettingsWidget(self))
+        self.addWidget(ExplorerWidget(self))
         self.setCurrentWidget(s)
+
+        if Movie.query().count() >0:
+            self.setCurrentWidget(s)
+        else:
+            self.setCurrentWidget(self.widgetStore[ExplorerWidget.__name__])
         log.info("initialized : %s widgets",self.widgetStore)
+
     def handle(self,event):
         #super().handle(event)
         if isinstance(event, ShowFrame):
-            if event.data.__class__.__name__ in self.widgetStore:
+            if event.frame.__class__.__name__ in self.widgetStore:
                 event.stopPropagate()
                 event.timeout = 0
-                self.setCurrentWidget(self.widgetStore[event.data.__class__.__name__ ])
+                self.setCurrentWidget(self.widgetStore[event.frame.__class__.__name__ ])
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

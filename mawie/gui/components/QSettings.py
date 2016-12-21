@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import QSettings
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QCheckBox
@@ -37,13 +39,15 @@ class SettingsWidget(GuiComponent):
 
     def createWidgets(self):
         grid = QGridLayout()
-        font = QFont('Arial',18)
-        fontSubTitle = QFont('asdf',12)
+        font = QFont('',18)
+        fontSubTitle = QFont('',12)
         self.settings = QSettings()
 
         updatorEnable= self.settings.value("updator/updatorEnable")
         frequency = self.settings.value("updator/frequency")
         playerDefault = self.settings.value("infomovie/player-default")
+
+
 
 
         lblTitle= QLabel("Settings",self)
@@ -136,6 +140,7 @@ class SettingsWidget(GuiComponent):
     def defaultPlayerChecked(self,status):
         if status == 0:
             self.settings.setValue("infomovie/player-default",False)
+
         else:
             self.settings.setValue("infomovie/player-default",True)
 
@@ -188,11 +193,10 @@ class SettingsWidget(GuiComponent):
         self.settings.setValue("updator/frequency", self._frequency[idx])
         self.emit(UpdatorRequest(self._frequency[idx]))
     def handle(self,event):
-        #super().handle(event)
+        super().handle(event)
         if isinstance(event,Start):
             self.emit(UpdatorRequest(self._frequency[self.cboFrequency.currentIndex()]))
-        if isinstance(event, ShowSettings):
-            self.emit(ShowFrame(self))
+
 
 class DirListItem(QWidget):
     def __init__(self,parent = None,dirPathFile=None):
@@ -204,9 +208,10 @@ class DirListItem(QWidget):
     def createWidgets(self):
         grid = QGridLayout()
         lblDirPath = QLabel(self.dirPath,self)
-        lblDirPath.setFixedWidth(400)
+        lblDirPath.setMinimumWidth(400)
 
         self.btnDelDir = QPushButton("Delete this folder",self)
+        self.btnDelDir.setMaximumWidth(300)
         grid.addWidget(lblDirPath,0,0)
         grid.addWidget(self.btnDelDir,0,1)
         self.setLayout(grid)

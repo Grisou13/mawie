@@ -49,6 +49,9 @@ class ResearchFrame(GuiComponent):
         grid.addWidget(self.btnOk,0,2)
 
         self.setLayout(grid)
+    def _displayAllMovies(self):
+        self.gui.emit(ShowFrame(MovieListWidget.__name__, data=Movie.query()))
+
     def _showMovieList(self,*args,**kwargs):
         if self._textChangedFlag:
             self._forceFrameChange()
@@ -56,7 +59,9 @@ class ResearchFrame(GuiComponent):
     def _forceFrameChange(self):
         if len(self.inputSearch.text()) > 0:
             self.gui.emit(SearchRequest(self.inputSearch.text().lower()))
-        self.gui.emit(ShowMovieList())
+        self.gui.emit(ShowFrame(MovieListWidget.__name__))
+
+        #self.gui.emit(ShowMovieList())
 
 
     def handle(self,event):
@@ -64,13 +69,12 @@ class ResearchFrame(GuiComponent):
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
             self.gui.emit(SearchResponse(event.request,event.data))
-            self.gui.emit(ShowMovieList())
+            self.gui.emit(ShowFrame(MovieListWidget.__name__))
+            #self.gui.emit(ShowMovieList())
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
             self.gui.emit(SearchResponse(event.request, event.data))
-            self.gui.emit(ShowMovieList())
-
-
+            self.gui.emit(ShowFrame(MovieListWidget.__name__))
 
 if __name__ == '__main__':
     from mawie.gui.Qgui import start

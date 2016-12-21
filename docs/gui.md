@@ -1,116 +1,190 @@
 # GUI
 At the beginning of the project, we chose to use Tkinter but we find a little bit incomplete for what we would  like to do
-so, we decide to change to pyqt.
+so, we decide to change to pyqt. 
 
-## Listing of frame
+## QGui
+## Listing of graphical componenet
 We chose to put a "Q" in the front of the filename of every graphical component. These components are all in the
 directory ``` mawie.gui.components ```.
-Actually there are XXX frames which are:
-
-Filename | Class name | Description | Inherits|
----------|------------|-------------|---------|
-QResearchWidget|QResearchWidget| This component communicates with ```mawie.research.search```  to launch research and then emit an event to QMovieListWidget to show results|
-QAdvancedSearch|AdvancedSearch|display the form to do advanced research
-QMovieWidget|MovieWidget| Display the info of the movie. it allows you to show you the movie file in your browser, play the movie in your default media player or in our customized media player, you can also delete the file associates to the movie|
-QExplorer|AddFilesWidget| This component purpose is to add the folder you want the search movies files in and add it to the databases, in case a file can be parsed you can provide an IMDb url and it will get the info of the film|
-QMovieListWidget|MovieListWidget| This widget displays the movies of a research|
-QMoviePlayer| MoviePlayer| This is the player media player. The file format/codec it can read depend on the OS and codec you have. On Windows in depends on DirectShow; OSX depends on QuickTime Player and on Linux it depends  the installed Gstreamer plugins|
-QError|ErrorWidget|Display error that we didn't catch|
-QPoster|QPoster| This is a label that's enable to load movie poster asynchronously
-QStackedWidget|ComponentArea|This is frame is where all the frames are stored.
-QSettings|SettingsWidget| This frame is used to change the settings.
-
-###MovieListWidget
-#### Method updateWidgets(films)
-argument films: a generator of objects model Movie
-This method updates the list of films
-
-#### Class ResultRow inherited QWidget
-This class is the widget of a row in the MovieListWidget
-
-###MovieWidget
-#### Method updateWidgets(film)
-argument film: a object model Movie
-This method updates widgets with the information of the given film in argument
-
-###SettingsWidget
-The location where the settings are stored depend of your system:
-Windows: HKEY_CURRENT_USER\Software\CPNV\MAWIE
-MacOs: $HOME/Library/Preferences/com.CPNV.MAWIE.plist
-Linux: $HOME/.config/CPNV/MAWIE.conf
-
-####Settings available
-
-CPNV->MAWIE->first launch
-description: this is used to know if it's the first time the program is lauchned
-default value : true
-CPNV->MAWIE->infomovie->player-default
-description: this allows to only use the default media player when you're in the MovieInfo and you clicked on "play film"
-default value : true
-CPNV->MAWIE->updator->updator-enabled
-description: this setting enable/disable the updator
-default value: true
-CPNV->MAWIE->updator->frequency
-description: if the updator is enabled this setting set the frequency the updator will execute its checking.
-there are predefined values : 300,1800,6000 and 3600 (there are in milliseconds)
-default value : 1800  
 
 
-###ComponentArea
-#### addWidget(widget)
-This method is used to add a widget to the ComponentArea.
+| Filename         | Class name      | Description                                                                                                                                                                                                                          | Inherited from |
+|------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| QResearchWidget  | ResearchWidget  | This component communicates with ```mawie.research.search```,to launch research and then emit an event to QMovieListWidget to show results                                                                                           | GuiComponent   | 
+| QAdvancedSearch  | AdvancedSearch  | display the form to do advanced research                                                                                                                                                                                             | GuiComponent   |
+| QMovieWidget     | MovieWidget     | Display the info of the movie. it allows you to show you the movie file in your browser, play the movie in your default media player or in our customized media player, you can also delete the file associates to the movie         | GuiComponent   |
+| QExplorer        | ExplorerWidget  | This component purpose is to add the folder you want the search movies files in and add it to the databases, in case a file can be parsed you can provide an IMDb url and it will get the info of the film                           | GuiComponent   | 
+| QMovieListWidget | MovieListWidget | This widget displays the movies of a research                                                                                                                                                                                        | GuiComponent   |
+| QMoviePlayer     | MoviePlayer     | This is the player media player.                                                                                                                                                                                                     | QDialog        |
+| QError           | ErrorWidget     | Display error that we didn't catch                                                                                                                                                                                                   | QLabel         |
+| QPoster          | QPoster         | This is a label that's enable to load movie poster asynchronously                                                                                                                                                                    | QWidget        |
+| QStackedWidget   | ComponentArea   | This is frame is where all the frames are stored.                                                                                                                                                                                    | QStackedWidget |
+| QSettings        | SettingsWidget  | This frame is used to change the settings.                                                                                                                                                                                           | GuiComponent   |
+                                                                                                                                                                                                                    
+### MovieListWidget
+#### Method
+| Method name   |  Parameters                     | description                                                  |
+|---------------|---------------------------------|--------------------------------------------------------------|
+| updateWidgets | films:generator of movie model  | updates the list of films with the filmes in the param films |
 
-###
+ResultRow is the class which is an item in the MovieListWidget
 
-## How to add a widget
-To create a graphical component, create a file in ```mawie.gui.components``` (the location has no effect but it's just to keep the structure of the project).
+### MovieWidget
+| Method name   | Parameters       | description                                                        |
+|---------------|------------------|--------------------------------------------------------------------|
+| updateWidgets | data:movie model | updates widgets with the information of the given film in argument |
+
+
+If the movie have one file 3 buttons are displayed: Play the movie, Show in explorer, Delete file from database and if the movie have more than one file a QListWidget appear with the different
+files and the 3 three same buttons for each file. We use the class FileWidget (which is also in `QMovieWidget.py`)  as item of the QListWidget 
+
+### SettingsWidget
+The location where the settings are stored depends on your system, please refer to the [QT docs](http://doc.qt.io/qt-5/qsettings.html#platform-specific-notes)
+
+
+
+#### Settings available
+| Location             | Name            | Description                                                                                                                                                                    | Default value |
+|----------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| CPNV/MAWIE           | first-launch    | this is used to know if it's the first time the program is lauchned                                                                                                            | true          |
+| CPNV/MAWIE/infomovie | player-default  | this allows to only use the default media player when you're in the MovieInfo and you clicked on "play film"                                                                   | true          |
+| CPNV/MAWIE/updator   | updator-enabled | this setting enable/disable the updator                                                                                                                                        | true          |
+| CPNV/MAWIE/updator   | frequency       | if the updator is enabled this setting set the frequency the updator will execute its checking.there are predefined values : 300,1800,6000 and 3600 (they are in milliseconds) | 1800          |
+
+
+### MoviePlayer
+The MoviePlayer use QMediaPlayer. the format/codec it allows you to read depends on your system:
+ 
+on windows refer to DirectsShow 
+
+on Mac refer to QuickTime Player
+
+on Linux it depend on the installed Gstreamer plugins.
+if you want to use the player you can just make an instance of it with the fallowing arguments:
+
+To display the widget MoviePlayer you have to instance it. it take only one parameter: path - it simply the path to the file to read
+
+and then execute it. It should looks like:
+
+```
+moviePlayer = MoviePlayer(path)
+moviePlayer.exec_()
+
+```
+
+### ExplorerWidget
+
+This class holds the class `AddFilesWidget`.
+In `AddFilesWidget`, there are two more classes `FileParsedWidget` which displays the parsed file and `FileNotParsedWidget` which displays
+the not parsed file.
+
+
+#### AddFilesWidget
+##### Methods
+| Method Name      | Parameter                               | Description                                                                                    |
+|------------------|-----------------------------------------|------------------------------------------------------------------------------------------------|
+| scanDir          | None                                    | Emit the event ParseDirectoryRequest with the selected dirdirectory path in chooseDir          |
+| chooseDir        | None                                    | Display a QFileDialog to choose a directory, when we chose a directory call the method scanDir |
+| getFilmInfoByUrl | item : QListWidgetItem \|\|  file : str | ask for the IMDb url of the movie then add it to the db                                        |
+
+##### Event used
+| Event class           | Usage                                                            |
+|-----------------------|------------------------------------------------------------------|
+| ParseDirectoryRequest | this event is emit to ask the explorer to ParseDirectoryRequest  |
+
+-FileParsed ??
+-FileNotParsed ??
+
+#### FileParsedWidget
+###### Event used 
+-MovieParsed handle
+
+
+#### FileNotParsedWidget
+##### Methods
+###### Event used
+-MovieNotParsed
+
+
+### ResearchWidget
+#### Event used
+| Event class    | Usage                                                                                                      |
+|----------------|------------------------------------------------------------------------------------------------------------|
+| SearchRequest  | is used to send a search                                                                                                        |
+| SearchResponse | When handled, this event will call updateWidgets(event.data) with the response data (search results)       |
+
+
+#### How to create a Gui component
+create a file in ```mawie.gui.components``` (the location has no effect but it's just to keep the structure of the project).
 You have to inherits the class of your graphical component from GuiComponent which allows to receive event. 
+
 ```Python
 from mawie.gui.components import GuiComponent
 
-class MyWidget(QGuiComponent):
+class MyWidget(GuiComponent):
     def __init__(self,parent = None):
         super().__init__(parent)
 ```
+This will register your component in the main window, and adds it to the event management loop. Now your class can receive events if you create the method handle(self,event)
 
-Then, you have to add the method ```handle```. 
-```Python
-def handle(event):
-    super().handle(event)
+The components use PyQt5 grid system, if you choose to use PySide or use a Qt design editor, this doc cannot help you... Please note that GuiComponent is internally a QWidget.
+
+We recommend setting up a ```initWidget(self)``` or ```initUi(self)``` method on your class
+
+```python
+from mawie.components import GuiComponent
+class MyAwesomeComponent(GuiComponent):
+    def __init__(self,parent = None):
+        super(MyAwesomeComponent,self).__init__(parent)
+        #instantiate some helpers and create some data if needed
+        self._data  = {} # data :D
+        self.initWidget()
+        self.show()#don't forget to call show, otherwise the component may not appear
+    def initWidget(self):
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+     
 ```
-This is where you catch event and do something with it. for example :
-```Python
-def handle(event):
-    super().handle(event)
-    if isinstance(event,ResearchResponse):
-        self.updateMyWidget(event.data)
 
+Now if you need to pass data to the background, or need to receive some data, you will need to overide the ``` handle(self,event) ``` method.
+If you override ``` handle ``` please call ```super().handle(event)```
+
+```python
+from mawie.components import GuiComponent
+from mawie.events import Start
+from PyQt5.QtWidgets import QGridLayout
+
+class MyAwesomeComponent(GuiComponent):
+    def __init__(self,parent = None):
+        super(MyAwesomeComponent,self).__init__(parent)
+        #instantiate some helpers and create some data if needed
+        self._data  = {} # data :D
+        self.initWidget()
+        self.show()#don't forget to call show, otherwise the component may not appear
+    def initWidget(self):
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+    def handle(self,event):
+        super(MyAwesomeComponent,self).handle(event)
+        if isinstance(event,Start):
+            pass # do something on start of the app
 ```
-## Events
-### Listing of emit events
-### How to create a event
-To create a event, go to the 
+### ComponentArea
+#### How to add a widget to the ComponentArea
+First you have to create a Gui Component then, you have to add it to the ComponentArea, In the file `QStackedWidget` in the method `initWidget` add this line:
+`self.addWidget(MyWidget(self))`
 
-
-### How to switch the frame
-To switch frame, you've to emit a event, handle it in the frame you want to display, then emit the event ```ShowFrame``` from the frame you to display with itself at argument
-it should look like:
-
+#### How to display your frame store in ComponentArea
+To switch frames, you have to emit the Event `ShowFrame(MyNewWidget.__name__)`. it should looks like
 ```Python
-#the widget where from you want to change frame
-
-self.emit(ShowMyWidget)
-```
-```Python
-#The widget you want to display
-
-handle(event):
-    if isinstance(event,ShowMyWidget):
-        self.emit(ShowFrame(self))
+    from mawie.events.gui import  ShowFrame
     
+    def displayMyWidget(self):
+        self.gui.emit(ShowFrame(MyWidget.__name__))
+
 ```
+if you want to pass data with it, like a film for example, you can do it this way : 
+`ShowFrame(WidgetYouWantTODisplay.__name__, film)`
 
-
-
-
-
+## How to create a event
+To create a event, please refer to event doc (docs.event.md)

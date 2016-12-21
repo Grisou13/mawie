@@ -1,27 +1,36 @@
 import os
 import subprocess
-import sys
+import platform
 
 import time
 
 from PyQt5.QtCore import QSettings
+from PyQt5.QtWidgets import QBoxLayout
+from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
 from PyQt5.QtGui import QPixmap,QFont,QImage
 from PyQt5.QtCore import QRect,Qt
 from urllib import request
 
+
 from PyQt5 import QtCore
 
 from mawie.events.gui import ShowFrame, ShowMovieInfo, ShowMovieList
 from mawie.events.search import SearchRequest
+
 from mawie.gui.components import GuiComponent
-from mawie.gui.components.QMovieListWidget import MovieListWidget
+
+
 from mawie.gui.components.QPoster import QPoster
 from mawie.gui.components.QMoviePlayer import MoviePlayer
+
 from mawie.models.File import File
 from mawie.models.Movie import Movie
+import qtawesome as qta
+import mawie.gui.components.QMovieListWidget
 import logging
 log = logging.getLogger("mawie")
 
@@ -37,27 +46,38 @@ class MovieWidget(GuiComponent):
 
     def createWidgets(self):
         grid = QGridLayout()
+        headerLayout = QHBoxLayout()
         fontTitle = QFont('Arial',20)
         fontInfo = QFont('Arial',8)
+        goBackIcon = qta.icon('fa.chevron-left',
+                                 active='fa.chevron-left',
+                                 color='white',
+                                 color_active='white')
 
         self.lblImg = QPoster(self) #QLabel(self)
-        self.lblImg.setFixedSize(300, 465)
+        self.lblImg.setMaximumSize(300, 465)
         self.lblImg.setScaledContents(True)
 
-        self.lblTitle = QLabel("*No Title*",self)
+        self.btnGoBack = QPushButton(goBackIcon,"Return",self)
+        self.btnGoBack.setMaximumWidth(100)
+        self.btnGoBack.clicked.connect(self.btnGoBackClicked)
+        self.lblTitle = QLabel("<b>*No Title*</b>",self)
+        headerLayout.addWidget(self.btnGoBack)
+        headerLayout.addWidget(self.lblTitle)
+
+
         #self.lblImg.setPixmap(imgPix)
-        self.lblScenarist = QLabel("Writer : -", self)
-        self.lblDirector = QLabel("Director: -", self)
-        self.lblActors = QLabel("Actor(s): -",self)
-        self.lblRuntime = QLabel("Runtime: -",self)
-        self.lblRate = QLabel("IMDb Rate: -",self)
-        self.lblAwards = QLabel("Awards : -",self)
-        self.lblCountry = QLabel("Country : -",self)
-        self.lblRelease = QLabel("Release date : -",self)
-        self.lblPlot = QLabel("Plot: -",self)
+        self.lblScenarist = QLabel("<b>Writer : -</b>", self)
+        self.lblDirector = QLabel("<b>Director: -</b>", self)
+        self.lblActors = QLabel("<b>Actor(s): -</b>",self)
+        self.lblRuntime = QLabel("<b>Runtime: -</b>",self)
+        self.lblRate = QLabel("<b>IMDb Rate: -</b>",self)
+
+        self.lblRelease = QLabel("<b>Release date : -</b>",self)
+        self.lblPlot = QLabel("<b>Plot: -</b>",self)
 
         self.lstFile = QListWidget(self)
-        self.lstFile.setMaximumHeight(200)
+        self.lstFile.setMaximumHeight(100)
 
         #Set font to labels
         self.lblTitle.setFont(fontTitle)
@@ -66,8 +86,7 @@ class MovieWidget(GuiComponent):
         self.lblActors.setFont(fontInfo)
         self.lblRuntime.setFont(fontInfo)
         self.lblRate.setFont(fontInfo)
-        self.lblAwards.setFont(fontInfo)
-        self.lblCountry.setFont(fontInfo)
+
         self.lblRelease.setFont(fontInfo)
         self.lblPlot.setFont(fontInfo)
 
@@ -77,40 +96,39 @@ class MovieWidget(GuiComponent):
         self.lblActors.setWordWrap(True)
         self.lblRuntime.setWordWrap(True)
         self.lblRate.setWordWrap(True)
-        self.lblAwards.setWordWrap(True)
-        self.lblCountry.setWordWrap(True)
+
         self.lblRelease.setWordWrap(True)
         self.lblPlot.setWordWrap(True)
 
         self.btnLaunchFilm = QPushButton("Play Film",self)
-        self.btnLaunchFilm.setMinimumWidth(300)
+        self.btnLaunchFilm.setMinimumWidth(200)
         self.btnLaunchFilm.clicked.connect(lambda : self.btnPlayFileClicked(file=None))
 
         self.btnShowInDir = QPushButton("Show in Explorer")
-        self.btnShowInDir.setMinimumWidth(300)
+        self.btnShowInDir.setMinimumWidth(200)
         self.btnShowInDir.clicked.connect(lambda: self.btnShowInDirClicked(file=None))
 
         self.btnDeleteFile = QPushButton("Delete File from Database")
-        self.btnDeleteFile.setMinimumWidth(300)
+        self.btnDeleteFile.setMinimumWidth(200)
         self.btnDeleteFile.clicked.connect(lambda : self.btnDeleteFileClicked(file=None,item=None))
 
+        #this BoxLayout is used to put the button launch, show in explorer and delete File one the same line
+        btnBoxlayout = QHBoxLayout()
+        btnBoxlayout.addWidget(self.btnLaunchFilm)
+        btnBoxlayout.addWidget(self.btnShowInDir)
+        btnBoxlayout.addWidget(self.btnDeleteFile)
 
-        grid.addWidget(self.lblImg, 1, 0, 8, 0)
-
-        grid.addWidget(self.lblTitle,0, 0, 1, 2)
-        grid.addWidget(self.lblScenarist,1,1)
+        grid.addLayout(headerLayout, 0, 0, 1, 2)
+        grid.addWidget(self.lblImg, 1, 0, 6, 2)
+        grid.addWidget(self.lblScenarist,1,1,1,1)
         grid.addWidget(self.lblDirector,2,1)
         grid.addWidget(self.lblActors,3,1)
         grid.addWidget(self.lblRuntime,4,1)
         grid.addWidget(self.lblRate,5,1)
-        grid.addWidget(self.lblAwards,6,1)
-        grid.addWidget(self.lblCountry,7,1)
-        grid.addWidget(self.lblRelease,8,1)
-        grid.addWidget(self.lblPlot,9,0,1,2)
-        grid.addWidget(self.lstFile,10,0,1,2)
-        grid.addWidget(self.btnLaunchFilm,10,0,2,2,QtCore.Qt.AlignCenter)
-        grid.addWidget(self.btnShowInDir,11,0,2,2,QtCore.Qt.AlignCenter)
-        grid.addWidget(self.btnDeleteFile,12,0,2,2,QtCore.Qt.AlignCenter)
+        grid.addWidget(self.lblRelease,6,1)
+        grid.addWidget(self.lblPlot,7,0,1,2)
+        grid.addWidget(self.lstFile,9,0,1,2)
+        grid.addLayout(btnBoxlayout,9,0,1,2)
         self.setLayout(grid)
 
     def updateWidgets(self,film):
@@ -120,39 +138,32 @@ class MovieWidget(GuiComponent):
         if self.film.name is not None:
             self.lblTitle.setText(self.film.name)
         else:
-            self.lblTitle.setText("*no title*")
+            self.lblTitle.setText("<b>*no title*")
         if self.film.writer is not None:
-            self.lblScenarist.setText("Scenarist: "+self.film.writer)
+            self.lblScenarist.setText("<b>Scenarist: </b>"+self.film.writer)
         else:
-            self.lblScenarist.setText("Scenarist: -")
+            self.lblScenarist.setText("<b>Scenarist: </b>-")
         if self.film.directors is not None:
-            self.lblDirector.setText("Directors: "+self.film.directors)
+            self.lblDirector.setText("<b>Directors: </b>"+self.film.directors)
         else:
-            self.lblDirector.setText("Directors: -")
+            self.lblDirector.setText("<b>Directors: </b>-")
         if self.film.actors is not None:
-            self.lblActors.setText("Actors :"+self.film.actors)
+            self.lblActors.setText("<b>Actors :</b>"+self.film.actors)
         else:
-            self.lblActors.setText("Actors : -")
+            self.lblActors.setText("<b>Actors : </b>-")
         if self.film.runtime is not None :
-            self.lblRuntime.setText("Runtime: " + self.film.runtime)
+            self.lblRuntime.setText("<b>Runtime: </b>" + self.film.runtime)
         else:
-            self.lblRuntime.setText("Runtime: -")
+            self.lblRuntime.setText("<b>Runtime: </b>-")
         if self.film.rate is not None:
-            self.lblRate.setText("Rate IMDb: "+ self.film.rate)
+            self.lblRate.setText("<b>Rate IMDb: </b>"+ self.film.rate)
         else:
-            self.lblRate.setText("Rate IMDb: -")
-        # if film.awards is not None:
-        #     self.lblAwards.setText("Awards: "+film.awards)
-        # else:
-        #     self.lblAwards.setText("Awards: -")
-        # if film.Country is not None:
-        #     self.lblCountry.setText("Country: "+film.Country)
-        # else:
-        #     self.lblCountry.setText("Country: -")
+            self.lblRate.setText("<b>Rate IMDb: -</b>")
+
         if self.film.release is not None:
-            self.lblRelease.setText("Release: "+str(self.film.release))
+            self.lblRelease.setText("<b>Release: </b>"+str(self.film.release))
         else:
-            self.lblRelease.setText("Release: -")
+            self.lblRelease.setText("<b>Release: </b>-")
         if self.film.desc is not None:
             self.lblPlot.setText("Plot: "+self.film.desc)
         else:
@@ -182,6 +193,9 @@ class MovieWidget(GuiComponent):
             self.btnShowInDir.hide()
             self.btnDeleteFile.hide()
             self.btnLaunchFilm.hide()
+    def btnGoBackClicked(self):
+
+        self.gui.emit(ShowFrame(mawie.gui.components.QMovieListWidget.MovieListWidget.__name__))
 
     def btnShowInDirClicked(self, file=None):
         path = None
@@ -192,8 +206,8 @@ class MovieWidget(GuiComponent):
         if path is not None:
             if os.name.lower() == "nt":  # because windows
                 path = path.replace("/", "\\")
-
             if os.path.isfile(path):
+                #TODO look for MAC AND LINUX DE MERDE
                 subprocess.Popen(r'explorer /select,"{}"'.format(path))
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
@@ -211,22 +225,21 @@ class MovieWidget(GuiComponent):
 
         if path is not None:
             if os.path.isfile(path):
-                print(defaultPlayer)
                 if defaultPlayer == 'false':
-                    if path.lower().endswith(('.wmv','.avi')):
                         moviePlayer = MoviePlayer(path=path)
                         moviePlayer.exec_()
-                    else:
-                        os.startfile(path)
                 else:
-                    os.startfile(path)
+                    if platform.system() == "Windows":
+                        os.startfile(path)
+                    elif platform.system() == "Darwin":
+                        subprocess.Popen(["open", path])
+                    else:
+                        subprocess.Popen(["xdg-open", path])
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
                                                                     "it has maybe been deleted or moved in an other folder")
 
-
     def btnDeleteFileClicked(self, file=None,item=None):
-
         fileDel = None
         if file is None:
             fileDel = self.film.files[0]
@@ -252,11 +265,7 @@ class MovieWidget(GuiComponent):
             if response == QMessageBox.Yes:
                 fileDel.delete()
                 self.film.delete()
-                self.emit(SearchRequest(""))
-                self.emit(ShowMovieList())
-                #self.gui.dispatchAction('search-results',Movie.query())
-                #self.gui.dispatchAction('show-frame', MovieListWidget)
-
+                self.gui.emit(ShowFrame(mawie.gui.components.QMovieListWidget.MovieListWidget.__name__, data=Movie.query()))
 
     def importPosterFilm(self, path=''):
         image = QImage()
@@ -272,23 +281,14 @@ class MovieWidget(GuiComponent):
             print("a problem with the connection or the url has occurred")
         return pixMap
 
-    # def handleAction(self, name, data):
-    #     if name == "show-info-film":
-    #         print(self)
-    #         self.updateWidgets(data)
-    #         self.gui.dispatchAction("show-frame",self)
-    #
-    # def requestAction(self, name):
-    #     pass
-
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, ShowMovieInfo):
-            #log.info("MOVIE INFO-- %s",event.data)
-            self.emit(ShowFrame(self))
+        if isinstance(event, ShowFrame) and event.frame == self.__class__.__name__:
             self.updateWidgets(event.data)
-
-
+        #if isinstance(event, ShowFrame) and event.data is not None:
+            #log.info("MOVIE INFO-- %s",event.data)
+            #self.emit(ShowFrame(self))
+            #self.updateWidgets(event.data)
 
     def displayErrorMessage(self,title="-",text="-"):
         msgBox = QMessageBox()
@@ -310,7 +310,6 @@ class FileWidget(QWidget):
     def createWidget(self,file):
         grid = QGridLayout()
         fileLabel = QLabel(file.path)
-        fileLabel.setFixedWidth(500)
         fileLabel.setWordWrap(True)
 
         self.btnPlayFile= QPushButton("Play this file")

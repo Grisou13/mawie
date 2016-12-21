@@ -16,32 +16,32 @@ movie record in the movie table.
 
 __File Data Model__:
 
-File  | Data type|
-------| --------|
-path  | string
-base  | string
-movie.id | foreignKey movie.id
-movie | relation to Movie
-created_at | datetime
+| field name | Data type           |
+|------------|---------------------|
+| path       | string              |
+| base       | string              |
+| movie.id   | foreignKey movie.id |
+| movie      | relation to Movie   |
+| created_at | datetime            |
 
 The model can be found at `app/models/File.py`
 
 __Movie data model__:
-Movie  | Data type 
------ | -------------
-name  | string
-imdb_id  | string
-genre | string
-desc | string
-release | date
-runtime  | string
-actors  | string
-directors  | string
-writer  | string
-poster  | string
-rate  | string
-files  | relation to File
-viewed  | boolean
+| field name | Data type                                                   |
+|------------|-------------------------------------------------------------|
+| name       | When this event is handled, we add a item to the FileParsed |
+| imdb_id    | string                                                      |
+| genre      | string                                                      |
+| desc       | string                                                      |
+| release    | date                                                        |
+| runtime    | string                                                      |
+| actors     | string                                                      |
+| directors  | string                                                      |
+| writer     | string                                                      |
+| poster     | string                                                      |
+| rate       | string                                                      |
+| files      | relation to File                                            |
+| viewed     | boolean                                                     |
 
 The model can be found at `app/models/Movie.py`
 
@@ -60,6 +60,8 @@ print(aMovie.name)
 aMovie.delete()
 
 #### Store a file
+
+
 #### Store a movie
 
 
