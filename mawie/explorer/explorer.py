@@ -110,11 +110,6 @@ class Explorer(Listener):
             else:
                 self._parse[title]["data"] = None
                 self._parse[title]["found"] = False
-
-
-            #file = self._filesevent.data.0
-            #file.imdbId = event.data.1
-            #self.emit(ExplorerParsingResponse/file)
     def _createMovieFromData(self,data):
 
         files = data["files"]
@@ -163,8 +158,9 @@ class Explorer(Listener):
         """
         if hasattr(self,"emit"):
             files = self._getMoviesFromPath(path)#first get all the files
-            for f in files: #then ask to get the movie data
-                self.emit(MovieNotParsed(f))
+            for f in files: #get the data back to the gui
+                self.emit(MovieNotParsed(f["filePath"]))
+            for f in files:#then ask to get the movie data
                 self.emit(GoogleItSearchRequest(f))
         else:
             files = self._getMoviesFromPath(path)
@@ -268,12 +264,10 @@ class Explorer(Listener):
             # we try to avoid to search 20 times in a row the same title (as for a series)
             if f["title"] != self._lastTitle["title"]:
             # get the imdb of that id
-            #fromImdb = self.googleIt.getMovieID(f["title"])
-                time.sleep(1)
-                self.emit(GoogleItSearchRequest([f["title"], False]))
+                fromImdb = self.googleIt.getMovieID(f["title"])
             #ici
-            #self._lastTitle["title"] = f["title"]
-            #self._lastTitle["imdb_id"] = fromImdb
+                self._lastTitle["title"] = f["title"]
+                self._lastTitle["imdb_id"] = fromImdb
 
             else:
                 self.emit(GoogleItResult([self._lastTitle["title"], self._lastTitle["imdb_id"]]))

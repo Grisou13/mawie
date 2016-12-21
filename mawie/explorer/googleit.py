@@ -81,7 +81,7 @@ class GoogleIt(Listener):
 
                 # if not _doWeHaveInternet():
                 #     raise ConnectionError("No internet connection !")
-    def sendResponse(self,title, found = False):
+    def sendResponse(self,title):
         """
         sends the GoogleItResponse event after a title was found
         Its a small helper
@@ -89,12 +89,13 @@ class GoogleIt(Listener):
         :param title: Title of the movie
         :return: None
         """
-        with suppress(ValueError,IndexError):
-            del self._searching[title]  # delete the title from searching
         if title not in self._searched:#move it to the searched files
             self._searched[title] = self._searching[title]
+        with suppress(Exception):
+            if title in self._searching:
+                del self._searching[title]  # delete the title from searching
         self.emit(GoogleItResult({"found": self._searched[title]["found"], "originalTitle": title, "data": self._searched[
-            title]}))  # event contains list of files with data found on the title
+            title]["data"]}))  # event contains list of files with data found on the title
 
     def handle(self, event):
 
@@ -104,13 +105,14 @@ class GoogleIt(Listener):
             title = data["title"]#.replace(" ","_") #just because i don't wwan tto refactor my beautiful code
             if title in self._searched:  # we already searched the movie
                 log.info("movie %s was already searched",title)
-                self.sendResponse(title,True)
+                self.sendResponse(title)
             else:
                 if title not in self._searching:
-                    self._searching[title] = {"payload":data,"files": []}
+                    #self._searching[title] = {"payload":data,"files": []}
+                    self._searching[title] = {"payload": data}
                 log.info("going to search movie %s",title)
                 self.getMovieID(title)
-                self._searching[title]["files"].append(data["filePath"])
+                #self._searching[title]["files"].append(data["filePath"])
 
 
         elif isinstance(event, NoLinkFound): #this should almost never happen
@@ -129,18 +131,21 @@ class GoogleIt(Listener):
             self._ids[event.expectedTitle] = id
             res = self.imdb.get_title_by_id(id)  # TODO unbind us to the imdb api
 
-            if similar(res.title, expected) >= 0.8:  # close enough
-                self._searched[expected] = {"originalTitle": expected, "files": self._searching[expected]["files"],
-                                            "imdb_id": res.imdb_id, "found": True, "title": res.title,
-                                            "data": res}
-                self.emit(GoogleItResult(self._searched[expected]))
+            if similar(res.title, expected) >= 0.75:  # close enough
+                self._searching[expected]["found"] = True
+                self._searching[expected]["data"] = res
+                # self._searched[expected] = {"originalTitle": expected, "files": self._searching[expected]["files"],
+                #                             "imdb_id": res.imdb_id, "found": True, "title": res.title,
+                #                             "data": res}
+                self.sendResponse(expected)
+                #self.emit(GoogleItResult(self._searched[expected]))
             else:
                 if event.url in self._links[expected]:
                     with suppress(ValueError, AttributeError):#found this practical thing on the internet
                         #suppresses all raise of ValueError or AttributeError in this context
                         self._links[expected].remove(event.url)
                 if len(self._links[expected]) <=0: #only when we have not checked every link can we say the google it didn't find it
-                    self.emit(GoogleItResult({"originalTitle": expected, "found": False, "imdb_id": None}))
+                    self.emit(GoogleItResult({"originalTitle": expected, "found": False, "imdb_id": None,"data":None}))
 
                 # self.emit(TryLinkResult(event.expectedTitle,res))
                 # elif isinstance(event, TryLinkResult):
@@ -165,7 +170,7 @@ class GoogleIt(Listener):
             for l in link.find_all("a"):
                 url = l.get("href")
 
-                log.info("found url %s for title %s", url, title)
+                log.debug("found url %s for title %s", url, title)
                 if re.search(self.domainRegex, url):
                     #id_ = re.search(self.domainRegex, url).group(1)
                     self._links[title].append(url)
@@ -178,7 +183,7 @@ class GoogleIt(Listener):
         for link in links:
             url = link.get("href")
 
-            log.info("found url %s for title %s",url,title)
+            log.debug("found url %s for title %s",url,title)
             if re.search(self.domainRegex, url):  # it's a valid url for the domain we want to search data in
                 #id_ = re.search(self.domainRegex, url).group(1)
                 self._links[title].append(url)
@@ -233,7 +238,10 @@ class GoogleIt(Listener):
         log.info("searching db first to see if we dont already have the movie %s",title)
         if query.count():
             log.info("already have it")
-            self.emit(GoogleItResult(query.first()))
+            if hasattr(self,"emit"):
+                self.emit(GoogleItResult(query.first()))
+            else:
+                return query.first()
         else:
             self._links[title] = []
             log.info("searching .... ")
@@ -245,7 +253,7 @@ class GoogleIt(Listener):
                 time.sleep(.2)
                 self._findOnBing(title) #links found are stored in self._links[title]
             finally: #now try the links
-                if len(self._links[title]):
+                if len(self._links[title]): #maybe we had an error and couldn't connect to the internet
                     for link in self._links[title].copy():
                         self.emit(TryLink(link,title))
 

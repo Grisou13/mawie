@@ -163,39 +163,39 @@ class MainWindow(QMainWindow, Listener):
             #     self.componentArea.emit(event)
 
 
-def singleton(cls):
-    # instance = None
-    def ctor(*args, **kwargs):
-        global instance
-        if not instance:
-            log.info("-------------------")
-            log.info("creating class %s", cls)
-            log.info("%s %s", args, kwargs)
-            log.info("-----------------")
-            instance = cls(*args, **kwargs)
-        return instance
-
-    return ctor
-
-
-class Singleton(type):
-    _instances = {}
-
-    #
-    # def __new__(cls, *arg, **kwargs):
-    #     if cls.__instance is None:
-    #         cls.__instance = object.__new__(cls)
-    #     else:
-    #         log.info("#################")
-    #         log.info("singleton works")
-    #         log.info("#################")
-    #     log.info("gui started = %s", Gui.__instance.started)
-    #     log.info("%s",cls.__instance)
-    #     return cls.__instance
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+# def singleton(cls):
+#     # instance = None
+#     def ctor(*args, **kwargs):
+#         global instance
+#         if not instance:
+#             log.info("-------------------")
+#             log.info("creating class %s", cls)
+#             log.info("%s %s", args, kwargs)
+#             log.info("-----------------")
+#             instance = cls(*args, **kwargs)
+#         return instance
+#
+#     return ctor
+#
+#
+# class Singleton(type):
+#     _instances = {}
+#
+#     #
+#     # def __new__(cls, *arg, **kwargs):
+#     #     if cls.__instance is None:
+#     #         cls.__instance = object.__new__(cls)
+#     #     else:
+#     #         log.info("#################")
+#     #         log.info("singleton works")
+#     #         log.info("#################")
+#     #     log.info("gui started = %s", Gui.__instance.started)
+#     #     log.info("%s",cls.__instance)
+#     #     return cls.__instance
+#     def __call__(cls, *args, **kwargs):
+#         if cls not in cls._instances:
+#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+#         return cls._instances[cls]
 
 
 class Gui(EventManager):
@@ -297,13 +297,8 @@ class Gui(EventManager):
             self.backgroundProcessThread.request.emit(event)
             # event.stopPropagate() #TODO handle the event a bit better, to look if we don't want to forward the reuqest to compoenents
         elif isinstance(event, Response):
-            log.info("#########################")
-            log.info("JAJAJAJAJAJA")
-            log.info(event.data)
-            log.info(event.request)
             self.emit(event, "default")
             # event.stopPropagate()
-            log.info("#########################")
 
 
 def instance(*args, **kwargs):

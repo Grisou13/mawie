@@ -56,7 +56,7 @@ class App(EventManager):
     def addEvent(self, event, to = ""):
         with self._lock:
             self.queue.put([event,to],True,0)
-            log.info("queue size = %s",self.queue.qsize())
+            log.debug("queue size = %s",self.queue.qsize())
 
     def handle(self, event):
         if not isinstance(event,Tick):
@@ -76,6 +76,8 @@ class App(EventManager):
             with self._lock:
                 event_, to = self.process()
             if event_ is not False:
+                if isinstance(event_,Response):
+                    self.emit(event_,"front")
                 self.emit(event_, to)
         elif isinstance(event, Quit):
             self._running = False
@@ -117,7 +119,7 @@ def start(app=None):
         a = app
     else:
         a = App()
-        a.addEvent(ExplorerParsingRequest(os.path.dirname(__file__)+"/../stubs/"))
+        #a.addEvent(ExplorerParsingRequest(os.path.dirname(__file__)+"/../stubs/"))
 
     a.emit(Start())
     return a

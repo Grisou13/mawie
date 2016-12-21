@@ -6,14 +6,14 @@ class SearchStarted(Event):
 
 
 class MovieParsed(Response):
-    def __init__(self, file = None):
+    def __init__(self, file):
         self.file = file
         self.data = None
         self.request = None
 
 
 class MovieNotParsed(Response):
-    def __init__(self, file = None):
+    def __init__(self, file):
         self.file = file
         self.data = None
         self.request = None
