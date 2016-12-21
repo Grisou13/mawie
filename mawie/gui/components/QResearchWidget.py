@@ -1,20 +1,12 @@
-import sys
-from PyQt5.QtCore import QStringListModel
-from PyQt5.QtWidgets import QCompleter
-from PyQt5.QtWidgets import QWidget,QLabel,QLineEdit,QPushButton,QGridLayout
-from PyQt5.QtGui import QPixmap,QFont
-from PyQt5.QtCore import QRect,Qt
-from PyQt5.uic.properties import QtGui, QtCore
+import logging
+
+from PyQt5.QtWidgets import QLineEdit,QPushButton,QGridLayout
 
 from mawie.events import Response
-from mawie.events.gui import SearchResults, ShowFrame, ShowMovieList
+from mawie.events.gui import ShowMovieList
 from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
-from mawie.gui.components.QAdvancedSearch import AdvancedSearch
-from mawie.gui.components.QMovieListWidget import MovieListWidget
-from mawie.research.research import Research
-import re
-import logging
+import qtawesome as qta
 log = logging.getLogger("mawie")
 
 class ResearchFrame(GuiComponent):
@@ -35,23 +27,25 @@ class ResearchFrame(GuiComponent):
             self._textChangedFlag = False
     def createWidget(self):
         grid = QGridLayout(self)
-        self.lbl = QLabel("Please enter a research", self)
+        #self.lbl = QLabel("Please enter a research", self)
         self.inputSearch = QLineEdit(self)
-        self.inputSearch.setFixedWidth(200)
-        self.completer = QCompleter()
-        self.completer.setCompletionMode(QCompleter.PopupCompletion)
-        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.inputSearch.setCompleter(self.completer)
+        #self.inputSearch.setFixedWidth(200)
+        #self.completer = QCompleter()
+        #self.completer.setCompletionMode(QCompleter.PopupCompletion)
+        #self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        #self.inputSearch.setCompleter(self.completer)
         self.inputSearch.textChanged.connect(self.refreshSearch)
         self.inputSearch.editingFinished.connect(self._showMovieList)
-        self.model = QStringListModel()
-        self.completer.setModel(self.model)
-        self.model.setStringList([])
-        self.btnOk = QPushButton("Launch the research", self)
+        #self.model = QStringListModel()
+        #self.completer.setModel(self.model)
+        #self.model.setStringList([])
+        icon = qta.icon('fa.search',color="white")
+        self.btnOk = QPushButton(self)
+        self.btnOk.setIcon(icon)
         self.btnOk.clicked.connect(self._forceFrameChange)
 
-        grid.addWidget(self.lbl,0,0)
-        grid.addWidget(self.inputSearch,0,1)
+        #grid.addWidget(self.lbl,0,0)
+        grid.addWidget(self.inputSearch,0,0,1,2)
         grid.addWidget(self.btnOk,0,2)
 
         self.setLayout(grid)

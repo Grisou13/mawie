@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QWidget
 
 from mawie.events import Start
 from mawie.events.gui import ShowSettings, ShowFrame
-from mawie.events.updator import UpdatorRequest
+from mawie.events.updator import UpdatorRequest, ForceUpdatorRun
 from mawie.gui.components import GuiComponent
 from mawie.models import db
 from mawie.models.File import File
@@ -83,16 +83,10 @@ class SettingsWidget(GuiComponent):
                 cboFrequency.setCurrentIndex(index)
         if frequency == -1:
             chkUpdatorEnable.setChecked(False)
-        # if frequency == 300:
-        #     cboFrequency.setCurrentIndex(1)
-        # elif frequency == 1800:
-        #     cboFrequency.setCurrentIndex(2)
-        # elif frequency == 6000:
-        #     cboFrequency.setCurrentIndex(3)
-        # elif frequency == 36000:
-        #     cboFrequency.setCurrentIndex(4)
 
-
+        btnForceUpdator = QPushButton("Force updator to run",self)
+        btnForceUpdator.clicked.connect(lambda _: self.emit(ForceUpdatorRun()))
+        self.btnForceUpdator = btnForceUpdator
 
         listDir = File.query(File.base.distinct())
         for dir in listDir :
@@ -112,7 +106,8 @@ class SettingsWidget(GuiComponent):
 
         grid.addWidget(lblTitle,0,0,1,2)
         grid.addWidget(chkDefaultSystemPlayer,1,0,1,2)
-        grid.addWidget(chkUpdatorEnable,2,0,1,2)
+        grid.addWidget(chkUpdatorEnable,2,0,1,1)
+        grid.addWidget(btnForceUpdator,2,1)
         grid.addWidget(lblFrequency,3,0)
         grid.addWidget(cboFrequency,3,1)
         grid.addWidget(lblDeleteDb,4,0,1,1)
@@ -149,11 +144,13 @@ class SettingsWidget(GuiComponent):
             self.settings.setValue("updator/updatorEnable",False)
             self.cboFrequency.setCurrentIndex(0)
             self.cboFrequency.setEnabled(False)
+            self.btnForceUpdator.setEnabled(False)
             self.settings.setValue("updator/frequency", -1)
         else:
             self.settings.setValue("updator/updatorEnable",True)
             self.cboFrequency.setCurrentIndex(1)
             self.cboFrequency.setEnabled(True)
+            self.btnForceUpdator.setEnabled(True)
         self.emit(UpdatorRequest(self.settings.value("updator/frequency")))
 
     def eraseDbClicked(self):

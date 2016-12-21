@@ -64,6 +64,7 @@ class App(EventManager):
         if isinstance(event, Start):
             #next_call = time.time()
             self._running = True
+            self.emit(event,"back") # emit to background processes
             while self._running:
                 event.stopPropagate()
                 self.emit(Tick(time.time()))

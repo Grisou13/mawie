@@ -58,12 +58,16 @@ class Listener:
 
     def __init__(self, eventManager=None):
         super(Listener, self).__init__()
-        if eventManager is not None and isinstance(eventManager, EventManager):
-            eventManager.registerListener(eventManager)  # Automaticly register
-    def handle(self, event):
-        if not event.propogate: #return if we were asked to explicitly not process the event
-            return False
+        if __name__ == '__main__':
+            if eventManager is not None and isinstance(eventManager, EventManager):
+                eventManager.registerListener(eventManager)  # Automaticly register
 
+            else:
+                # Simple helper that allows the listener to emit to himself
+                # This is usefull if a listener needs to be used as a standalone component but you don't want to rewrite all your logic
+                self.emit = lambda e,_:self.handle(e) #has the same signature as the emit function
+    def handle(self,event):
+        pass
 
 class EventManager:
     def __init__(self):

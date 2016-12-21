@@ -234,7 +234,7 @@ class FileNotParsedWidget(QWidget):
     def createWidgets(self):
         grid = QGridLayout()
         lblFile = QLabel(self.file,self)
-        faIconCheck = qta.icon("fa.external-link")
+        faIconCheck = qta.icon("fa.external-link",color="white")
         self.btnGiveImdbUrl = QPushButton(faIconCheck,"Give IMDb URL",self)
 
         lblFile.setFixedWidth(400)
