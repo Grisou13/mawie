@@ -15,7 +15,7 @@ if __name__ == '__main__':
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../","../")))
 from sqlalchemy import or_
 
-from mawie.models.Movie import Movie
+from mawie.models import Movie
 from libs.sqlalchemy_elasticquery import elastic_query
 import logging
 log = logging.getLogger(__name__)

@@ -5,12 +5,18 @@ class SearchStarted(Event):
     pass
 
 
-class MovieParsed(Event):
-    pass
+class MovieParsed(Response):
+    def __init__(self, file = None):
+        self.file = file
+        self.data = None
+        self.request = None
 
 
-class MovieNotParsed(Event):
-    pass
+class MovieNotParsed(Response):
+    def __init__(self, file = None):
+        self.file = file
+        self.data = None
+        self.request = None
 
 
 class ParseDirectoryRequest(Request):
@@ -34,6 +40,10 @@ class ParsingEnded(Event):
 
 
 class ParsingStarted(Event):
+    pass
+
+
+class NoLinkFound(Event):
     pass
 
 

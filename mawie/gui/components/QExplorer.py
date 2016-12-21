@@ -1,5 +1,6 @@
 import sys
 import os
+from contextlib import suppress
 from urllib.parse import urlparse
 
 from PyQt5.QtCore import QRect, QRunnable, QThreadPool, QThread
@@ -32,35 +33,45 @@ import copy
 class FileParsedListWidget(QListWidget,Listener):
     def __init__(self,parent = None):
         super(FileParsedListWidget,self).__init__(parent)
+        self.files = {} #keeps track of filename : widget item
     def handle(self,event):
+
         if isinstance(event,MovieParsed):
-            self.addItem(event.data)
+            log.info("adding parsed item %s", event.file)
+            self.addItem(event.file)
     def addItem(self,file_):
         item = QListWidgetItem(self)
-        itemW = FileParsedWidget(self, file_["title"])
+        self.files[file_] = item
+        itemW = FileParsedWidget(self, file_)
         item.setSizeHint(itemW.sizeHint())
         self.setItemWidget(item, itemW)
-        time.sleep(.5)
 
 class FileNotParsedListWidget(QListWidget,Listener):
     def __init__(self,parent):
         super(FileNotParsedListWidget,self).__init__(parent)
+        self.files = {}#keeps track of filename : widget item
+
     def handle(self,event):
         if isinstance(event,MovieNotParsed):
-            self.addItem(event.data)
+            log.info("adding NON item %s", event.file)
+            self.addItem(event.file)
+        elif isinstance(event, MovieParsed):
+            log.info("removing item %s form non parsed", event.file)
+            with suppress(Exception):
+                self.removeItemWidget(self.files[event.file])
+
     def addItem(self,file_):
         item = QListWidgetItem(self)
-        itemW = FileNotParsedWidget(self, file_["filePath"])
+        itemW = FileNotParsedWidget(self, file_)
+        self.files[file_] = item
         item.setSizeHint(itemW.sizeHint())
         self.setItemWidget(item, itemW)
-        time.sleep(.5)
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
 class AddFilesWidget(GuiComponent):
     def __init__(self, parent):
         super(AddFilesWidget,self).__init__(parent)
         self.dirPath = None
-
         self.initWidget()
         self.show()
 
@@ -101,7 +112,7 @@ class AddFilesWidget(GuiComponent):
     def scanDir(self):
         if  self.dirPath is not None:
             if os.path.isdir(self.dirPath):
-                self.emit(ParseDirectoryRequest(self.dirPath))
+                self.emit(ExplorerParsingRequest(self.dirPath))
         else:
             #print("No folder")
             msgBox = QMessageBox()
@@ -167,14 +178,12 @@ class AddFilesWidget(GuiComponent):
             # self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, FileParsed):
-            self.lstFileParse.addItem(event.data)
-        elif isinstance(event, FileNotParsed):
-            self.lstFileNotParse.addItem(event.data)
-    def handleAction(self, actionName, data):
-        pass
-    def requestAction(self,name):
-        pass
+        #if isinstance(event, MovieNotParsed):
+        self.lstFileNotParse.handle(event) #pass the event down
+        #if isinstance(event, MovieParsed):
+        self.lstFileParse.handle(event) #pass the event down
+        # elif isinstance(event, FileNotParsed):
+        #     self.lstFileNotParse.addItem(event.data)
 
 
 class FileParsedWidget(QWidget):
@@ -234,15 +243,18 @@ class FileNotParsedWidget(QWidget):
 
 class ExplorerWidget(GuiComponent):
     def __init__(self,parent):
+        self.parent = parent
         super(ExplorerWidget,self).__init__(parent)
         self.initWidget()
 
     def initWidget(self):
         self.add = AddFilesWidget(self)
+        self.parent.addWidget(self.add) #addFiles is not registered as a component so we need to pass it the emit
         self.show()
 
     def handle(self,event):
         super().handle(event)
+        self.add.handle(event) #propagate the event back down
         if isinstance(event, ShowExplorer):
             self.emit(ShowFrame(self))
 
