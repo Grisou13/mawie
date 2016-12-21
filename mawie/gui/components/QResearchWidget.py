@@ -1,15 +1,14 @@
 import logging
 
+import qtawesome as qta
 from PyQt5.QtWidgets import QLineEdit,QPushButton,QGridLayout
 
 from mawie.events import Response
-from mawie.events.gui import ShowMovieList
 from mawie.events.search import SearchRequest, SearchResponse
 from mawie.gui.components import GuiComponent
-import qtawesome as qta
 log = logging.getLogger("mawie")
 
-class ResearchFrame(GuiComponent):
+class ResearchWidget(GuiComponent):
     def __init__(self,parent = None):
         super().__init__(parent)
         self._textChangedFlag = False
@@ -77,5 +76,5 @@ class ResearchFrame(GuiComponent):
             self.gui.emit(ShowFrame(MovieListWidget.__name__))
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
     start()

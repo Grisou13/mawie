@@ -1,4 +1,4 @@
-
+import PyQt5
 from PyQt5.QtCore import QDirIterator
 from PyQt5.QtCore import QSize
 from PyQt5.QtCore import QThread
@@ -6,9 +6,9 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
-import PyQt5
+
 from mawie.gui.components import Downloader
-import mawie.gui.resources
+
 
 class ImporterThread(QThread):
     """Class that actually downloads the image
@@ -99,6 +99,6 @@ class QPoster(QLabel):
 
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
 
     start()

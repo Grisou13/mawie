@@ -1,22 +1,17 @@
-import os
+import logging
 
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
-from PyQt5.QtGui import QPixmap,QImage
-from PyQt5.QtCore import QRect,pyqtSignal
 
-import mawie
 from mawie.events import Response
-from mawie.events.gui import SearchResults, ShowMovieList, ShowFrame, ShowMovieInfo
-from mawie.events.search import SearchResult, SearchResponse, SearchRequest
-from mawie.gui.components import GuiComponent, Downloader
+from mawie.events.gui import ShowFrame
+from mawie.events.search import SearchRequest
+from mawie.gui.components import GuiComponent
 from mawie.gui.components.QMovieWidget import MovieWidget
 from mawie.gui.components.QPoster import QPoster
 from mawie.models.Movie import Movie
-from urllib import request
-import asyncio
-import logging
+
 log = logging.getLogger("mawie")
 
 
@@ -131,5 +126,5 @@ class ResultRow(QWidget):
         self.setLayout(grid)
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
     start()

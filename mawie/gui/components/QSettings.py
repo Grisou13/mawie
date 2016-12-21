@@ -1,4 +1,4 @@
-import os
+import logging
 
 from PyQt5.QtCore import QSettings
 from PyQt5.QtGui import QFont
@@ -13,14 +13,12 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 
 from mawie.events import Start
-from mawie.events.gui import ShowSettings, ShowFrame
 from mawie.events.updator import UpdatorRequest, ForceUpdatorRun
 from mawie.gui.components import GuiComponent
 from mawie.models import db
 from mawie.models.File import File
 from mawie.models.Movie import Movie
 
-import logging
 log = logging.getLogger("mawie")
 
 #TODO:
@@ -217,5 +215,5 @@ class DirListItem(QWidget):
         self.setLayout(grid)
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
     start()

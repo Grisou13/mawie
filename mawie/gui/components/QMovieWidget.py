@@ -1,37 +1,24 @@
+import logging
 import os
-import subprocess
 import platform
+import subprocess
+from urllib import request
 
-import time
-
+import qtawesome as qta
 from PyQt5.QtCore import QSettings
-from PyQt5.QtWidgets import QBoxLayout
+from PyQt5.QtGui import QPixmap,QFont,QImage
 from PyQt5.QtWidgets import QHBoxLayout
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
-from PyQt5.QtGui import QPixmap,QFont,QImage
-from PyQt5.QtCore import QRect,Qt
-from urllib import request
 
-
-from PyQt5 import QtCore
-
-from mawie.events.gui import ShowFrame, ShowMovieInfo, ShowMovieList
-from mawie.events.search import SearchRequest
-
-from mawie.gui.components import GuiComponent
-
-
-from mawie.gui.components.QPoster import QPoster
-from mawie.gui.components.QMoviePlayer import MoviePlayer
-
-from mawie.models.File import File
-from mawie.models.Movie import Movie
-import qtawesome as qta
 import mawie.gui.components.QMovieListWidget
-import logging
+from mawie.events.gui import ShowFrame
+from mawie.gui.components import GuiComponent
+from mawie.gui.components.QMoviePlayer import MoviePlayer
+from mawie.gui.components.QPoster import QPoster
+from mawie.models.Movie import Movie
+
 log = logging.getLogger("mawie")
 
 class MovieWidget(GuiComponent):
@@ -323,5 +310,5 @@ class FileWidget(QWidget):
         self.setLayout(grid)
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
     start()

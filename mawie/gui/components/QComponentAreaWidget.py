@@ -1,23 +1,14 @@
-import copy
-import sys
-import weakref
-
-from PyQt5.QtWidgets import QSizePolicy
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication,QLabel,QLineEdit,QPushButton,QGridLayout,QScrollBar,QScrollArea,QMainWindow,QStackedWidget
-from PyQt5.QtGui import QPixmap,QFont
-from PyQt5.QtCore import QRect,Qt
-
-from mawie.events.gui import ShowFrame
-from mawie.gui.components import GuiComponent
-from mawie.gui.components.QAdvancedSearch import AdvancedSearch
-#from mawie.gui.components.QExplorer import AddFilesWidget
-from mawie.gui.components.QMovieListWidget import MovieListWidget
-from mawie.gui.components.QMovieWidget import MovieWidget
-from mawie.gui.components.QResearchWidget import  ResearchFrame
-from mawie.gui.components.QExplorer import ExplorerWidget
-from mawie.gui.components.QSettings import SettingsWidget
 import logging
 
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QStackedWidget
+
+from mawie.events.gui import ShowFrame
+from mawie.gui.components.QAdvancedSearchWidget import AdvancedSearch
+from mawie.gui.components.QExplorerWidget import ExplorerWidget
+from mawie.gui.components.QMovieListWidget import MovieListWidget
+from mawie.gui.components.QMovieWidget import MovieWidget
+from mawie.gui.components.QSettings import SettingsWidget
 from mawie.models.Movie import Movie
 
 log = logging.getLogger("mawie")
@@ -84,5 +75,5 @@ class ComponentArea(QStackedWidget):
                 self.setCurrentWidget(self.widgetStore[event.frame.__class__.__name__ ])
 
 if __name__ == '__main__':
-    from mawie.gui.Qgui import start
+    from mawie.gui import start
     start()

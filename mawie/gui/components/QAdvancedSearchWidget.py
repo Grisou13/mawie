@@ -20,38 +20,38 @@ from mawie.models.Movie import Movie
 log = logging.getLogger("mawie")
 
 
-
 class AdvancedSearch(GuiComponent):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.fields = ["name","runtime","genre","release","actors","directors","filename"] #TODO discover these directly with the research, for now just brutforce it
-        #TODO make files and directories searchable
+        self.fields = ["name", "runtime", "genre", "release", "actors", "directors",
+                       "filename"]  # TODO discover these directly with the research, for now just brutforce it
+        # TODO make files and directories searchable
         self.model = Movie
-        self.models = [Movie,File]
+        self.models = [Movie, File]
         self.data = {}
         self.initWidget()
         self.show()
 
     def initWidget(self):
-        masterLayout = QBoxLayout(QBoxLayout.TopToBottom,self)
+        masterLayout = QBoxLayout(QBoxLayout.TopToBottom, self)
         for model in self.models:
-            #self.data[model] = {}
+            # self.data[model] = {}
             layout = QFormLayout(self)
             for f in models.get_fields(model):
-                if "id" in f: #we do not want users to be able to query id's (what would be the point?)
+                if "id" in f:  # we do not want users to be able to query id's (what would be the point?)
                     continue
-                fieldType = models.find_type(model,f)
+                fieldType = models.find_type(model, f)
                 lbl = QLabel()
                 lbl.setText(f)
                 if isinstance(fieldType, Date):
-                    input = DateRangeInput(self,model,f)
-                    input.valueChange.connect(lambda v, f = f, m=model: self.updateData(m,f,{"gte":v[0],"lte":v[1]}))
-                    #layout.addRow(input)
+                    input = DateRangeInput(self, model, f)
+                    input.valueChange.connect(lambda v, f=f, m=model: self.updateData(m, f, {"gte": v[0], "lte": v[1]}))
+                    # layout.addRow(input)
                 else:
                     input = QLineEdit()
                     input.setPlaceholderText(f)
-                    input.textChanged.connect(lambda t, f = f, m=model : self.updateData(m,f,t))
-                layout.addRow(lbl,input)
+                    input.textChanged.connect(lambda t, f=f, m=model: self.updateData(m, f, t))
+                layout.addRow(lbl, input)
             masterLayout.addLayout(layout)
             separator = QFrame()
             separator.setFrameShape(QFrame.HLine)
@@ -62,25 +62,22 @@ class AdvancedSearch(GuiComponent):
         s.setText("search")
         masterLayout.addWidget(s)
         self.setLayout(masterLayout)
-    def updateData(self,model,fieldName,data):
+
+    def updateData(self, model, fieldName, data):
         if data is not None:
             if not model in self.data:
                 self.data[model] = {}
             self.data[model][fieldName] = data
+
     def query(self):
         if len(self.data.keys()) < 1:
             return
-        #print(self.data)
+        # print(self.data)
         self.gui.emit(SearchRequest(self.data))
         self.gui.emit(ShowFrame(MovieListWidget.__name__))
 
-    def handle(self,event):
-        super().handle(event)
-
-        # if isinstance(event,Response) and isinstance(event.request, SearchRequest):
-        #     self.emit(SearchResults(event.data))
-        #     self.emit(ShowFrame(MovieListWidget.__class__.__name__))
 
 if __name__ == '__main__':
     from mawie.gui import start
+
     start()
