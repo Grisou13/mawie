@@ -15,7 +15,7 @@ if __name__ == '__main__':
     sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),"../","../")))
 from sqlalchemy import or_
 
-from mawie.models.Movie import Movie
+from mawie.models import Movie
 from libs.sqlalchemy_elasticquery import elastic_query
 import logging
 log = logging.getLogger(__name__)
@@ -70,6 +70,7 @@ class Research(Listener):
             event.stopPropagate()
             log.info("new query: %s",event.data)
             res = self.search(event.data)
+
             self.emit(SearchResponse(event,res),"front")
             # for i in tee(res,1)():
             #     log.info("search result: %s",i)
@@ -115,7 +116,6 @@ class Research(Listener):
 
 
         if len(cols) <=0:
-            self.emit(SearchResponse([]))
             yield [] #return an empty iterator
         if isinstance(query, dict):
             q = self.queryModelOnMultipleColumns(query)

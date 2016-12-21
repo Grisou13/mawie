@@ -1,12 +1,9 @@
-import datetime
-
 from sqlalchemy import Boolean
 from sqlalchemy import Column, Integer, String, Text, Date, Time, schema
 from sqlalchemy import DateTime
 from sqlalchemy.orm import relationship
 
-import mawie.helpers
-from mawie.models import db, File
+from .db import db
 
 
 # almost all the fields are completly empty since we can't be 100% sure imdb won't just fuck us over

@@ -6,9 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-from mawie.models import Movie
+from .db import db
 
-from mawie.models import db
 class File(db.Model):
     __tablename__ = "file"
     path = Column(Text)

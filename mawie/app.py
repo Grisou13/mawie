@@ -1,8 +1,10 @@
+import os
 import threading
 import time
-from queue import Queue, Empty
+from queue import Queue, Empty, LifoQueue
 
 from mawie.events import Eventable, Start, EventManager, Response, Quit, Request
+from mawie.events.explorer import ExplorerParsingRequest
 from mawie.events.search import SearchRequest
 #from mawie.helpers import Singleton
 
@@ -34,7 +36,7 @@ class App(EventManager):
         super().__init__()
         log.info("Starting background app")
         self.registerListener(self)
-        self.queue = Queue(-1)
+        self.queue = LifoQueue(-1)#Queue(-1)
         self.tickTime = .005 # clock the app at 200hz
         for s in self.background:
             self.addBackgroundProcess(s)
@@ -54,7 +56,7 @@ class App(EventManager):
     def addEvent(self, event, to = ""):
         with self._lock:
             self.queue.put([event,to],True,0)
-            log.info("queue size = %s",self.queue.qsize())
+            log.debug("queue size = %s",self.queue.qsize())
 
     def handle(self, event):
         if not isinstance(event,Tick):
@@ -74,6 +76,8 @@ class App(EventManager):
             with self._lock:
                 event_, to = self.process()
             if event_ is not False:
+                if isinstance(event_,Response):
+                    self.emit(event_,"front")
                 self.emit(event_, to)
         elif isinstance(event, Quit):
             self._running = False
@@ -115,6 +119,7 @@ def start(app=None):
         a = app
     else:
         a = App()
+        #a.addEvent(ExplorerParsingRequest(os.path.dirname(__file__)+"/../stubs/"))
 
     a.emit(Start())
     return a

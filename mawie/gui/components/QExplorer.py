@@ -1,5 +1,6 @@
 import sys
 import os
+from contextlib import suppress
 from urllib.parse import urlparse
 
 from PyQt5.QtCore import QRect, QRunnable, QThreadPool, QThread
@@ -19,6 +20,7 @@ from PyQt5.QtWidgets import QFileDialog
 import qtawesome as qta
 from six import unichr
 
+from mawie import helpers
 from mawie.events.gui import ShowExplorer, ShowFrame
 from mawie.gui.components import GuiComponent
 from mawie.events import *
@@ -29,38 +31,49 @@ import traceback
 import copy
 
 
-class FileParsedListWidget(QListWidget,Listener):
+class FileParsedListWidget(QListWidget):
     def __init__(self,parent = None):
         super(FileParsedListWidget,self).__init__(parent)
-    def handle(self,event):
-        if isinstance(event,MovieParsed):
-            self.addItem(event.data)
+        self.files = {} #keeps track of {filename : widget item}
+    # def handle(self,event):
+    #
+    #     if isinstance(event,MovieParsed):
+    #         log.info("adding parsed item %s", event.file)
+    #         self.addItem(event.file)
     def addItem(self,file_):
+        if file_ in self.files:
+            return
+        log.info("adding PARSED item %s", file_)
         item = QListWidgetItem(self)
-        itemW = FileParsedWidget(self, file_["title"])
+        self.files[file_] = item
+        itemW = FileParsedWidget(self, file_)
         item.setSizeHint(itemW.sizeHint())
         self.setItemWidget(item, itemW)
-        time.sleep(.5)
 
-class FileNotParsedListWidget(QListWidget,Listener):
+class FileNotParsedListWidget(QListWidget):
     def __init__(self,parent):
         super(FileNotParsedListWidget,self).__init__(parent)
-    def handle(self,event):
-        if isinstance(event,MovieNotParsed):
-            self.addItem(event.data)
+        self.files = {}#keeps track of {filename : widget item}
+
+    def removeItem(self,file_):
+        log.info("removing item %s form non parsed", file_)
+        with suppress(Exception):
+            self.removeItemWidget(self.files[file_])
     def addItem(self,file_):
+        if file_ in self.files:
+            return
+        log.info("adding NON PARSED item %s", file_)
         item = QListWidgetItem(self)
-        itemW = FileNotParsedWidget(self, file_["filePath"])
+        itemW = FileNotParsedWidget(self, file_)
+        self.files[file_] = item
         item.setSizeHint(itemW.sizeHint())
         self.setItemWidget(item, itemW)
-        time.sleep(.5)
 
 #dir_ = QtGui.QFileDialog.getExistingDirectory(None, 'Select a folder:', 'C:\\', QtGui.QFileDialog.ShowDirsOnly)
-class AddFilesWidget(GuiComponent):
+class ExplorerWidget(GuiComponent):
     def __init__(self, parent):
-        super(AddFilesWidget,self).__init__(parent)
+        super(ExplorerWidget,self).__init__(parent)
         self.dirPath = None
-
         self.initWidget()
         self.show()
 
@@ -101,7 +114,7 @@ class AddFilesWidget(GuiComponent):
     def scanDir(self):
         if  self.dirPath is not None:
             if os.path.isdir(self.dirPath):
-                self.emit(ParseDirectoryRequest(self.dirPath))
+                self.emit(ExplorerParsingRequest(self.dirPath))
         else:
             #print("No folder")
             msgBox = QMessageBox()
@@ -114,7 +127,7 @@ class AddFilesWidget(GuiComponent):
             msgBox.exec()
 
     def chooseDir(self):
-        self.dirPath = QFileDialog.getExistingDirectory(self, 'Open file', 'C:/Users/ilias.goujgali/Videos',QFileDialog.ShowDirsOnly)
+        self.dirPath = QFileDialog.getExistingDirectory(self, 'Open file', helpers.BASE_PATH, QFileDialog.ShowDirsOnly)
         self.inputPath.setText(self.dirPath)
         self.scanDir()
 
@@ -167,14 +180,14 @@ class AddFilesWidget(GuiComponent):
             # self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
     def handle(self,event):
         super().handle(event)
-        if isinstance(event, FileParsed):
-            self.lstFileParse.addItem(event.data)
-        elif isinstance(event, FileNotParsed):
-            self.lstFileNotParse.addItem(event.data)
-    def handleAction(self, actionName, data):
-        pass
-    def requestAction(self,name):
-        pass
+        log.info("########### EXPLORER SHIT %s ####################",event.__class__)
+        if isinstance(event, ShowExplorer):
+            self.emit(ShowFrame(self))
+        elif issubclass(event.__class__,MovieNotParsed):
+            self.lstFileNotParse.addItem(event.file)
+        elif issubclass(event.__class__,MovieParsed):
+            self.lstFileNotParse.removeItem(event.file)
+            self.lstFileParse.addItem(event.file)
 
 
 class FileParsedWidget(QWidget):
@@ -232,17 +245,20 @@ class FileNotParsedWidget(QWidget):
         self.setLayout(grid)
 
 
-class ExplorerWidget(GuiComponent):
-    def __init__(self,parent):
-        super(ExplorerWidget,self).__init__(parent)
-        self.initWidget()
-
-    def initWidget(self):
-        self.add = AddFilesWidget(self)
-        self.show()
-
-    def handle(self,event):
-        super().handle(event)
-        if isinstance(event, ShowExplorer):
-            self.emit(ShowFrame(self))
+# class ExplorerWidget(GuiComponent):
+#     def __init__(self,parent):
+#         self.parent = parent
+#         super(ExplorerWidget,self).__init__(parent)
+#         self.initWidget()
+#
+#     def initWidget(self):
+#         self.add = AddFilesWidget(self)
+#         self.parent.addWidget(self.add) #addFiles is not registered as a component so we need to pass it the emit
+#         self.show()
+#
+#     def handle(self,event):
+#         super().handle(event)
+#         self.add.handle(event) #propagate the event back down
+#         if isinstance(event, ShowExplorer):
+#             self.emit(ShowFrame(self))
 

@@ -1,7 +1,11 @@
-from active_alchemy import ActiveAlchemy
-from mawie import helpers
-dir(helpers)
-db = ActiveAlchemy(helpers.DB_PATH)
+#create database and tables if they don't exist
+
+from .File import File
+from .Movie import Movie
+from .db import db
+db.create_all()
+
+
 class NotAModel(Exception): pass
 not_authorized_fields = ["is_deleted","created_at","updated_at","deleted_at"]
 def get_fields(cls):

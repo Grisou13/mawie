@@ -9,7 +9,6 @@ from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
-from sqlalchemy import event
 
 from mawie.events import Start
 from mawie.events.gui import ShowSettings, ShowFrame
@@ -162,9 +161,10 @@ class SettingsWidget(GuiComponent):
                                                                   " it will delete all the metadata of movies",
                                         QMessageBox.Yes | QMessageBox.Cancel)
         if response == QMessageBox.Yes:
+            self.lstDir.clear()
             db.drop_all()  # clear the database you know?
             db.create_all()
-            self.lstDir.clear()
+
 
     def displayQuestionMessage(self,title="-",text="-",icon=None):
         msgBox = QMessageBox()
