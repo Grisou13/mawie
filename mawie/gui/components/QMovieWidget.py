@@ -15,6 +15,7 @@ from PyQt5.QtGui import QPixmap,QFont,QImage
 from PyQt5.QtCore import QRect,Qt
 from urllib import request
 
+
 from PyQt5 import QtCore
 
 from mawie.events.gui import ShowFrame, ShowMovieInfo, ShowMovieList
@@ -25,9 +26,11 @@ from mawie.gui.components import GuiComponent
 
 from mawie.gui.components.QPoster import QPoster
 from mawie.gui.components.QMoviePlayer import MoviePlayer
+
 from mawie.models.File import File
 from mawie.models.Movie import Movie
 import qtawesome as qta
+import mawie.gui.components.QMovieListWidget
 import logging
 log = logging.getLogger("mawie")
 
@@ -191,7 +194,8 @@ class MovieWidget(GuiComponent):
             self.btnDeleteFile.hide()
             self.btnLaunchFilm.hide()
     def btnGoBackClicked(self):
-        self.gui.emit(ShowFrame('MovieListWidget'))
+
+        self.gui.emit(ShowFrame(mawie.gui.components.QMovieListWidget.MovieListWidget.__name__))
 
     def btnShowInDirClicked(self, file=None):
         path = None
@@ -261,10 +265,7 @@ class MovieWidget(GuiComponent):
             if response == QMessageBox.Yes:
                 fileDel.delete()
                 self.film.delete()
-                self.emit(SearchRequest(""))
-                self.emit(ShowMovieList())
-
-
+                self.gui.emit(ShowFrame(mawie.gui.components.QMovieListWidget.MovieListWidget.__name__, data=Movie.query()))
 
     def importPosterFilm(self, path=''):
         image = QImage()

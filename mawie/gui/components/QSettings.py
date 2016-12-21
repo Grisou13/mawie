@@ -49,13 +49,15 @@ class SettingsWidget(GuiComponent):
 
     def createWidgets(self):
         grid = QGridLayout()
-        font = QFont('Arial',18)
-        fontSubTitle = QFont('asdf',12)
+        font = QFont('',18)
+        fontSubTitle = QFont('',12)
         self.settings = QSettings()
 
         updatorEnable= self.settings.value("updator/updatorEnable")
         frequency = self.settings.value("updator/frequency")
         playerDefault = self.settings.value("infomovie/player-default")
+
+
 
 
         lblTitle= QLabel("Settings",self)
@@ -142,6 +144,7 @@ class SettingsWidget(GuiComponent):
     def defaultPlayerChecked(self,status):
         if status == 0:
             self.settings.setValue("infomovie/player-default",False)
+
         else:
             self.settings.setValue("infomovie/player-default",True)
 

@@ -37,8 +37,6 @@ class MovieListWidget(GuiComponent):
         self.lstWidgets = QListWidget(self)
         self.updateWidgets(Movie.query())
 
-        #TODO add a default item if there isn't any file
-
 
         grid.addWidget(self.lstWidgets,0,0)
         self.setLayout(grid)

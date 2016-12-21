@@ -22,10 +22,11 @@ directory ``` mawie.gui.components ```.
 | QSettings        | SettingsWidget  | This frame is used to change the settings.                                                                                                                                                                                           | GuiComponent   |
                                                                                                                                                                                                                     
 ### MovieListWidget
-#### Method updateWidgets(films)
+#### Method
 | Method name   |  Parameters                     | description                                                  |
 |---------------|---------------------------------|--------------------------------------------------------------|
 | updateWidgets | films:generator of movie model  | updates the list of films with the filmes in the param films |
+
 ResultRow is the class which is an item in the MovieListWidget
 
 ### MovieWidget
@@ -72,10 +73,11 @@ moviePlayer.exec_()
 ```
 
 ### ExplorerWidget
-TODO REXPLIQUER CETTE MERDE
+
 This class holds the class `AddFilesWidget`.
 In `AddFilesWidget`, there are two more classes `FileParsedWidget` which displays the parsed file and `FileNotParsedWidget` which displays
 the not parsed file.
+
 
 #### AddFilesWidget
 ##### Methods
@@ -85,12 +87,23 @@ the not parsed file.
 | chooseDir        | None                                    | Display a QFileDialog to choose a directory, when we chose a directory call the method scanDir |
 | getFilmInfoByUrl | item : QListWidgetItem \|\|  file : str | ask for the IMDb url of the movie then add it to the db                                        |
 
+##### Event used
+| Event class           | Usage                                                            |
+|-----------------------|------------------------------------------------------------------|
+| ParseDirectoryRequest | this event is emit to ask the explorer to ParseDirectoryRequest  |
+
+-FileParsed ??
+-FileNotParsed ??
+
 #### FileParsedWidget
-##### Methods
+###### Event used 
+-MovieParsed handle
 
 
 #### FileNotParsedWidget
 ##### Methods
+###### Event used
+-MovieNotParsed
 
 
 ### ResearchWidget
@@ -175,5 +188,3 @@ if you want to pass data with it, like a film for example, you can do it this wa
 
 ## How to create a event
 To create a event, please refer to event doc (docs.event.md)
-
-
