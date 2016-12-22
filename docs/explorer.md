@@ -102,6 +102,7 @@ note that giving both parameters takes more time as we loop through the generato
 >>> print(r.release_date)
 "1990-10-15"
 ```
+
 Returned object structure :
 | Property           | Type  | Example                                                             |
 |--------------------|-------|---------------------------------------------------------------------|
