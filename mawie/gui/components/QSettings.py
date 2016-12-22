@@ -67,7 +67,7 @@ class SettingsWidget(GuiComponent):
         cboFrequency.addItem("every 3 minutes")
         cboFrequency.addItem("every 10 minutes")
         cboFrequency.addItem("every hour")
-
+        #We look the setting and adapt the widget
         if updatorEnable == 'true':
             chkUpdatorEnable.setChecked(True)
             cboFrequency.setEnabled(True)
@@ -119,6 +119,14 @@ class SettingsWidget(GuiComponent):
         self.setLayout(grid)
 
     def deleteDirClicked(self,dirPath=None, item=None):
+        """
+        delete the file and the movie form a given directory
+        :param dirPath: the path of we didn't want to search movies anymore
+        :param item: the item in the  lstDir (QListWidget)
+        :type dirPath: str
+        :type item: QMovieWidgetItem
+        :return:
+        """
         response = QMessageBox.question(self, "Delete folder ?",
                                         "Are you sure you want to delete this folder ? This will delete all metadata"
                                         " of movies that were contained in the folder",
@@ -166,7 +174,14 @@ class SettingsWidget(GuiComponent):
             db.create_all()
 
 
-    def displayQuestionMessage(self,title="-",text="-",icon=None):
+    def displayQuestionMessage(self,title="-",text="-"):
+        """
+        Display a question with a QMessageBox
+        :param title: the title of the QmessageBox
+        :param text: the text of the QMessageBox
+        :type title: str
+        :type text: str
+        """
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setWindowTitle(title)
@@ -198,6 +213,13 @@ class SettingsWidget(GuiComponent):
 
 class DirListItem(QWidget):
     def __init__(self,parent = None,dirPathFile=None):
+        """
+            This class is used as Widget item of the lstDir
+            :param parent: parent of the widget
+            :param dirPathFile: path to the dir (DISTINCT on the field base of the tbl file)
+            :type parent: QWidget
+            :type dirPathFile: str
+        """
         super(DirListItem, self).__init__(parent)
         self.dirPath = dirPathFile
         log.info(self.dirPath)

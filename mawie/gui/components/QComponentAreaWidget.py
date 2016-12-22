@@ -40,6 +40,10 @@ class ComponentArea(QStackedWidget):
         w.show()
 
     def addWidget(self,widget):
+        """
+        this method overrides method from QStackedWidget. it just registers the widget as listener of event
+        :param widget: QWidget
+        """
         log.info("adding widget %s",widget.__class__.__name__)
         if widget.__class__.__name__ not in self.widgetStore:
             widget.gui = self.gui
@@ -59,7 +63,7 @@ class ComponentArea(QStackedWidget):
         self.addWidget(AdvancedSearch(self))
         self.addWidget(ExplorerWidget(self))
         self.setCurrentWidget(s)
-
+        # if there are movies we display the MovieListWidget otherwise we display the Explorer
         if Movie.query().count() >0:
             self.setCurrentWidget(s)
         else:
@@ -68,6 +72,7 @@ class ComponentArea(QStackedWidget):
 
     def handle(self,event):
         #super().handle(event)
+        # Display the widget when a ShowFrame event is handled
         if isinstance(event, ShowFrame):
             if event.frame.__class__.__name__ in self.widgetStore:
                 event.stopPropagate()

@@ -5,7 +5,9 @@ from PyQt5.QtWidgets import QLineEdit,QPushButton,QGridLayout
 
 from mawie.events import Response
 from mawie.events.search import SearchRequest, SearchResponse
+from mawie.events.gui import ShowFrame
 from mawie.gui.components import GuiComponent
+from mawie.models import Movie
 log = logging.getLogger("mawie")
 
 class ResearchWidget(GuiComponent):
@@ -28,6 +30,10 @@ class ResearchWidget(GuiComponent):
         grid = QGridLayout(self)
         #self.lbl = QLabel("Please enter a research", self)
         self.inputSearch = QLineEdit(self)
+        self.btnAllMovies = QPushButton("All the movies")
+        self.btnAllMovies.setMaximumWidth(100)
+        self.btnAllMovies.clicked.connect(self._displayAllMovies)
+
         #self.inputSearch.setFixedWidth(200)
         #self.completer = QCompleter()
         #self.completer.setCompletionMode(QCompleter.PopupCompletion)
@@ -42,14 +48,13 @@ class ResearchWidget(GuiComponent):
         self.btnOk = QPushButton(self)
         self.btnOk.setIcon(icon)
         self.btnOk.clicked.connect(self._forceFrameChange)
-
-        #grid.addWidget(self.lbl,0,0)
-        grid.addWidget(self.inputSearch,0,0,1,2)
-        grid.addWidget(self.btnOk,0,2)
+        grid.addWidget(self.btnAllMovies, 0, 0)
+        grid.addWidget(self.inputSearch, 0, 1)
+        grid.addWidget(self.btnOk, 0, 2)
 
         self.setLayout(grid)
     def _displayAllMovies(self):
-        self.gui.emit(ShowFrame(MovieListWidget.__name__, data=Movie.query()))
+        self.gui.emit(ShowFrame('MovieListWidget', data=Movie.query()))
 
     def _showMovieList(self,*args,**kwargs):
         if self._textChangedFlag:
@@ -58,7 +63,7 @@ class ResearchWidget(GuiComponent):
     def _forceFrameChange(self):
         if len(self.inputSearch.text()) > 0:
             self.gui.emit(SearchRequest(self.inputSearch.text().lower()))
-        self.gui.emit(ShowFrame(MovieListWidget.__name__))
+        self.gui.emit(ShowFrame('MovieListWidget'))
 
         #self.gui.emit(ShowMovieList())
 
@@ -68,12 +73,12 @@ class ResearchWidget(GuiComponent):
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-----EVENT RESPONSE AND REQUEST--------" + event.data)
             self.gui.emit(SearchResponse(event.request,event.data))
-            self.gui.emit(ShowFrame(MovieListWidget.__name__))
+            self.gui.emit(ShowFrame('MovieListWidget'))
             #self.gui.emit(ShowMovieList())
         elif isinstance(event, SearchResponse):
             log.info("-----EVENT SHOW FRAME--------" + event.data)
             self.gui.emit(SearchResponse(event.request, event.data))
-            self.gui.emit(ShowFrame(MovieListWidget.__name__))
+            self.gui.emit(ShowFrame('MovieListWidget'))
 
 if __name__ == '__main__':
     from mawie.gui import start

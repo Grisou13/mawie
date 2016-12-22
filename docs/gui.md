@@ -1,11 +1,42 @@
 # GUI
 At the beginning of the project, we chose to use Tkinter but we find a little bit incomplete for what we would  like to do
-so, we decide to change to pyqt. 
+so, we decide to change to pyqt.
 
-## QGui
-## Listing of graphical componenet
+## Little manual for GUI application use
+__add a folder__:
+* in the menu bar go to add folder 
+* select a folder
+
+__delete a folder__:
+* in the menu bar go to settings
+* in the list, delete the folder you want to delete. it will delete all the files and the associated movies from the database
+
+__change settings__:
+Go to settings in the menu bar, change the settings and change the settings you want to change. The settings are automatically saved on change
+
+__make advanced research__:
+* in the menu bar, go to research-> advanced search
+* complete the form (you don't have to fill all the input)
+* click on the button search at the bottom
+
+
+__delete a movie/file__:
+if you want to delete a movie or a file from the database:
+* search the movie in the movie list
+* click on see info
+* at the bottom of the window, there is a button delete movie from database
+* if there is more than one file associates to the movie, there is a list with all the files
+    * found the file you want to delete and click on delete the file from database 
+
+
+
+
+### MainWindow
+This is the widget which hold the ResearchWidget and the ComponentArea.
+
+## Listing of graphical component
 We chose to put a "Q" in the front of the filename of every graphical component. These components are all in the
-directory ``` mawie.gui.components ```.
+directory ``` mawie.gui.components ```
 
 
 | Filename         | Class name      | Description                                                                                                                                                                                                                          | Inherited from |
@@ -20,7 +51,19 @@ directory ``` mawie.gui.components ```.
 | QPoster          | QPoster         | This is a label that's enable to load movie poster asynchronously                                                                                                                                                                    | QWidget        |
 | QStackedWidget   | ComponentArea   | This is frame is where all the frames are stored.                                                                                                                                                                                    | QStackedWidget |
 | QSettings        | SettingsWidget  | This frame is used to change the settings.                                                                                                                                                                                           | GuiComponent   |
-                                                                                                                                                                                                                    
+
+### QPoster
+This widget takes two arguments: 
+
+parent: QWidget (Default value None)
+
+url : str (Default value None)
+
+#### Method                                                                                                                                                                                                         
+| Method name   |  Parameters                     | description                                                                                                                    |
+|---------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| updateUrl     | url: str                        | update the image with the image of the given url. if the image can't be loaded or if there is no image it take a default image |
+
 ### MovieListWidget
 #### Method
 | Method name   |  Parameters                     | description                                                  |
@@ -35,21 +78,33 @@ ResultRow is the class which is an item in the MovieListWidget
 | updateWidgets | data:movie model | updates widgets with the information of the given film in argument |
 
 
+
 If the movie have one file 3 buttons are displayed: Play the movie, Show in explorer, Delete file from database and if the movie have more than one file a QListWidget appear with the different
 files and the 3 three same buttons for each file. We use the class FileWidget (which is also in `QMovieWidget.py`)  as item of the QListWidget 
 
 ### SettingsWidget
 The location where the settings are stored depends on your system, please refer to the [QT docs](http://doc.qt.io/qt-5/qsettings.html#platform-specific-notes)
 
+To instance a QSettings you have to give the name of company and the name of your soft as parameter or set them in the QApplication, we choose the last solution:
 
+The name of the application is `MAWIE`
+
+The name of the organization is `CPNV`
+
+if you want to changed them go to `mawie.gui.QGui.py` in the function `start()` and change the two line:
+
+```python
+    app.setOrganizationName("CPNV")
+    app.setApplicationName("MAWIE")
+```
 
 #### Settings available
-| Location             | Name            | Description                                                                                                                                                                    | Default value |
-|----------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| CPNV/MAWIE           | first-launch    | this is used to know if it's the first time the program is lauchned                                                                                                            | true          |
-| CPNV/MAWIE/infomovie | player-default  | this allows to only use the default media player when you're in the MovieInfo and you clicked on "play film"                                                                   | true          |
-| CPNV/MAWIE/updator   | updator-enabled | this setting enable/disable the updator                                                                                                                                        | true          |
-| CPNV/MAWIE/updator   | frequency       | if the updator is enabled this setting set the frequency the updator will execute its checking.there are predefined values : 300,1800,6000 and 3600 (they are in milliseconds) | 1800          |
+| Key name                | Description                                                                                                                                                                    | Default value |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
+| first-launch            | this is used to know if it's the first time the program is lauchned                                                                                                            | true          |
+| player-default          | this allows to only use the default media player when you're in the MovieInfo and you clicked on "play film"                                                                   | true          |
+| updator/updator-enabled | this setting enable/disable the updator                                                                                                                                        | true          |
+| updator/frequency       | if the updator is enabled this setting set the frequency the updator will execute its checking.there are predefined values : 300,1800,6000 and 3600 (they are in milliseconds) | 1800          |
 
 
 ### MoviePlayer
@@ -92,26 +147,26 @@ the not parsed file.
 |-----------------------|------------------------------------------------------------------|
 | ParseDirectoryRequest | this event is emit to ask the explorer to ParseDirectoryRequest  |
 
--FileParsed ??
--FileNotParsed ??
+
+
 
 #### FileParsedWidget
 ###### Event used 
--MovieParsed handle
+
 
 
 #### FileNotParsedWidget
 ##### Methods
 ###### Event used
--MovieNotParsed
 
 
 ### ResearchWidget
 #### Event used
 | Event class    | Usage                                                                                                      |
 |----------------|------------------------------------------------------------------------------------------------------------|
-| SearchRequest  | is used to send a search                                                                                                        |
+| SearchRequest  | is used to send a search                                                                                   |
 | SearchResponse | When handled, this event will call updateWidgets(event.data) with the response data (search results)       |
+
 
 
 #### How to create a Gui component
@@ -186,5 +241,3 @@ To switch frames, you have to emit the Event `ShowFrame(MyNewWidget.__name__)`. 
 if you want to pass data with it, like a film for example, you can do it this way : 
 `ShowFrame(WidgetYouWantTODisplay.__name__, film)`
 
-## How to create a event
-To create a event, please refer to event doc (docs.event.md)

@@ -8,6 +8,15 @@ from PyQt5.QtWidgets import QDialog
 
 class MoviePlayer(QDialog):
     def __init__(self,path = None):
+        """
+        This is a custom media player show in a QDialog
+
+        It uses the media player provides by QT. The format/codec it can read depend on your system. The movie is displayed in the videoWidget
+
+        :param path: the path to the file to play
+        :type path: str
+
+        """
         super(MoviePlayer, self).__init__()
 
         self.createWidgets(path)
@@ -89,6 +98,9 @@ class MoviePlayer(QDialog):
 
 class VideoWidget(QVideoWidget):
     def __init__(self):
+        """
+        This component is video output of a QMediaPlayer.
+        """
         super(VideoWidget, self).__init__()
 
     def fullScreen(self):

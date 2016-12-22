@@ -18,14 +18,22 @@ log = logging.getLogger("mawie")
 class MovieListWidget(GuiComponent):
 
     def __init__(self,parent = None):
+        """
+        This widget displays a list of film
+
+        :param parent: parent of the widget
+        :type parent: QWidget
+
+        """
         super(MovieListWidget, self).__init__(parent)
-        self.initFrame()
+
+        self.createWidgets()
     # def showEvent(self, QShowEvent):
     #     super(MovieListFrame, self).showEvent(QShowEvent)
     #     self.updateWidgets(Research().search()) # execute search before showing widget
-    def initFrame(self):
-        self.createWidgets()
-        self.show()
+
+
+
 
     def createWidgets(self):
         grid = QGridLayout(self)
@@ -37,6 +45,12 @@ class MovieListWidget(GuiComponent):
         self.setLayout(grid)
 
     def updateWidgets(self,data):
+        """
+        update the list with the data parameter
+        :param data:
+        :type: list of movies model
+        :return:
+        """
         self.lstWidgets.clear()
         for film in data:
             try:
@@ -45,7 +59,7 @@ class MovieListWidget(GuiComponent):
                 item.setSizeHint(itemW.sizeHint())
                 self.lstWidgets.setItemWidget(item, itemW)
                 #itemW.show.connect(lambda x: self.clickedSee(film))
-                itemW.btnSee.clicked.connect(lambda ignore, x=film: self.clickedSee(x))
+                itemW.btnSee.clicked.connect(lambda ignore, f=film: self.clickedSee(f))
 
             except Exception as e:
                 log.info("ERROR WHILE UPDATING MOVIE LIST")
@@ -76,35 +90,39 @@ class MovieListWidget(GuiComponent):
 class ResultRow(QWidget):
 
     show = pyqtSignal()
-    def __init__(self,parent,data):
+    def __init__(self, parent, movie):
+        """
+            This widget is used as Widget item of a QListWidget
+            :param parent: parent of the widget
+            :param movie: film information
+            :type parent: QWidget
+            :type movie: film model
+        """
         super(ResultRow,self).__init__(parent)
-        self.film = data
-        self.initRow(data)
+        self.film = movie
+        self.createWidgets(movie)
 
-    def initRow(self,data):
-        self.createWidgets(data)
-
-    def createWidgets(self,data):
+    def createWidgets(self, movie):
         grid = QGridLayout(self)
-        lblImg = QPoster(self, data.poster)
+        lblImg = QPoster(self, movie.poster)
         dateRelease = ""
-        if data.release is not None:
-            dateRelease = str(data.release)
+        if movie.release is not None:
+            dateRelease = str(movie.release)
 
         #self.importPosterFilm(data.poster)
-        if data.name is not None:
-            if data.genre is not None:
-                lblTitle = QLabel(data.name +" ( " + data.genre + " )", self)
+        if movie.name is not None:
+            if movie.genre is not None:
+                lblTitle = QLabel(movie.name + " ( " + movie.genre + " )", self)
             else:
-                lblTitle = QLabel("Title: " + data.name, self)
+                lblTitle = QLabel("Title: " + movie.name, self)
         else:
             lblTitle = QLabel("Title: -", self)
-        if data.actors is not None:
-            lblActors = QLabel("Actor(s): "+data.actors,self)
+        if movie.actors is not None:
+            lblActors = QLabel("Actor(s): " + movie.actors, self)
         else:
             lblActors = QLabel("Actors(s): -",self)
-        if data.directors is not None:
-            lblRating = QLabel("IMDb Rating: "+data.rate,self)
+        if movie.directors is not None:
+            lblRating = QLabel("IMDb Rating: " + movie.rate, self)
         else:
             lblRating = QLabel("IMDb Rating: -", self)
         self.btnSee = QPushButton("See info",self)

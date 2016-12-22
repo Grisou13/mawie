@@ -79,11 +79,11 @@ class MainWindow(QMainWindow, Listener):
         menu.addAction(quit)
 
         menuSettings = bar.addAction("Settings")
-        menuSettings.triggered.connect(lambda: self.emit(ShowSettings()))
+        menuSettings.triggered.connect(lambda: self.emit(ShowFrame(SettingsWidget.__name__)))
 
         menuResearch = bar.addMenu("Search")
-        menuResearch.addAction("Advanced search").triggered.connect(lambda: self.emit(ShowFrame(AdvancedSearch)))
-        menuResearch.addAction("Standard search").triggered.connect(lambda: self.emit(ShowFrame(ResearchWidget)))
+        menuResearch.addAction("Advanced search").triggered.connect(lambda: self.emit(ShowFrame(AdvancedSearch.__name__)))
+        menuResearch.addAction("Standard search").triggered.connect(lambda: self.emit(ShowFrame(MovieListWidget.__name__)))
 
     def initWidget(self):
         mainWidget = QWidget(self)  # central placeholder widget
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow, Listener):
         self.search = recherche
         # Error widget
         self.errorWidget = ErrorWidget(self)
+        self.errorWidget.move(200,0)
 
         # gridding
         content.addWidget(recherche, 1, 0)
