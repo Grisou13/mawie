@@ -28,7 +28,7 @@ logger.addHandler(error)
 logger.addHandler(default)
 
 def app():
-    from mawie.app import start
+    from .app import start
     return start()
 def gui():
     from .gui import start
@@ -37,4 +37,4 @@ def cli():
     from .cli import start
     start()
 if __name__ == '__main__':
-    app()
+    gui()
