@@ -123,10 +123,11 @@ Returned object structure :
 | trailer_image_urls | list  | ["http://ia.media-imdb.com/images...]                               |
 | directions_summary | list  | [<Person: 'David Fincher' ('nm0000399')>]...                        |
 | movie_creators     | list  | []                                                                  |
-| cast_summary       | list  | [<Person: 'Brad Pitt' ('nm0000093')>]...                           |
+| cast_summary       | list  | [<Person: 'Brad Pitt' ('nm0000093')>]...                            |
 | writer_summary     | list  | [<Person: 'Chuck Palahniuk' ('nm0657333')>]...                      |
 | credits            | list  | [<Person: 'David Fincher' ('nm0000399')>                            |
 | trailers           | list  | [{'url':'http:www.totalclips.com/players...', 'format':'H.246'}...] |
+
 ### imdb api
 To get the movies informations, we use the [IMDB api](https://app.imdb.com).
 To use the api easily we use the library [imdb-pie](https://github.com/richardasaurus/imdb-pie).
