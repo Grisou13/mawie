@@ -32,13 +32,13 @@ started = False  # flag to tell wether the app is started
 _gui_instance = None
 
 
-class BackgorundProcess(QThread, Listener):
+class BackgroundProcess(QThread, Listener):
     _lock = threading.Lock()
     request = pyqtSignal("PyQt_PyObject")  # use QT signals to communicate between threads
     response = pyqtSignal("PyQt_PyObject")  # use QT signals to communicate between threads
 
     def __init__(self):
-        super(BackgorundProcess, self).__init__()
+        super(BackgroundProcess, self).__init__()
         self.app = App()
         self.request.connect(self.app.emit)
 
@@ -118,7 +118,7 @@ class Gui(EventManager):
         log.info("STARTING GUI COMPONENTS")
 
         self.registerListener(self, "self")
-        self.backgroundProcessThread = BackgorundProcess()
+        self.backgroundProcessThread = BackgroundProcess()
         self.main = MainWindow(self)
 
         self.registerListener(self.main)

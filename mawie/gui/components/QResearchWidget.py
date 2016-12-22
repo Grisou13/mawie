@@ -54,7 +54,8 @@ class ResearchWidget(GuiComponent):
 
         self.setLayout(grid)
     def _displayAllMovies(self):
-        self.gui.emit(ShowFrame('MovieListWidget', data=Movie.query()))
+        self.gui.emit(SearchRequest(""))
+        self.gui.emit(ShowFrame('MovieListWidget'))
 
     def _showMovieList(self,*args,**kwargs):
         if self._textChangedFlag:

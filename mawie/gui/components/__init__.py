@@ -20,11 +20,15 @@ class GuiComponent(QWidget,Listener):
     def registerInComponentArea(self):
         pass
         #self.gui.main.componentArea.addWidget(self) #adds the component automaticly to the QStackedWidget in the main area of the app
+    def onShowFrame(self):
+        pass
+
     def handle(self,event):
         #should call super() otherwise the compoenent may never appear on screen
         if isinstance(event, ShowFrame):
             log.info("HANDLING FRAME CHANGE asking frame %s [self = %s]",event.frame.__class__.__name__ if not isinstance(event.frame,str) else event.frame,self.__class__.__name__)
             if event.frame == self.__class__.__name__:
+                self.onShowFrame()
                 self.gui.emit(ShowFrame(self))
 '''
 https://gist.github.com/bootchk/9025575

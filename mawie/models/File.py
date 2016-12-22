@@ -18,3 +18,6 @@ class File(db.Model):
     @hybrid_property
     def directory(self):
         return os.path.basename(self.path)
+    @hybrid_property
+    def parsed(self):
+        return self.movie.count() and not self.is_deleted

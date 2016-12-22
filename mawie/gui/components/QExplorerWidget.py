@@ -21,7 +21,7 @@ import qtawesome as qta
 from six import unichr
 
 from mawie import helpers
-from mawie.events.gui import ShowExplorer, ShowFrame
+from mawie.events.gui import ShowExplorer, ShowFrame, HideSearch
 from mawie.gui.components import GuiComponent
 from mawie.events import *
 from mawie.events.explorer import *
@@ -49,7 +49,10 @@ class FileParsedListWidget(QListWidget):
         itemW = FileParsedWidget(self, file_)
         item.setSizeHint(itemW.sizeHint())
         self.setItemWidget(item, itemW)
-
+    def removeItem(self,file_):
+        log.info("removing item %s form non parsed", file_)
+        with suppress(Exception):
+            item = self.takeItem(self.row(self.files[file_]))
 class FileNotParsedListWidget(QListWidget):
     def __init__(self,parent):
         super(FileNotParsedListWidget,self).__init__(parent)
@@ -58,7 +61,8 @@ class FileNotParsedListWidget(QListWidget):
     def removeItem(self,file_):
         log.info("removing item %s form non parsed", file_)
         with suppress(Exception):
-            self.removeItemWidget(self.files[file_])
+            item = self.takeItem(self.row(self.files[file_]))
+            #self.removeItemWidget(self.files[file_])
     def addItem(self,file_):
         if file_ in self.files:
             return
@@ -76,6 +80,9 @@ class ExplorerWidget(GuiComponent):
         self.dirPath = None
         self.initWidget()
         self.show()
+
+    def onShowFrame(self):
+        self.emit(HideSearch())
 
     def initWidget(self):
         content = QGridLayout()
@@ -178,7 +185,6 @@ class ExplorerWidget(GuiComponent):
             # self.gui.dispatchAction("non-parsed",self.explorer.nonParsedFiles)
     def handle(self,event):
         super().handle(event)
-        log.info("########### EXPLORER SHIT %s ####################",event.__class__)
         if isinstance(event, ShowExplorer):
             self.emit(ShowFrame(self))
         elif issubclass(event.__class__,MovieNotParsed):

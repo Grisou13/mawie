@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 
 from mawie.events import Start
+from mawie.events.gui import HideSearch
 from mawie.events.updator import UpdatorRequest, ForceUpdatorRun
 from mawie.gui.components import GuiComponent
 from mawie.models import db
@@ -205,8 +206,23 @@ class SettingsWidget(GuiComponent):
             self.chkUpdator.setChecked(True)
         self.settings.setValue("updator/frequency", self._frequency[idx])
         self.emit(UpdatorRequest(self._frequency[idx]))
+
+    def onShowFrame(self):
+        self.emit(HideSearch())
+        self.lstDir.clear()
+        listDir = File.query(File.base.distinct())
+        for dir in listDir:
+            directoryPath = dir[0]
+            # print(directoryPath)
+            item = QListWidgetItem(self.lstDir)
+            itemW = DirListItem(self.lstDir, directoryPath)
+            item.setSizeHint(itemW.sizeHint())
+            self.lstDir.setItemWidget(item, itemW)
+            itemW.btnDelDir.clicked.connect(lambda ignore, x=directoryPath, y=item: self.deleteDirClicked(dirPath=x,
+                                                                                                          item=y))
     def handle(self,event):
         super().handle(event)
+
         if isinstance(event,Start):
             self.emit(UpdatorRequest(self._frequency[self.cboFrequency.currentIndex()]))
 

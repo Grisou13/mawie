@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 
 from mawie.events import Response
-from mawie.events.gui import ShowFrame
+from mawie.events.gui import ShowFrame, ShowSearch
 from mawie.events.search import SearchRequest
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QMovieWidget import MovieWidget
@@ -33,12 +33,13 @@ class MovieListWidget(GuiComponent):
     #     self.updateWidgets(Research().search()) # execute search before showing widget
 
 
-
+    def onShowFrame(self):
+        self.emit(ShowSearch())
 
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
-        self.updateWidgets(Movie.query())
+        #self.updateWidgets(Movie.query())
 
 
         grid.addWidget(self.lstWidgets,0,0)

@@ -88,7 +88,10 @@ class App(EventManager):
             if event_ is not False:
                 if isinstance(event_,Response):
                     self.emit(event_,"front")
-                self.emit(event_, to)
+                elif isinstance(event,Request):
+                    self.emit(event_, "back")
+                else:
+                    self.emit(event_,to)
         elif isinstance(event, Quit):
             self._running = False
             log.info("force quitting background app.... ")

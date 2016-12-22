@@ -17,6 +17,7 @@ from mawie.app import start as startApp
 from mawie.events import Listener, EventManager
 from mawie.events import Quit, Response, Request
 from mawie.events.gui import *
+from mawie.events.search import SearchRequest
 from mawie.gui.components.QAdvancedSearchWidget import AdvancedSearch
 from mawie.gui.components.QErrorWidget import ErrorWidget
 from mawie.gui.components.QExplorerWidget import ExplorerWidget
@@ -85,6 +86,12 @@ class MainWindow(QMainWindow, Listener):
         menuResearch.addAction("Advanced search").triggered.connect(lambda: self.emit(ShowFrame(AdvancedSearch.__name__)))
         menuResearch.addAction("Standard search").triggered.connect(lambda: self.emit(ShowFrame(MovieListWidget.__name__)))
 
+        self.movie = bar.addAction("movies")
+        def show():
+            self.emit(SearchRequest(""))
+            self.emit(ShowFrame(MovieListWidget.__name__))
+        self.movie.triggered.connect(show)
+
     def initWidget(self):
         mainWidget = QWidget(self)  # central placeholder widget
         self.setCentralWidget(mainWidget)
@@ -129,3 +136,5 @@ class MainWindow(QMainWindow, Listener):
             self.search.setHidden(True)
         elif isinstance(event, ShowSearch):
             self.search.setHidden(False)
+
+

@@ -135,12 +135,12 @@ class Explorer(Listener):
         mov = mov.save()
         log.info("adding %s to the database", mov)
         for f in files:
-            mod = File()
-            mod.path = f
-            mod.base = root
-            mov.files.append(mod) #add the file
+            fi = File()
+            fi.path = f
+            fi.base = root
+            mov.files.append(fi) #add the file
             mov.save()
-            mod.save()
+            fi.save()
     def parse(self, path):
         """
         Parse and stores the movies in the given folder
@@ -180,6 +180,16 @@ class Explorer(Listener):
     ###################################################
 
     def _getMoviesFromPath(self, path):
+        """
+        Will get all files and parse them with guessit.
+        The returned files will have the following info : title,filePath.
+        More info are returned with guessit, just dump it to take a look. The most important is the title though
+        If the explorer is bound to an event manager and that event manager has added the emit method,
+        then explorer will use events to get data back and force.
+
+        :param path:
+        :return: list
+        """
         path = os.path.realpath(path)
         if not os.path.exists(path):
             raise FileExistsError("The given path doesn't exists")
@@ -196,7 +206,8 @@ class Explorer(Listener):
                     files.append(parsed)
                     if hasattr(self,"emit"): #if the explorer is bound to the App and uses event, then use them, otherwise we just return files
                         if parsed["title"] in self._parse:#check if haven't already parsed the same movie title (it can be a series)
-                            self._parse[parsed["title"]]["files"].append(path)
+                            if path not in self._parse[parsed["title"]]["files"]: #only add the file if we don't have it
+                                self._parse[parsed["title"]]["files"].append(path)
                             #self.emit(GoogleItSearchRequest(parsed))
                         else:
                             #if self._parsed[""]

@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QWidget, QLabel,QPushButton,QGridLayout,QListWidget
 
 import mawie.gui.components.QMovieListWidget
-from mawie.events.gui import ShowFrame
+from mawie.events.gui import ShowFrame, ShowSearch
 from mawie.gui.components import GuiComponent
 from mawie.gui.components.QMoviePlayer import MoviePlayer
 from mawie.gui.components.QPoster import QPoster
@@ -34,6 +34,9 @@ class MovieWidget(GuiComponent):
     def initFrame(self):
         self.createWidgets()
         self.show()
+
+    def onShowFrame(self):
+        self.emit(ShowSearch())
 
     def createWidgets(self):
         grid = QGridLayout()
