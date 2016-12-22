@@ -104,6 +104,7 @@ note that giving both parameters takes more time as we loop through the generato
 ```
 
 Returned object structure :
+
 | Property           | Type  | Example                                                             |
 |--------------------|-------|---------------------------------------------------------------------|
 | imdb_id            | str   | "tt0137523"                                                         |
