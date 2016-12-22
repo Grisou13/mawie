@@ -123,11 +123,11 @@ Returned object structure :
 | release_date       | str   | "1990-10-15"                                                        |
 | certification      | str   | "TV-MA"                                                             |
 | trailer_image_urls | list  | ["http://ia.media-imdb.com/images...]                               |
-| directions_summary | list  | [<Person: 'David Fincher' ('nm0000399')>]...                        |
+| directions_summary | list  | [\<Person: 'David Fincher' ('nm0000399')>]...                        |
 | movie_creators     | list  | []                                                                  |
-| cast_summary       | list  | [<Person: 'Brad Pitt' ('nm0000093')>]...                            |
-| writer_summary     | list  | [<Person: 'Chuck Palahniuk' ('nm0657333')>]...                      |
-| credits            | list  | [<Person: 'David Fincher' ('nm0000399')>                            |
+| cast_summary       | list  | [\<Person: 'Brad Pitt' ('nm0000093')>]...                            |
+| writer_summary     | list  | [\<Person: 'Chuck Palahniuk' ('nm0657333')>]...                      |
+| credits            | list  | [\<Person: 'David Fincher' ('nm0000399')>                            |
 | trailers           | list  | [{'url':'http:www.totalclips.com/players...', 'format':'H.246'}...] |
 
 ### imdb api
