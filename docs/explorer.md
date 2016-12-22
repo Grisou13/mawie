@@ -1,9 +1,14 @@
 
 
-## explorer Class
+## Explorer Class
 
-#Methods table TODO
 
+| Method Name    | Parameter       | Description                                                                                                                                                                                     |
+|----------------|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| parse          | path :str       | Main function to call. Does everything from parsing the folder, parsing the name of the files, getting the ID and storing the data. Return two list : the movies parsed and the unparsed movies |
+| _addToDatabase | movieList :list | Add the list of given files in the database. Use the methods listed below                                                                                                                       |
+| _addFile       | file :dict      | add a single file to the database. Also stores the movie linked to it (if not already done). Return True if inserted, False if not.                                                             |
+| _addMovie      | movie :dict     | add a single movie to the database. Get the info and. Return True if inserted, False if not.                                                                                                    |
 The class explorer has the "public" method __parse()__ to parse the given folder.
 Basically the function does :
 1. Loop through the given folder
@@ -54,25 +59,26 @@ MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language
 | getMovieInfo | movieID (optionnal) :str movieTitle (optionnal) :str | Return the informations about a given movie title or ID. If a movieID is given, return the movie corresponding as an object.If a movieTitle is given, return a generator of found movies.If both are given, return a movie object (but takes more time).Use the movieID as often as possible (no ambiguity). |
 |              |                                                      |                                                                                                                                                                                                                                                                                                              |
 
-The class is mostly used by the explorer.
-There's two "public" functions that can be used :
-The first one , __getMovieID()__, is to get a movie id with a title
+The class GoogleIt is mostly used by the explorer.
+
+Here's how __getMovieID()__ works :
+
 ```Python
->>> googleItPutain = googleIt()
->>> res = googleItPutain.getMovieID(MovieTitle="La guerre des étoiles")
+>>> GoogleIt = GoogleIt()
+>>> res = GoogleIt.getMovieID(MovieTitle="La guerre des étoiles")
 >>> print(res)
 "tt0076759"
 ```
 
-And the second method, __getMovieInfo()__, is used for getting a movie object containing informations about the movie (plot, release date, actors, etc...)
+And the second method, __getMovieInfo()__ :
 ```Python
->>> googleItPutain = googleIt()
+>>> GoogleIt = GoogleIt()
 
 works with movie ID
->>> r = googleItPutain.getMovieInfo(movieId = "tt0137523")
+>>> r = GoogleIt.getMovieInfo(movieId = "tt0137523")
 
 with a title (return a generator of movies found)
->>> r = googleItPutain.getMovieInfo(movieTitle = "Fight Club")
+>>> r = GoogleIt.getMovieInfo(movieTitle = "Fight Club")§
 >>> for movie in r:
 ...     print(movie.imdb_id)
 ...     print(movie.title)
@@ -88,7 +94,7 @@ with a title (return a generator of movies found)
 
 or finally with both movieID and movieTitle
 note that giving both parameters takes more time as we loop through the generator.
->>> r = googleItPutain.getMovieInfo(movieId = "tt0137523", movieTitle = "Fight CLUB")
+>>> r = GoogleIt.getMovieInfo(movieId = "tt0137523", movieTitle = "Fight CLUB")
 >>> print(r.title)
 "Fight Club"
 >>> print(r.plots)
@@ -96,7 +102,31 @@ note that giving both parameters takes more time as we loop through the generato
 >>> print(r.release_date)
 "1990-10-15"
 ```
-
+Returned object structure :
+| Property           | Type  | Example                                                             |
+|--------------------|-------|---------------------------------------------------------------------|
+| imdb_id            | str   | "tt0137523"                                                         |
+| title              | str   | "Fight Club"                                                        |
+| type               | str   | "feature"                                                           |
+| year               | int   | 1999                                                                |
+| tagline            | str   | "how much can you know about yourself..."                           |
+| plots              | list  | ["A nameless first person narrator...]                              |
+| plots_outilne      | str   | "An insomniac office worker, looking for..."                        |
+| rating             | float | 8.8                                                                 |
+| genre              | list  | ["Drama"]                                                           |
+| votes              | int   | 1391605                                                             |
+| runtime            | int   | 8340                                                                |
+| poster_url         | str   | "https://images-na.ssl-images-amazon.com..."                        |
+| cover_url          | str   | "https://images-na.ssl-images-amazon.com..."                        |
+| release_date       | str   | "1990-10-15"                                                        |
+| certification      | str   | "TV-MA"                                                             |
+| trailer_image_urls | list  | ["http://ia.media-imdb.com/images...]                               |
+| directions_summary | list  | [<Person: 'David Fincher' ('nm0000399')>]...                        |
+| movie_creators     | list  | []                                                                  |
+| cast_summary       | list  | [<Person: 'Brad Pitt' ('nm0000093'')>]...                           |
+| writer_summary     | list  | [<Person: 'Chuck Palahniuk' ('nm0657333')>]...                      |
+| credits            | list  | [<Person: 'David Fincher' ('nm0000399')>                            |
+| trailers           | list  | [{'url':'http:www.totalclips.com/players...', 'format':'H.246'}...] |
 ### imdb api
 To get the movies informations, we use the [IMDB api](https://app.imdb.com).
 To use the api easily we use the library [imdb-pie](https://github.com/richardasaurus/imdb-pie).
@@ -110,7 +140,7 @@ To use the api easily we use the library [imdb-pie](https://github.com/richardas
 ```
 
 ### duckduckGo research
-To get all the information about a movie we need its ID.
+As seen above, to get all the information about a movie we need its imdb ID.
 To get the ID of a movie using its name (in any language), we do a request on duckduckgo.com that we parse using [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/).
 ```Python
 >>> import urllib.request
