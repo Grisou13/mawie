@@ -27,6 +27,11 @@ log = logging.getLogger("mawie")
 
 class MovieWidget(GuiComponent):
     def __init__(self,parent=None):
+        """
+            This widget displays the movie info of a movie. It's stored in the ComponentAreaWidget.
+            :param parent: parent of the widget
+            :type parent: QWidget
+        """
         super().__init__(parent)
         self.settings = QSettings()
         self.initFrame()
@@ -131,6 +136,7 @@ class MovieWidget(GuiComponent):
     def updateWidgets(self,film):
         self.film = film
         self.lblImg.updateUrl(self.film.poster)
+
         if self.film.name is not None:
             self.lblTitle.setText(self.film.name)
         else:
@@ -148,7 +154,8 @@ class MovieWidget(GuiComponent):
         else:
             self.lblActors.setText("<b>Actors : </b>-")
         if self.film.runtime is not None :
-            self.lblRuntime.setText("<b>Runtime: </b>" + datetime.fromtimestamp(int(self.film.runtime)-3600).strftime("%H:%M:%S")) # -3600 (1hour) because...
+
+            self.lblRuntime.setText("<b>Runtime: </b>" + datetime.utcfromtimestamp(int(self.film.runtime)).strftime("%H:%M:%S"))
         else:
             self.lblRuntime.setText("<b>Runtime: </b>-")
         if self.film.rate is not None:
@@ -203,14 +210,22 @@ class MovieWidget(GuiComponent):
             if os.name.lower() == "nt":  # because windows
                 path = path.replace("/", "\\")
             if os.path.isfile(path):
-                #TODO look for MAC AND LINUX DE MERDE
-                subprocess.Popen(r'explorer /select,"{}"'.format(path))
+                if platform.system() == "Windows":
+                    subprocess.Popen(r'explorer /select,"{}"'.format(path))
+                elif platform.system() == "Darwin":
+                    subprocess.call(["open", "-R", path])
+                else:
+                    subprocess.Popen(["xdg-open", os.path.dirname(path)])
             else:
                 self.displayErrorMessage("This file doesn't exist", "This file doesn't exist anymore, "
                                                                     "it has been deleted or moved in another folder")
 
 
     def btnPlayFileClicked(self, file=None):
+        """ Play the movie in the MoviePlayer or in the default player of the client system
+                   :param file: the file we want to play
+                   :type film: file model
+        """
         defaultPlayer = self.settings.value("infomovie/player-default")
         path = None
         if file is not None and file.path is not None:
@@ -236,6 +251,10 @@ class MovieWidget(GuiComponent):
                                                                     "it has maybe been deleted or moved in an other folder")
 
     def btnDeleteFileClicked(self, file=None,item=None):
+        """ Play the movie in the MoviePlayer or in the default player of the client system
+                   :param file: the file we want to play
+                   :type film: file model
+        """
         fileDel = None
         if file is None:
             fileDel = self.film.files[0]
