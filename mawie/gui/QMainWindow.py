@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QPushButton, 
 from mawie.app import App
 from mawie.app import start as startApp
 from mawie.events import Listener, EventManager
-from mawie.events import Quit, Response, Request
+from mawie.events import Quit, Response, Request, Start
 from mawie.events.gui import *
 from mawie.events.search import SearchRequest
 from mawie.gui.components.QAdvancedSearchWidget import AdvancedSearch
@@ -131,10 +131,11 @@ class MainWindow(QMainWindow, Listener):
             msg = "ERROR [{}] : {}".format(event.type, event.value)
             self.statusBar().showMessage(msg)
             self.addError(msg)
-            QTimer.singletShot(2000, lambda: self.statusBar().showMessage(""))  # reset the message in 2 seconds
+            # reset the message in 2 seconds
+            QTimer.singletShot(2000, lambda: self.statusBar().showMessage(""))
         elif isinstance(event, HideSearch):
             self.search.setHidden(True)
         elif isinstance(event, ShowSearch):
             self.search.setHidden(False)
-
-
+        elif isinstance(event,Start):
+            self.emit(SearchRequest(""))

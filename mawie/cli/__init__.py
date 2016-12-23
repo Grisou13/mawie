@@ -1,8 +1,16 @@
 import argparse
+import sys
+from mawie import gui
+parser = argparse.ArgumentParser(description='Mawie film indexer. \n This cli is not fully implemented yet.')
 
-parser = argparse.ArgumentParser(description='Mawie film indexer')
-
-parser.add_argument("--search",dest="append")
-
+parser.add_argument("--inspire",action='store_true', required = False)
+parser.add_argument("--gui",action='store_true', required = False)
 def start():
-    parser.parse_args()
+
+    args = parser.parse_args()
+    if len(sys.argv) < 2:
+        gui()
+    elif args.inspire:
+        print("SOME SUPER MAGIC QUOTE")
+    elif args.gui:
+        gui()

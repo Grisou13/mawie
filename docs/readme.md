@@ -1,5 +1,3 @@
-The different apis are documented here.
-
 Mawie has multiple components. All components were ment to be used as standalones, and in a whole app.
 
 The *database*, a simple SQlite database, which stores movie metadata. Models where created to handle queries (this app was not made in 1970).
@@ -12,15 +10,8 @@ The *gui* is made in Qt (PyQt5). It uses the updator, and everything else to mak
 
 It was made easy for anybody with some minimum of python, and qt notions to add components to the Gui, or add functionality to underlying apis.
 
-The app runs under a global event system. It is used to pass data back and forth in the app. Events are used for the communication between components, and comunication with background services.
-The event system provides a very simple api, and was implemented because of python's GIL ([read more here](http://www.dabeaz.com/python/UnderstandingGIL.pdf)).
-
-# Events and what are they
-
-Events are small objects that allow data to transit between elements in our App.
-They are in some way asyncrounous, which means that when an action is done somewhere that emits an event, something else can response to it in a non blocking way.
-
-
+The app runs under a global event system. It is used to pass data back and forth in the app. Events are used for the communication between components.
+The event system is really basic. It allows to emit events, and listen to them.
 
 # Todos
 

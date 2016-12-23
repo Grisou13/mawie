@@ -1,15 +1,8 @@
 import os
-# import Levenshtein.StringMatcher as lev
-# import mimetypes
-# mimetypes.init()
 from mimetypes import MimeTypes
 from guessit import guessit
 import sys
-#from time import sleep as wait
 from mawie.models import File
-
-if __name__ == '__main__':
-    sys.path.append(os.path.join(os.getcwd(), "../../"))
 
 from mawie.events import Eventable, Listener
 from mawie.events.explorer import ExplorerParsingRequest, ExplorerParsingResponse, GoogleItSearchRequest, GoogleItResult, GoogleItResponse, \
@@ -33,8 +26,10 @@ log = logging.getLogger("mawie")
 
 class Explorer(Listener):
     """
-    When using Explorer as a listener it will only send back ExplorerResponse for every file that was *parsed*.
-    At the begining of the explorer task, it will send all movies that were detected. Consider them as *non parsed*
+    When using Explorer as a listener it will only send back MovieParsed.
+    At the begining of the explorer task, it will send all movies that were detected via the event MovieNotParsed.
+    Parsed files are considered having a Movie model assoicated, or discovered.
+    TODO: make it work in blocking mode
     """
     googleIt = GoogleIt()
     MimeTypes = MimeTypes()
@@ -44,40 +39,12 @@ class Explorer(Listener):
     foundFiles = dict()
     notFoundFiles = dict()
 
-    # _notParsed = {}
-    # """
-    # Keeps track of all non parsed files
-    # {
-    #     file: {
-    #         links : [
-    #             {
-    #                 tried : bool,
-    #                 url: str,
-    #                 data : None | {imdbpie.objects.Title}
-    #             }
-    #         ]
-    #     }
-    # }
-    # """
-    # _parsed = {}
-    # """
-    # keeps track of all parsed files
-    # {
-    #   file : {
-    #     root: str,
-    #
-    #     data : None | dict, # best data according to googleit
-    #     title : None | str,
-    #     found : bool
-    #   }
-    # }
-    # """
     _parse = {}
     """
     keeps track of all files being currently parsed
     {
         title : {
-            data : guessit data,
+            data : guessit data or simpley {title:"...",filePath:"..."},
             files : [ filepath strings (realpaths) ]
             root : root path of the file (File.base)
         }
@@ -86,14 +53,22 @@ class Explorer(Listener):
     def handle(self, event):
         if isinstance(event, ExplorerParsingRequest):
             path = event.data
-            self.parse(path)
+            if isinstance(path,str):
+                self.parse(path)
+            elif isinstance(path, dict):
+                if "file" in path and "url" not in path:
+                    self._addParsable({"title":path["title"],"filePath":path["file"]})
+                    self.emit(GoogleItSearchRequest(path["file"])) #do the compelte parsing
+                elif "file" in path and "url" in path:
+                    self._addParsable({"title":path["title"],"filePath":path["file"]})
+                    self.emit(TryLink({"originalTitle":path["title"],"url":path["url"]})) #if the user provides a URL, try it
             #self.emit(ExplorerParsingResponse(event, res))
 
         if isinstance(event, GoogleItResult):
             #now that we got a response, we need to check the payload and get the file that was originaly searched
             movieData = event.data
-            title = movieData["originalTitle"] if "originalTitle" in movieData else movieData["title"]
             if isinstance(movieData,Movie):
+                title = movieData.name
                 self._parse[title]["data"] = movieData
                 self._parse[title]["found"] = True
                 for f in self._parse[title]["files"]:
@@ -101,6 +76,7 @@ class Explorer(Listener):
                 #send back the response for a whole title ... can be usefull
                 self.emit(ExplorerParsingResponse(None, self._parse[title]))  # send back the filepath that was parsed
             elif movieData["found"]:
+                title = movieData["originalTitle"] if "originalTitle" in movieData else movieData["title"]
                 self._parse[title]["data"] = movieData["data"]
                 self._parse[title]["found"] = True
                 self._createMovieFromData(self._parse[title])
@@ -178,7 +154,14 @@ class Explorer(Listener):
     ####            MOVIE FOLDER stuff             ####
     ####                                           ####
     ###################################################
-
+    def _addParsable(self,parsable):
+        if parsable["title"] in self._parse:#check if haven't already parsed the same movie title (it can be a series)
+            if parsable["filePath"] not in self._parse[parsable["title"]]["files"]: #only add the file if we don't have it
+                self._parse[parsable["title"]]["files"].append(parsable["filePath"])
+            #self.emit(GoogleItSearchRequest(parsable))
+        else:
+            #if self._parsable[""]
+            self._parse[parsable["title"]] = {"data": parsable, "root": parsable["root"] if "root" in parsable else os.path.dirname(parsable["filePath"]),"files":[parsable["filePath"]]}
     def _getMoviesFromPath(self, path):
         """
         Will get all files and parse them with guessit.
@@ -203,15 +186,10 @@ class Explorer(Listener):
                 if self._isAVideo(path):
                     # we parse the files here
                     parsed = self._parseFile(path)
+                    parsed["root"] = rootpath
                     files.append(parsed)
                     if hasattr(self,"emit"): #if the explorer is bound to the App and uses event, then use them, otherwise we just return files
-                        if parsed["title"] in self._parse:#check if haven't already parsed the same movie title (it can be a series)
-                            if path not in self._parse[parsed["title"]]["files"]: #only add the file if we don't have it
-                                self._parse[parsed["title"]]["files"].append(path)
-                            #self.emit(GoogleItSearchRequest(parsed))
-                        else:
-                            #if self._parsed[""]
-                            self._parse[parsed["title"]] = {"data": parsed, "root": rootpath,"files":[path]}
+                        self._addParsable(parsed)
             # for d in dirs:
             #     # as Thomas said : Recursion bitch
             #     files.extend(self.getMoviesFromPath(os.path.join(r,d)))

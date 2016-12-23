@@ -5,13 +5,19 @@ The other problem is, how would it be possible to add data passing through compo
 
 We decided to create a very simple event system. It allows us to pass data back and forth in the app and all it's components. Simple?
 
+Events are small objects that allow data to transit between elements in our App.
+They are in some way asyncrounous, which means that when an action is done somewhere that emits an event, something else can response to it in a non blocking way.
+
+
+The event system was created because of the limitation of the python language. The GIL (Global Interpreter Lock) in python is the reason why. You can [read more here](http://www.dabeaz.com/python/UnderstandingGIL.pdf) if you want more details.
+
 There are 3 main classes to understand for all this event mayhem :
 
  - *EventManager*. The main class, the man, this class handles event from components and is used to coordonate them.
  - *listener* This is a class that will listen for events. This class is registered in an event manager which dispatches event to it
  - *Event*. The actual event objewct which is passed in the event manager, and dispatched to listeners.
 
-Most of the components in the app use events.
+Most of the components in the app use events. And some GuiComponents use Qt signals, and events.
 
 # Event dispatching and how to do it
 

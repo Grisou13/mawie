@@ -3,12 +3,14 @@ Mawie
 
 # What is this all about
 
-Mawie is a project with educative purpose. The concept is simple : the application manage for you your movies files. It parses it, get the information about your movies, and display it to you with little extras. 
+Mawie is a project with educative purpose. The concept is simple : the application manage for you your movies files. It parses it, get the information about your movies, and display it to you with little extras.
 
 
 Python is one of technologies that you hear myths about, and always want to test. This is the perfect way to test alot of functionnality from it. From database queries, to handling files, and having a gui application behind.
 
 Python was used, because we knew it would fit our needs and even more. We were able to achieve a good balance between readable code, and efficient code, and all that thanks to python builtins, and simple module system.
+
+Documentation is available in the [docs](docs/) folder
 
 # Installation Guide
 
@@ -34,7 +36,26 @@ python3.5 mawie
 
 # Bugs issues
 
+There are no real bugs to signal as of this release.
+If something happens, please be sure to dive into the logs, or atleast include them.
+
+If you find something, please either submit an [issue](https://github.com/Grisou13/mawie/issues/new),
+or a create fork and submit a pull request.
+
 # Tests performed
+
+No unit tests where made.
+
+# Todos
+
+We could do alot more. Here's a list of improvements that need to be done:
+
+- Allow a non parsed file to be manually given a url, or title.
+- Refactor the explorer and googleit to work as standalone components.
+- Write some tests !!
+- Make a welcome page on first launch (A settings is already registered for that).
+- make a setup.py with cx_freeze that makes an executable out of mawie.
+- Improve event system, or pass directly on asyncio
 
 # License
 

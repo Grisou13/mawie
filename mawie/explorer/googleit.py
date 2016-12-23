@@ -26,9 +26,8 @@ def similar(a, b):
 class GoogleIt(Listener):
     """
     This class will only search for links of a movie title and return what it found.
-    @TODO You can also ask for movie Ids
+    TODO: make it work in blocking mode
     """
-    # BING_API_KEY = "SjCn0rSMC6ipl8HJiI2vAYQj1REMPA+raOMPSd5K9A0"
     domainSearch = ""
     imdb = Imdb()
     _links = {}
@@ -112,8 +111,6 @@ class GoogleIt(Listener):
                     self._searching[title] = {"payload": data}
                 log.info("going to search movie %s",title)
                 self.getMovieID(title)
-                #self._searching[title]["files"].append(data["filePath"])
-
 
         elif isinstance(event, NoLinkFound): #this should almost never happen
             title = event.data
@@ -122,16 +119,29 @@ class GoogleIt(Listener):
             del self._searching[title]
 
         elif isinstance(event, TryLink):  # we need to try a link on api
-
+            """
+            This event accepts that you pass it an empty title.
+            If an empty title was provided, then we just take the title we found of a url.
+            This may be less accurate, but provide way better flexibility.
+            """
             expected = event.expectedTitle #expected title is the original title of the movie. It is used to store movie info
-            id = re.search(self.domainRegex, event.url).group(1)  # uses the domain search
-            if expected in self._ids: #Explorer already got result if we stored it
-                return
+
+            id_ = re.search(self.domainRegex, event.url).group(1)  # uses the domain search
+            if expected is not "":
+                if expected in self._ids: #Explorer already got result if we stored it
+                    return
+                self._ids[event.expectedTitle] = id_
+                res = self.imdb.get_title_by_id(id_)  # TODO unbind us to the imdb api
+            else:
+                res = self.imdb.get_title_by_id(id_)  # TODO unbind us to the imdb api
+                expected = res.title
+                self._ids[expected] = id_
             time.sleep(.5)
-            self._ids[event.expectedTitle] = id
-            res = self.imdb.get_title_by_id(id)  # TODO unbind us to the imdb api
+
 
             if similar(res.title, expected) >= 0.75:  # close enough
+                if expected not in self._searching:
+                    self._searching[expected] = {"found":None,"data":None,"imdb_id":None,"title":expected}
                 self._searching[expected]["found"] = True
                 self._searching[expected]["data"] = res
                 # self._searched[expected] = {"originalTitle": expected, "files": self._searching[expected]["files"],

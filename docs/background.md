@@ -46,4 +46,3 @@ Your new component should emit an event that is a ``` Response ```.
 For example, after searching torrents, you would emit ``` TorrentSearchResponse(..list of torrents) ```. And automatically, this event will be sent back to the Gui, and emitted in every component.
 
 **important** : when emitting responses, they will be dispatched in every GuiComponent.
-**important 2** : If the response doesn't have any data, maybe it's a fake response or needs more processing, it will *not* get emitted to the Gui
