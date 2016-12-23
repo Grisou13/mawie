@@ -34,10 +34,6 @@ class MovieListWidget(GuiComponent):
         self.createWidgets()
         self.updateWidgets(Movie.query())
 
-    # def showEvent(self, QShowEvent):
-    #     super(MovieListFrame, self).showEvent(QShowEvent)
-    #     self.updateWidgets(Research().search()) # execute search before showing widget
-
 
     def onShowFrame(self):
         self.emit(ShowSearch())
@@ -45,21 +41,13 @@ class MovieListWidget(GuiComponent):
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
-        #self.btnGoToExplorer = QPushButton("Go to explorer",self)
-        #grid.addWidget(self.btnGoToExplorer,0,0)
+
         self.lblNoFilm = QLabel("There is no film")
         font = QFont('',15)
         self.lblNoFilm.setFont(font)
         grid.addWidget(self.lblNoFilm,0,0,1,1, Qt.Qt.AlignCenter)
         grid.addWidget(self.lstWidgets,0,0)
         self.setLayout(grid)
-
-        # if Movie.query().count() >0:
-        #     self.lstWidgets.setVisible(True)
-        #     self.btnGoToExplorer.setVisible(False)
-        # else:
-        #     self.btnGoToExplorer.setVisible(True)
-        #     self.lstWidgets.setVisible(False)
 
 
     def updateWidgets(self,data):
@@ -101,13 +89,6 @@ class MovieListWidget(GuiComponent):
 
     def handle(self, event):
         super().handle(event) #remember kids, always call super
-        # if isinstance(event,ShowMovieList):
-        #     event.stopPropagate()
-        #     self.emit(ShowFrame(self))
-        # if isinstance(event,SearchResponse):
-        #     log.info("-------------- UPDATING LIST OF MOVIES ----------------")
-        #     self.updateWidgets(event.data)
-        #     #self.emit(ShowFrame(self))
         if isinstance(event, Response) and isinstance(event.request, SearchRequest):
             log.info("-------------- UPDATING LIST OF MOVIES ----------------")
             self.updateWidgets(event.data)
