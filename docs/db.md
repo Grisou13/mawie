@@ -27,6 +27,7 @@ __File Data Model__:
 The model can be found at `app/models/File.py`
 
 __Movie data model__:
+
 | field name | Data type                                                   |
 |------------|-------------------------------------------------------------|
 | name       | When this event is handled, we add a item to the FileParsed |
@@ -56,12 +57,7 @@ from mawie.models.Movie import Movie
 aMovie = Movie.get(1)
 print(aMovie.name)
 ```
-#### Delete a file or movie
-aMovie.delete()
-
-#### Store a file
 
 
-#### Store a movie
 
 
