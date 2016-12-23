@@ -1,6 +1,10 @@
 import logging
+from PyQt5 import Qt
+from cmath import rect
 
+from PyQt5.QtCore import QRect
 from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.QtWidgets import QWidget,QLabel,QPushButton,QGridLayout,QListWidget,QListWidgetItem
 
@@ -28,6 +32,8 @@ class MovieListWidget(GuiComponent):
         super(MovieListWidget, self).__init__(parent)
 
         self.createWidgets()
+        self.updateWidgets(Movie.query())
+
     # def showEvent(self, QShowEvent):
     #     super(MovieListFrame, self).showEvent(QShowEvent)
     #     self.updateWidgets(Research().search()) # execute search before showing widget
@@ -39,11 +45,22 @@ class MovieListWidget(GuiComponent):
     def createWidgets(self):
         grid = QGridLayout(self)
         self.lstWidgets = QListWidget(self)
-        #self.updateWidgets(Movie.query())
-
-
+        #self.btnGoToExplorer = QPushButton("Go to explorer",self)
+        #grid.addWidget(self.btnGoToExplorer,0,0)
+        self.lblNoFilm = QLabel("There is no film")
+        font = QFont('',15)
+        self.lblNoFilm.setFont(font)
+        grid.addWidget(self.lblNoFilm,0,0,1,1, Qt.Qt.AlignCenter)
         grid.addWidget(self.lstWidgets,0,0)
         self.setLayout(grid)
+
+        # if Movie.query().count() >0:
+        #     self.lstWidgets.setVisible(True)
+        #     self.btnGoToExplorer.setVisible(False)
+        # else:
+        #     self.btnGoToExplorer.setVisible(True)
+        #     self.lstWidgets.setVisible(False)
+
 
     def updateWidgets(self,data):
         """
@@ -52,8 +69,11 @@ class MovieListWidget(GuiComponent):
         :type: list of movies model
         :return:
         """
+        hasFilm = False
         self.lstWidgets.clear()
+
         for film in data:
+            hasFilm = True
             try:
                 item = QListWidgetItem(self.lstWidgets)
                 itemW= ResultRow(self,film)
@@ -65,6 +85,15 @@ class MovieListWidget(GuiComponent):
             except Exception as e:
                 log.info("ERROR WHILE UPDATING MOVIE LIST")
                 log.info(e)
+        if hasFilm is True:
+            self.lblNoFilm.setVisible(False)
+        else:
+            self.lblNoFilm.setVisible(True)
+            self.lblNoFilm.setText("There is no result for this research")
+
+        if Movie.query().count()==0:
+            self.lblNoFilm.setVisible(True)
+            self.lblNoFilm.setText("No film in database, please add a folder (File - add folder)")
         log.info("List of widgets %s", len(self.lstWidgets))
 
     def clickedSee(self,film):
