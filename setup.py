@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-
+"""
+Setup script used for setuptools.
+"""
 from distutils.core import setup
-import py2exe
 import sys
 includes = [
     "sip",
@@ -25,17 +26,18 @@ with open("./requirements.txt","r+") as f:
         requirements.append(l.strip())
 
 setup(name='Mawie',
-      version='0.0.1-rc1',
+      version='0.0.1',
       description='Python gui allowing filtering of films on local harddrive',
       author='Thomas Ricci',
       author_email='thomas.ricci@cpnv.ch',
       url='https://github.com/Grisou13/mawie',
+      include_package_data=True,
+      zip_safe=False,
+      platforms='any',
       requirements = requirements,
-      #packages=['mawie'],
-      #package_dir = {"mawie":"mawie"},
-      #package_data = {"mawie":["conf","resources",".cache"]},
+      packages=['mawie'],
       data_files=datafiles,
-      scripts=["./mawie"],
-      windows=[{"script": "./mawie/main.py"}],
-      options={"py2exe": {'bundle_files': 1, 'compressed': True,"includes": includes}}
+      entry_points = {
+        'console_scripts': ['mawie.cli:start'],
+        }
      )
