@@ -1,3 +1,9 @@
+"""
+This file is used to create an executable. This doesn't work for now.
+to build python setup_cx build_exe
+to create an msi python setp_cx build_msi
+More commands are available in the cx_freeze docs
+"""
 from cx_Freeze import setup, Executable
 
 # Dependencies are automatically detected, but it might need
