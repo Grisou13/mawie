@@ -42,20 +42,16 @@ If something happens, please be sure to dive into the logs, or atleast include t
 If you find something, please either submit an [issue](https://github.com/Grisou13/mawie/issues/new),
 or a create fork and submit a pull request.
 
-# Tests performed
+# How to contribute
 
-No unit tests where made.
+Just fork the project, and create some pull requests, we will try to answer them as soon as possible.
 
-# Todos
+# Coding standard
 
-We could do alot more. Here's a list of improvements that need to be done:
+Just be sure that you use PEP8 standard when writing your code. We don't want this to become a big mess.
+# Testing
 
-- Allow a non parsed file to be manually given a url, or title.
-- Refactor the explorer and googleit to work as standalone components.
-- Write some tests !!
-- Make a welcome page on first launch (A settings is already registered for that).
-- make a setup.py with cx_freeze that makes an executable out of mawie.
-- Improve event system, or pass directly on asyncio
+No unit tests where made. Only usage tests with the gui were made.
 
 # License
 
@@ -74,9 +70,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
+# Todos
 
-Refactor and add relative imports, sintead of this horrible sys.path.extend
-UZse asyncrounous coroutines to boost app performance (Quamash, Eventloops, or pure python async)
+We could do alot more. Here's a list of improvements that need to be done:
 
-http://docs.themoviedb.apiary.io/#reference/search/searchmovie/get
-theme : https://github.com/ColinDuquesnoy/QDarkStyleSheet
+- Allow a non parsed file to be manually given a url, or title.
+- Refactor the explorer and googleit to work as standalone components.
+- Write some tests !!
+- Make a welcome page on first launch (A settings is already registered for that).
+- make a setup.py with cx_freeze that makes an executable out of mawie.
+- Improve event system, or pass directly on asyncio
+- Finish and really implement a cli
+- Create a small logo

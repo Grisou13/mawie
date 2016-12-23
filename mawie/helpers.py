@@ -4,7 +4,7 @@ import socket
 
 _dir = os.path.dirname(os.path.realpath(__file__))
 
-BASE_PATH = os.path.join(_dir,"../")
+BASE_PATH = os.path.realpath(os.path.join(_dir,"../"))
 CACHE_PATH = os.path.join(BASE_PATH,".cache/")
 DB_FILE = os.path.join(CACHE_PATH,'main.sqlite')
 DB_PATH=r"sqlite:///"+DB_FILE
@@ -57,12 +57,3 @@ def checkInternetConnexion():
         return True
     except Exception as e:
         return False
-if __name__ == '__main__':
-    class A(SingletonMixin): pass
-    class B(SingletonMixin): pass
-    a,b = A(), B()
-    a1,b1 = A(),B()
-    print(a)
-    print(b)
-    print(a1)
-    print(b1)

@@ -1,11 +1,17 @@
 # GUI
 
+The gui is the main aprt of our app. All used compoenents are exposed here.
+
+The theme used for the gui is from [this repo](https://github.com/ColinDuquesnoy/QDarkStyleSheet).
+
+We also used [qtawesome](https://github.com/spyder-ide/qtawesome) (fontawesome for qt) for icons.
+
 ## Manual for GUI application use
 Here is a little manual for the GUI application use.
-When you launch the app for the first time, you have to add a folder. 
+When you launch the app for the first time, you have to add a folder.
 
 __add a folder__:
-* in the menu bar go to add folder 
+* in the menu bar go to add folder
 * select a folder
 
 __delete a folder__:
@@ -27,7 +33,7 @@ if you want to delete a movie or a file from the database:
 * click on see info
 * at the bottom of the window, there is a button delete movie from database
 * if there is more than one file associates to the movie, there is a list with all the files
-    * found the file you want to delete and click on delete the file from database 
+    * found the file you want to delete and click on delete the file from database
 
 
 ## MainWindow
@@ -48,10 +54,10 @@ directory ``` mawie.gui.components ```
 ### List of Widgets
 | Filename             | Class name      | Description                                                                                                                                                                                                                          | Inherited from  |
 |----------------------|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
-| QResearchWidget      | ResearchWidget  | This component communicates with ```mawie.research.search```,to launch research and then emit an event to QMovieListWidget to show results                                                                                           | GuiComponent    | 
+| QResearchWidget      | ResearchWidget  | This component communicates with ```mawie.research.search```,to launch research and then emit an event to QMovieListWidget to show results                                                                                           | GuiComponent    |
 | QAdvancedSearchWidget| AdvancedSearch  | display the form to do advanced research                                                                                                                                                                                             | GuiComponent    |
 | QMovieWidget         | MovieWidget     | Display the info of the movie. it allows you to show you the movie file in your browser, play the movie in your default media player or in our customized media player, you can also delete the file associates to the movie         | GuiComponent    |
-| QExplorerWidget      | ExplorerWidget  | This component purpose is to add the folder you want the search movies files in and add it to the databases, in case a file can be parsed you can provide an IMDb url and it will get the info of the film                           | GuiComponent    | 
+| QExplorerWidget      | ExplorerWidget  | This component purpose is to add the folder you want the search movies files in and add it to the databases, in case a file can be parsed you can provide an IMDb url and it will get the info of the film                           | GuiComponent    |
 | QMovieListWidget     | MovieListWidget | This widget displays the movies of a research                                                                                                                                                                                        | GuiComponent    |
 | QMoviePlayer         | MoviePlayer     | This is the player media player.                                                                                                                                                                                                     | QDialog         |
 | QError               | ErrorWidget     | Display error that we didn't catch                                                                                                                                                                                                   | QWidget         |
@@ -60,7 +66,7 @@ directory ``` mawie.gui.components ```
 | QSettingsWidget      | SettingsWidget  | This frame is used to change the settings.                                                                                                                                                                                           | GuiComponent    |
 
 ### QPoster
-This widget takes two arguments: 
+This widget takes two arguments:
 
 parent: QWidget (Default value None)
 
@@ -86,7 +92,7 @@ ResultRow is the class which is an item in the MovieListWidget
 
 
 If the movie have one file 3 buttons are displayed: Play the movie, Show in explorer, Delete file from database and if the movie have more than one file a QListWidget appear with the different
-files and the 3 three same buttons for each file. We use the class FileWidget (which is also in `QMovieWidget.py`)  as item of the QListWidget 
+files and the 3 three same buttons for each file. We use the class FileWidget (which is also in `QMovieWidget.py`)  as item of the QListWidget
 
 ### SettingsWidget
 The location where the settings are stored depends on your system, please refer to the [QT docs](http://doc.qt.io/qt-5/qsettings.html#platform-specific-notes)
@@ -115,8 +121,8 @@ if you want to changed them go to `mawie.gui.QGui.py` in the function `start()` 
 
 ### MoviePlayer
 The MoviePlayer use QMediaPlayer. the format/codec it allows you to read depends on your system:
- 
-on windows refer to DirectsShow 
+
+on windows refer to DirectsShow
 
 on Mac refer to QuickTime Player
 
@@ -184,7 +190,7 @@ the not parsed file.
 
 ### How to add a Gui component
 create a file in ```mawie.gui.components``` (the location has no effect but it's just to keep the structure of the project).
-You have to inherits the class of your graphical component from GuiComponent which allows to receive event. 
+You have to inherits the class of your graphical component from GuiComponent which allows to receive event.
 
 ```Python
 from mawie.gui.components import GuiComponent
@@ -210,7 +216,7 @@ class MyAwesomeComponent(GuiComponent):
     def initWidget(self):
         layout = QGridLayout(self)
         self.setLayout(layout)
-     
+
 ```
 
 Now if you need to pass data to the background, or need to receive some data, you will need to overide the ``` handle(self,event) ``` method.
@@ -245,14 +251,30 @@ First you have to create a Gui Component then, you have to add it to the Compone
 To switch frames, you have to emit the Event `ShowFrame(MyNewWidget.__name__)`. it should looks like
 ```Python
     from mawie.events.gui import  ShowFrame
-    
+
     def displayMyWidget(self):
         self.gui.emit(ShowFrame(MyWidget.__name__))
 
 ```
-if you want to pass data with it, like a film for example, you can do it this way : 
+if you want to pass data with it, like a film for example, you can do it this way :
 `ShowFrame(WidgetYouWantTODisplay.__name__, film)`
 
-## Logs
+# Adding an image to the app
+
+If you want to add an image to the app, you hae 2 methods of doing so:
+ - In a folder just drop your jpeg, or png and load it using QPixmap
+ - Or use resources [more info](http://pyqt/resources) TODO complete link
+
+## Adding resource
+
+The folder method works fine, but if you want to be sure that your image doesn't get deleted by the user, or filesystem, you create a QtRessource. Compiled resources are stored in the folder mawie.gui.resources.
+
+If you add a resource, don't forget to import it!
+
+If you want to create a new resource, please take example on ```resources/image.qrc```.
+
+To compile your resources (if you added an image, or a new .qrc) execute the command ``` python mawie --resources ```.
+
+## Changelog
 At the beginning of the project, we chose to use Tkinter but we find a little bit incomplete for what we would  like to do
-so, we decide to change to pyqt5.7. 
+so, we decide to change to pyqt5.7.
