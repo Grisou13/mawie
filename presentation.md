@@ -31,10 +31,6 @@ Recherche sur les 2 modèles, ou autre.
 
 Possibilité de séléctrionné n'iimporte quelle donnée en utilisant une syntax particulière
 
-<div style="width:100%">
-
-<div style="width:33%">
-
 ```python
 from mawie.research.research import Research
 from mawie.models.movie import Movie
@@ -45,9 +41,6 @@ for elem in res:
   print(elem.title)
 ```
 
-</div>
-
-<div style="width:33%">
 
 ```python
 ... imports
@@ -58,9 +51,6 @@ for elem in res:
   print(elem.title)
 ```
 
-</div>
-
-<div style="width:33%">
 ```python
 ... imports
 searchable = Research()
@@ -69,9 +59,7 @@ for elem in res:
   assert isinstance(elem, Movie)
   print(elem.title)
 ```
-</div>
 
-</div>
 
 ---
 # BDD & Modèles
