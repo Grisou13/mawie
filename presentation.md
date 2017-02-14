@@ -45,8 +45,8 @@ Recherche sur les 2 modèles, ou autre.
 - Recherche Avancé sur les modèles par defaults
 - Recherche Avancé
 
-
-  ```python
+<section>
+  <pre>
   from mawie.research.research import Research
   from mawie.models.movie import Movie
   searchable = Research()
@@ -54,8 +54,8 @@ Recherche sur les 2 modèles, ou autre.
   for elem in res:
     assert isinstance(elem, Movie)
     print(elem.title)
-  ```
-
+    </pre>
+</section>
 
   ```python
   ... imports
