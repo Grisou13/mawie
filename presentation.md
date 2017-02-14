@@ -29,7 +29,7 @@
 
 Recherche sur les 2 modèles, ou autre.
 
-Possibilité de séléctrionné n'iimporte quelle donnée en utilisant une syntax particulière
+Utilisation:
 
 ```python
 from mawie.research.research import Research
