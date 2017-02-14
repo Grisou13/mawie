@@ -1,6 +1,5 @@
 ---
 title: Mawie
-theme: css/theme/dark.css
 revealOptions:
     transition: 'fade'
 ---
