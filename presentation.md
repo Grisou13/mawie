@@ -75,10 +75,28 @@ Recherche sur les 2 modèles, ou autre.
 
 ---
 
+# Explorer
+
+## Utilisation d'un comparateur
+
+Dans un premier, on a utilisé Levenstein pour comparaitre le nom du film que nous renvoyait Guessit, et le nom du fichier originel (si taux de ressemblance plus haut que 80% c'est OK)
+
+Cela était due au nom des fichier impropable dans le dossier.
+
+## Utilisation de duckduckgo
+
+Dans un dexuipme temps on a développé une solution plus simple. On recherche le nom du film donnée par Guessit sur duckduckgo.
+Cela permet de le traduire, et d'avoir beaucoup plus souvent des résultat de recherche cohérent (dépendant du film).
+Après avoir récupéré le contenu imdb, on fait un test de semblance entre le nom Guessit, et le nom retiré IMDB pour vérifier que l'on ait bien trouvé le bon film, puis on l'inspre dans la base de donnée.
+
+---
+
 # BDD & Modèles
 
 <div style="text-align:center">
 <img src="./img/mld.png"  height="550px"/></div>
+
+Note: données du dump de la librairie imdbpie
 
 ---
 
