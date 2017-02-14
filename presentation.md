@@ -1,6 +1,6 @@
 ---
-title: Maie
-theme: css/theme/solarized.css
+title: Mawie
+theme: css/theme/dark.css
 revealOptions:
     transition: 'fade'
 ---
