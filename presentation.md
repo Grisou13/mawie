@@ -127,13 +127,14 @@ Note: données du dump de la librairie imdbpie
 
 
 # Gui : navigation
-## Les différentes fenetres
+## Les différentes fenêtres
+<div style="text-align:center">
+<img src="./img/guiSchema.png"  height="550px"/></div>
 
 
 
 
-
-# Gui : Fenêtres
+# Gui
 ## ajouter un dossier
 <div style="text-align:center">
 <img src="./img/addFolder.png"  height="550px"/></div>
@@ -142,7 +143,7 @@ Note: données du dump de la librairie imdbpie
 
 
 
-# Gui : Fenêtres
+# Gui
 ## Affichage le contenu d'une recherche
 <div style="text-align:center">
 <img src="./img/list.png"  height="550px"/></div>
@@ -151,7 +152,7 @@ Note: données du dump de la librairie imdbpie
 
 
 
-# Gui : Fenêtres
+# Gui
 ## Affichage des informations d'un film
 <div style="text-align:center">
 <img src="./img/film.png"  height="550px"/></div>
@@ -160,7 +161,7 @@ Note: données du dump de la librairie imdbpie
 
 
 
-# Gui : Fenêtres
+# Gui
 ## Lire le film
 <div style="text-align:center">
 <img src="./img/player.png"  height="550px"/></div>
@@ -169,7 +170,7 @@ Note: données du dump de la librairie imdbpie
 
 
 
-# Gui : Fenêtres
+# Gui
 ## Recherche avancée
 <div style="text-align:center">
 <img src="./img/asearch.png"  height="550px"/></div>
