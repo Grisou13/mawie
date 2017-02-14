@@ -26,8 +26,6 @@ class Movie(db.Model):
     def __str__(self):
         return self.name
 
-    viewed= Column(Boolean, default=False)
-
 
 
 if __name__ == '__main__':
