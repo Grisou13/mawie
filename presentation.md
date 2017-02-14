@@ -15,12 +15,69 @@
 - Conclusion
 - Q/A
 
-# Techno
+# Technologies
+
+ - Python3
+ - SqlAclhemy (ActiveAlchemy)
+ - sqlite3
+ - PyQt5
+ - Tkinter (déprecié)
+ 
+---
+
+# Search
+
+Recherche sur les 2 modèles, ou autre.
+
+Possibilité de séléctrionné n'iimporte quelle donnée en utilisant une syntax particulière
+
+<div style="width:100%">
+
+<div style="width:33%">
+
+```python
+from mawie.research.research import Research
+from mawie.models.movie import Movie
+searchable = Research()
+res = searchable.query("Some awesome movie title")
+for elem in res:
+  assert isinstance(elem, Movie)
+  print(elem.title)
+```
+
+</div>
+
+<div style="width:33%">
+
+```python
+... imports
+searchable = Research()
+res = searchable.query("Some awesome movie title",["desc","actors"])
+for elem in res:
+  assert isinstance(elem, Movie)
+  print(elem.title)
+```
+
+</div>
+
+<div style="width:33%">
+```python
+... imports
+searchable = Research()
+res = searchable.query({Movie:{"release":{"gte":"2010-01-01","lte":"2016-01-01"}}})
+for elem in res:
+  assert isinstance(elem, Movie)
+  print(elem.title)
+```
+</div>
+
+</div>
 
 ---
 # BDD & Modèles
 
-put mld here
+<div style="text-align:center">
+<img src="./img/mld.png"  height="550px"/></div>
 
 ---
 
