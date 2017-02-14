@@ -3,7 +3,6 @@ title: Mawie
 revealOptions:
     transition: 'fade'
 ---
-
 # Mawie
 
 #### Par Ilias, Thomas et Eric
@@ -23,6 +22,9 @@ revealOptions:
 
 
 
+
+
+
 # Technologies
 
  - Python3
@@ -35,10 +37,14 @@ revealOptions:
 
 
 
+
+
 # Composants
 
 <div style="text-align:center">
 <img src="./img/composants.png"  height="550px"/></div>
+
+
 
 
 
@@ -49,6 +55,8 @@ Recherche sur les 2 modèles, ou autre.
 - Recherche Simple
 - Recherche Avancé sur les modèles par defaults
 - Recherche Avancé
+
+
 
 
 ```python
@@ -62,6 +70,8 @@ Recherche sur les 2 modèles, ou autre.
 ```
 
 
+
+
 ```python
 ... imports
 searchable = Research()
@@ -72,6 +82,8 @@ for elem in res:
 ```
 
 
+
+
 ```python
 ... imports
 searchable = Research()
@@ -80,6 +92,8 @@ for elem in res:
     assert isinstance(elem, Movie)
     print(elem.title)
 ```
+
+
 
 
 
@@ -99,6 +113,8 @@ Après avoir récupéré le contenu imdb, on fait un test de semblance entre le 
 
 
 
+
+
 # BDD & Modèles
 
 <div style="text-align:center">
@@ -108,8 +124,12 @@ Note: données du dump de la librairie imdbpie
 
 
 
+
+
 # Gui : navigation
 ## Les différentes fenetres
+
+
 
 
 
@@ -120,10 +140,14 @@ Note: données du dump de la librairie imdbpie
 
 
 
+
+
 # Gui : Fenêtres
 ## Affichage le contenu d'une recherche
 <div style="text-align:center">
 <img src="./img/list.png"  height="550px"/></div>
+
+
 
 
 
@@ -134,10 +158,14 @@ Note: données du dump de la librairie imdbpie
 
 
 
+
+
 # Gui : Fenêtres
 ## Lire le film
 <div style="text-align:center">
 <img src="./img/player.png"  height="550px"/></div>
+
+
 
 
 
@@ -148,10 +176,14 @@ Note: données du dump de la librairie imdbpie
 
 
 
+
+
 # Gui : Fenêtres
 ## Settings
 <div style="text-align:center">
 <img src="./img/settings.png"  height="550px"/></div>
+
+
 
 
 
@@ -171,11 +203,15 @@ pour les fichiers qui n’ont pas été parsés
 
 
 
+
+
 # Gui : Bugs restants
 
 - La fenêtre dépasse si l’écran est trop petit
 - Pas de gestion des formats non pris en charge par le lecteur media personnalisé
 - Sous Linux, le fichier ne se montre pas dans l’explorer
+
+
 
 
 
