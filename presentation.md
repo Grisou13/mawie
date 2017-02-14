@@ -41,36 +41,39 @@
 
 Recherche sur les 2 modèles, ou autre.
 
-Utilisation:
-
-```python
-from mawie.research.research import Research
-from mawie.models.movie import Movie
-searchable = Research()
-res = searchable.query("Some awesome movie title")
-for elem in res:
-  assert isinstance(elem, Movie)
-  print(elem.title)
-```
+- Recherche Simple
+- Recherche Avancé sur les modèles par defaults
+- Recherche Avancé
 
 
-```python
-... imports
-searchable = Research()
-res = searchable.query("Some awesome movie title",["desc","actors"])
-for elem in res:
-  assert isinstance(elem, Movie)
-  print(elem.title)
-```
+  ```python
+  from mawie.research.research import Research
+  from mawie.models.movie import Movie
+  searchable = Research()
+  res = searchable.query("Some awesome movie title")
+  for elem in res:
+    assert isinstance(elem, Movie)
+    print(elem.title)
+  ```
 
-```python
-... imports
-searchable = Research()
-res = searchable.query({Movie:{"release":{"gte":"2010-01-01","lte":"2016-01-01"}}})
-for elem in res:
-  assert isinstance(elem, Movie)
-  print(elem.title)
-```
+
+  ```python
+  ... imports
+  searchable = Research()
+  res = searchable.query("Some awesome movie title",["desc","actors"])
+  for elem in res:
+    assert isinstance(elem, Movie)
+    print(elem.title)
+  ```
+
+  ```python
+  ... imports
+  searchable = Research()
+  res = searchable.query({Movie:{"release":{"gte":"2010-01-01","lte":"2016-01-01"}}})
+  for elem in res:
+    assert isinstance(elem, Movie)
+    print(elem.title)
+  ```
 
 ---
 
