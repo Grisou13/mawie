@@ -129,7 +129,7 @@ Note: données du dump de la librairie imdbpie
 # Gui : navigation
 ## Les différentes fenêtres
 <div style="text-align:center">
-<img src="./img/guiSchema.png"  height="550px"/></div>
+<img src="./img/guiSchema.png"  height="500px"/></div>
 
 
 
