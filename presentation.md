@@ -159,4 +159,7 @@ On utilise les singaux Qt, et ensuite on communique les données à l'arrière p
 
 ## Entre service d'arrière plan
 
-On
+On utilise une solution faite maison qui reprend l'idée d'un MessageBroker (AMQT, ZeroMq, etc...)
+
+<div style="text-align:center">
+<img src="./img/event-loop-2.png"  height="550px"/></div>
