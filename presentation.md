@@ -5,15 +5,18 @@
 ---
 # Tbl des matières
 - Technologies
+- BDD & Modèles
+- Composants
 - Explorer
 - Search
-- BDD & Modèles
 - Gui
 - Event handling
 - Bugs restants
 - Améliorations
 - Conclusion
 - Q/A
+
+---
 
 # Technologies
 
@@ -23,6 +26,15 @@
  - PyQt5
  - Tkinter (déprecié)
  
+ On a développé l'application pour qu'elle soit orienté événement (comme une application Android).
+ 
+---
+
+# Composants
+
+<div style="text-align:center">
+<img src="./img/composants.png"  height="550px"/></div>
+
 ---
 
 # Search
@@ -60,8 +72,8 @@ for elem in res:
   print(elem.title)
 ```
 
-
 ---
+
 # BDD & Modèles
 
 <div style="text-align:center">
@@ -117,6 +129,7 @@ for elem in res:
 ---
 
 # Gui : Améliorations
+
 - Améliorer l’ergonomie
 
 - Rendre plus responsive
@@ -138,4 +151,11 @@ pour les fichiers qui n’ont pas été parsés
 
 ---
 
-# Communication entre composants
+# Gestion d'événement
+## Entre composants QT
+
+On utilise les singaux Qt, et ensuite on communique les données à l'arrière plan avec le système d'événement.
+
+## Entre service d'arrière plan
+
+On
