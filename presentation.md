@@ -183,5 +183,7 @@ On utilise une solution faite maison qui reprend l'idée d'un MessageBroker (AMQ
 <img src="./img/event-loop-2.png"  height="550px"/></div>
 
 Note: On fait tourner un event loop dans le GUI (pour passer les données à l'arrière plan).
+
 Note: On fait tourner un Event loop dans un thread à part pour processer les événements toute les .25s (pour le pas surgargé le thread principale QT!)
+
 Note: Tout ça a cause du GIL
