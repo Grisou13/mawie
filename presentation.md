@@ -24,6 +24,11 @@ put mld here
 
 ---
 
+# Gui : navigation
+## Les différentes fenetres
+
+---
+
 # Gui : Fenêtres
 ## ajouter un dossier
 <div style="text-align:center">
