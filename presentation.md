@@ -1,7 +1,5 @@
 ---
 title: Maie
-separator: <!--s-->
-verticalSeparator: <!--v-->
 theme: css/theme/solarized.css
 revealOptions:
     transition: 'fade'
@@ -10,8 +8,6 @@ revealOptions:
 # Mawie
 
 #### Par Ilias, Thomas et Eric
-
-<!--s-->
 
 # Tbl des matières
 - Technologies
@@ -26,7 +22,7 @@ revealOptions:
 - Conclusion
 - Q/A
 
-<!--s-->
+
 
 # Technologies
 
@@ -37,15 +33,15 @@ revealOptions:
  - Tkinter (déprecié)
  
  On a développé l'application pour qu'elle soit orienté événement (comme une application Android).
- 
-<!--s-->
+
+
 
 # Composants
 
 <div style="text-align:center">
 <img src="./img/composants.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Search
 
@@ -55,7 +51,6 @@ Recherche sur les 2 modèles, ou autre.
 - Recherche Avancé sur les modèles par defaults
 - Recherche Avancé
 
-<!--v-->
 
 ```python
   from mawie.research.research import Research
@@ -67,29 +62,27 @@ Recherche sur les 2 modèles, ou autre.
     print(elem.title)
 ```
 
-<!--v-->
 
-  ```python
-  ... imports
-  searchable = Research()
-  res = searchable.query("Some awesome movie title",["desc","actors"])
-  for elem in res:
+```python
+... imports
+searchable = Research()
+res = searchable.query("Some awesome movie title",["desc","actors"])
+for elem in res:
     assert isinstance(elem, Movie)
     print(elem.title)
-  ```
+```
 
-<!--v-->
 
-  ```python
-  ... imports
-  searchable = Research()
-  res = searchable.query({Movie:{"release":{"gte":"2010-01-01","lte":"2016-01-01"}}})
-  for elem in res:
+```python
+... imports
+searchable = Research()
+res = searchable.query({Movie:{"release":{"gte":"2010-01-01","lte":"2016-01-01"}}})
+for elem in res:
     assert isinstance(elem, Movie)
     print(elem.title)
-  ```
+```
 
-<!--s-->
+
 
 # Explorer
 
@@ -105,7 +98,7 @@ Dans un dexuipme temps on a développé une solution plus simple. On recherche l
 Cela permet de le traduire, et d'avoir beaucoup plus souvent des résultat de recherche cohérent (dépendant du film).
 Après avoir récupéré le contenu imdb, on fait un test de semblance entre le nom Guessit, et le nom retiré IMDB pour vérifier que l'on ait bien trouvé le bon film, puis on l'inspre dans la base de donnée.
 
-<!--s-->
+
 
 # BDD & Modèles
 
@@ -114,54 +107,54 @@ Après avoir récupéré le contenu imdb, on fait un test de semblance entre le 
 
 Note: données du dump de la librairie imdbpie
 
-<!--s-->
+
 
 # Gui : navigation
 ## Les différentes fenetres
 
-<!--s-->
+
 
 # Gui : Fenêtres
 ## ajouter un dossier
 <div style="text-align:center">
 <img src="./img/addFolder.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Gui : Fenêtres
 ## Affichage le contenu d'une recherche
 <div style="text-align:center">
 <img src="./img/list.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Gui : Fenêtres
 ## Affichage des informations d'un film
 <div style="text-align:center">
 <img src="./img/film.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Gui : Fenêtres
 ## Lire le film
 <div style="text-align:center">
 <img src="./img/player.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Gui : Fenêtres
 ## Recherche avancée
 <div style="text-align:center">
 <img src="./img/asearch.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Gui : Fenêtres
 ## Settings
 <div style="text-align:center">
 <img src="./img/settings.png"  height="550px"/></div>
 
-<!--s-->
+
 
 # Gui : Améliorations
 
@@ -176,7 +169,8 @@ pour les fichiers qui n’ont pas été parsés
 
 - Indiquer le film comme «viewed» lorsqu’on a -cliquer sur le bouton «play film»
 
-<!--s-->
+
+
 
 # Gui : Bugs restants
 
@@ -184,7 +178,8 @@ pour les fichiers qui n’ont pas été parsés
 - Pas de gestion des formats non pris en charge par le lecteur media personnalisé
 - Sous Linux, le fichier ne se montre pas dans l’explorer
 
-<!--s-->
+
+
 
 # Gestion d'événement
 ## Entre composants QT
