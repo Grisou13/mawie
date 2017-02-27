@@ -3,9 +3,12 @@ title: Mawie
 revealOptions:
     transition: 'fade'
 ---
+
 # Mawie
 
 #### Par Ilias, Thomas et Eric
+
+----
 
 # Tbl des matières
 - Technologies
@@ -20,10 +23,7 @@ revealOptions:
 - Conclusion
 - Q/A
 
-
-
-
-
+----
 
 # Technologies
 
@@ -35,30 +35,26 @@ revealOptions:
  
  On a développé l'application pour qu'elle soit orienté événement (comme une application Android).
 
-
-
-
+----
 
 # Composants
 
 <div style="text-align:center">
 <img src="./img/composants.png"  height="550px"/></div>
 
-
-
-
+----
 
 # Search
 
 Recherche sur les 2 modèles, ou autre.
 
+- Namepsace : mawie.research
+
 - Recherche Simple
 - Recherche Avancé sur les modèles par defaults
 - Recherche Avancé
 
-
-
-
+##^ Recherche simple
 ```python
   from mawie.research.research import Research
   from mawie.models.movie import Movie
@@ -69,9 +65,7 @@ Recherche sur les 2 modèles, ou autre.
     print(elem.title)
 ```
 
-
-
-
+##^ Recherche Avancé
 ```python
 ... imports
 searchable = Research()
@@ -81,8 +75,7 @@ for elem in res:
     print(elem.title)
 ```
 
-
-
+##^ Recherche Avancé (2)
 
 ```python
 ... imports
@@ -93,27 +86,27 @@ for elem in res:
     print(elem.title)
 ```
 
-
-
-
+----
 
 # Explorer
 
-## Utilisation d'un comparateur
+- Qu'est-ce que c'est
+- Namespace : mawie.explorer
+- Utilise des Apis (duckduckgo, et imdb)
+
+##^ Utilisation d'un comparateur
 
 Dans un premier, on a utilisé Levenstein pour comparaitre le nom du film que nous renvoyait Guessit, et le nom du fichier originel (si taux de ressemblance plus haut que 80% c'est OK)
 
 Cela était due au nom des fichier impropable dans le dossier.
 
-## Utilisation de duckduckgo
+##^ Utilisation de duckduckgo
 
 Dans un dexuipme temps on a développé une solution plus simple. On recherche le nom du film donnée par Guessit sur duckduckgo.
 Cela permet de le traduire, et d'avoir beaucoup plus souvent des résultat de recherche cohérent (dépendant du film).
 Après avoir récupéré le contenu imdb, on fait un test de semblance entre le nom Guessit, et le nom retiré IMDB pour vérifier que l'on ait bien trouvé le bon film, puis on l'inspre dans la base de donnée.
 
-
-
-
+----
 
 # BDD & Modèles
 
@@ -122,73 +115,48 @@ Après avoir récupéré le contenu imdb, on fait un test de semblance entre le 
 
 Note: données du dump de la librairie imdbpie
 
+---
 
+# Gui
 
-
-
-# Gui : navigation
 ## Les différentes fenêtres
 <div style="text-align:center">
 <img src="./img/guiSchema.png"  height="500px"/></div>
 
-
-
-
-# Gui
-## ajouter un dossier
+##^ ajouter un dossier
 <div style="text-align:center">
 <img src="./img/addFolder.png"  height="550px"/></div>
 
-
-
-
-
-# Gui
-## Affichage le contenu d'une recherche
+##^ Affichage le contenu d'une recherche
 <div style="text-align:center">
 <img src="./img/list.png"  height="550px"/></div>
 
-
-
-
-
-# Gui
-## Affichage des informations d'un film
+##^ Affichage des informations d'un film
 <div style="text-align:center">
 <img src="./img/film.png"  height="550px"/></div>
 
-
-
-
-
-# Gui
-## Lire le film
+##^ Lire le film
 <div style="text-align:center">
 <img src="./img/player.png"  height="550px"/></div>
 
-
-
-
-
-# Gui
-## Recherche avancée
+##^ Recherche avancée
 <div style="text-align:center">
 <img src="./img/asearch.png"  height="550px"/></div>
 
-
-
-
-
-# Gui : Fenêtres
-## Settings
+##^ Settings
 <div style="text-align:center">
 <img src="./img/settings.png"  height="550px"/></div>
 
-
-
-
+----
 
 # Gui : Améliorations
+
+- Gui
+- Explorer
+- Research
+- Système d'événement
+
+##^ Gui
 
 - Améliorer l’ergonomie
 
@@ -201,28 +169,27 @@ pour les fichiers qui n’ont pas été parsés
 
 - Indiquer le film comme «viewed» lorsqu’on a -cliquer sur le bouton «play film»
 
+----
 
+# Bugs restants
 
+- Gui
+- Explorer
+- Research
+- Système d'événement
 
-
-
-# Gui : Bugs restants
-
+##^ Gui
 - La fenêtre dépasse si l’écran est trop petit
 - Pas de gestion des formats non pris en charge par le lecteur media personnalisé
 - Sous Linux, le fichier ne se montre pas dans l’explorer
 
 
-
-
-
-
 # Gestion d'événement
-## Entre composants QT
+##^ Entre composants QT
 
 On utilise les singaux Qt, et ensuite on communique les données à l'arrière plan avec le système d'événement.
 
-## Entre service d'arrière plan
+##^ Entre service d'arrière plan
 
 On utilise une solution faite maison qui reprend l'idée d'un MessageBroker (AMQT, ZeroMq, etc...)
 
