@@ -1,5 +1,5 @@
 #!/bin/bash
 
-npm install -g reveal-md
+npm install -g reveal-md &> /dev/null
 
-reveal-md -P processor.js presentation.md
+reveal-md -D -w --preprocessor processor.js presentation.md
