@@ -79,13 +79,18 @@ for elem in res:
 - Namespace : mawie.explorer
 - Utilise des Apis (duckduckgo, et imdb)
 
-##^ Utilisation d'un comparateur
+##^ 1ère approche : Comparateur de chaine de caractère
 
-Dans un premier, on a utilisé Levenstein pour comparaitre le nom du film que nous renvoyait Guessit, et le nom du fichier originel (si taux de ressemblance plus haut que 80% c'est OK)
+_"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. Elle est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre."_
+Lowercase/Uppercase
+```python
+    >>> from Levenshtein import distance
+    >>> distance("La vie d'adèle", "La.vie.d'adele.french")
+    10
+```
+Taux minimum pour validation : 80%.
 
-Cela était due au nom des fichier impropable dans le dossier.
-
-##^ Utilisation de duckduckgo
+##^ 2ème approche : Utilisation de duckduckgo
 
 Dans un dexuipme temps on a développé une solution plus simple. On recherche le nom du film donnée par Guessit sur duckduckgo.
 Cela permet de le traduire, et d'avoir beaucoup plus souvent des résultat de recherche cohérent (dépendant du film).
