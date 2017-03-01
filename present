@@ -2,4 +2,4 @@
 
 npm install -g reveal-md &> /dev/null
 
-reveal-md -D -w --preprocessor processor.js presentation.md
+reveal-md --host $(hostname) -D -w --preprocessor processor.js presentation.md

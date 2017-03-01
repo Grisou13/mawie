@@ -17,9 +17,7 @@ module.exports = (markdown, options) => {
     else
     {
       const is_h1 = /^#{1}([^#].*)$/gm.test(line);
-
       if(is_h1 && index > 1){//skip the first title so we don't insert another slide
-        console.log(index);
         return "\n---\n\n" + line
       }
 
