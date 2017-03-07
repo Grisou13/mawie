@@ -1,11 +1,15 @@
 // headings trigger a new slide
 // headings with a caret (e.g., '##^ foo`) trigger a new vertical slide
+// // and images will be surrounded with tags allowing them to not overflow
 module.exports = (markdown, options) => {
-  // console.log(options);
-  // options.separator= "^(\r\n?|\n)----(\r\n?|\n)$"
-  // options.verticalSeparator='^(\r\n?|\n)----(\r\n?|\n)$'
-  // console.log(options);
+
   return markdown.split('\n').map((line, index) => {
+    //test images
+    if(/!\[[^]]+\]\([^)]+\)/g.test(line) || /^<img([\w\W]+?)\/>/g.test(line))
+    {
+      return '<div style="height:500px;width:100%;max-width:500px;max-height: 500px;display:inline-block; overflow:hidden;">\n'+line+"\n</div>"
+    }
+    //test headers and vertical headers
     if(!/^#/.test(line) || index === 0) return line;
     const is_vertical = /#\^/.test(line);
     line = line.replace('#^', '#');
