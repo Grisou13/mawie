@@ -10,10 +10,10 @@ revealOptions:
 <!--
 - BDD & Modèles
 - Composants
-  - Gui
   - Explorer
   - Search
   - Updator
+  - Gui
   - Event handling
   - Bugs restants
   - Améliorations
