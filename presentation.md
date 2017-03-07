@@ -252,14 +252,33 @@ Utiliser pour que le Gui et l'arrière plan communique
 
 ##^ Entre composants QT
 
-On utilise les signaux Qt, et ensuite on communique les données à l'arrière plan avec le système d'événements.
+```
+from PyQt5 import QtGui, QtCore
+
+class Window(QtGui.QWidget):
+    def __init__(self):
+        QtGui.QWidget.__init__(self)
+        self.button = QtGui.QPushButton('Test', self)
+        self.button.clicked.connect(self.handleButton)
+        layout = QtGui.QVBoxLayout(self)
+        layout.addWidget(self.button)
+
+    def handleButton(self):
+        print ('Hello World')
+
+if __name__ == '__main__':
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    window = Window()
+    window.show()
+    sys.exit(app.exec_())
+```
 
 ##^ Entre service d'arrière plan
 
 On utilise une solution faite maison qui reprend l'idée d'un MessageBroker (AMQT, ZeroMq, etc...)
 
-
-<img src="./img/event-loop-2.png"/>
+<img src="./img/event-loop-mawie.png"/>
 
 Note:
 
