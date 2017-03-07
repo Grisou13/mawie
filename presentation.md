@@ -8,27 +8,29 @@ revealOptions:
 
 # Table des matières
 <!--
+- Technologies
 - BDD & Modèles
 - Composants
-  - Gui
   - Explorer
   - Search
   - Updator
+  - Gui
   - Event handling
-  - Bugs restants
-  - Améliorations
-  - Conclusion
-  - Q/A -->
+- Bugs restants
+- Améliorations
+- Conclusion
+- Q/A
+-->
 <div style="display:inline-block;float:left;width:40%">
   <ul>
     <li>Technologies</li>
     <li>BDD & Modèles</li>
     <li>Composants</li>
     <ul>
-      <li>Gui</li>
       <li>Explorer</li>
       <li>Search</li>
       <li>Updator</li>
+      <li>Gui</li>
       <li>Event handling</li>
     </ul>
   </ul>
@@ -269,25 +271,13 @@ Tout ça à cause du GIL
 
 # Améliorations
 
-- Gui
 - Explorer
 - Recherche
 - Updator
+- Gui
 - Système d'événements
 - Implémenter complétement le cli
 
-##^ Gui
-
-- Améliorer l’ergonomie
-
-- Rendre plus responsive
-
-- Faire une fenêtre adaptée pour les séries
-
-- Ajouter la possibilité de donner un nom de film
-pour les fichiers qui n’ont pas été parsés
-
-- Indiquer le film comme «viewed» lorsqu’on a cliqué sur le bouton «play film»
 
 ##^ Explorer
 
@@ -310,6 +300,19 @@ e.parseDirectory("path/to/my/super/movie/dir")
 - Ajouter d'autres tâches à exécuter
 - Permettre à des class d'enregistrer de nouvelle tâche à faire
 - Permettre à l'utilisateur de séléctionner les tâches à exécuter
+
+##^ Gui
+
+- Améliorer l’ergonomie
+
+- Rendre plus responsive
+
+- Faire une fenêtre adaptée pour les séries
+
+- Ajouter la possibilité de donner un nom de film
+pour les fichiers qui n’ont pas été parsés
+
+- Indiquer le film comme «viewed» lorsqu’on a cliqué sur le bouton «play film»
 
 ##^ Système d'événements
 
