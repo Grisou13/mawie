@@ -6,11 +6,8 @@ revealOptions:
 # Mawie
 > Par Ilias, Thomas et Eric
 
-# Tbl des matières
-
-<div style="width:40%; margin-right: 20px;display:inline-block">
-
-- Technologies
+# Table des matières
+<!--
 - BDD & Modèles
 - Composants
   - Gui
@@ -18,15 +15,30 @@ revealOptions:
   - Search
   - Updator
   - Event handling
-
+  - Bugs restants
+  - Améliorations
+  - Conclusion
+  - Q/A -->
+<div style="display:inline-block;float:left;width:40%">
+  <ul>
+    <li>BDD & Modèles</li>
+    <li>Composants</li>
+    <ul>
+      <li>Gui</li>
+      <li>Explorer</li>
+      <li>Search</li>
+      <li>Updator</li>
+      <li>Event handling</li>
+    </ul>
+  </ul>
 </div>
-<div style="width:40%; margin-left: 20px;display:inline-block">
-
-- Bugs restants
-- Améliorations
-- Conclusion
-- Q/A
-
+<div style="display:inline-block;width:40%;margin-left:100px;">
+  <ul>
+    <li>Bugs restants</li>
+    <li>Améliorations</li>
+    <li>Conclusion</li>
+    <li>Q/A</li>
+  </ul>
 </div>
 
 # Technologies
@@ -139,7 +151,7 @@ Met à jour la liste de film.
 
 - Namespace : mawie.gui
 
-## Les différentes fenêtres
+## Navigation
 
 <img src="./img/guiSchema.png" /></div>
 
@@ -147,7 +159,7 @@ Met à jour la liste de film.
 
 <img src="./img/addFolder.png"/>
 
-##^ Affichage le contenu d'une recherche
+##^ Affichage du contenu d'une recherche
 
 <img src="./img/list.png"/>
 
