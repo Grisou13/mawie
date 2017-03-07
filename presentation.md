@@ -24,10 +24,10 @@ revealOptions:
     <li>BDD & Modèles</li>
     <li>Composants</li>
     <ul>
-      <li>Gui</li>
       <li>Explorer</li>
       <li>Search</li>
       <li>Updator</li>
+      <li>Gui</li>
       <li>Event handling</li>
     </ul>
   </ul>
