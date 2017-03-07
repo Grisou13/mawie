@@ -81,14 +81,19 @@ for elem in res:
 
 ##^ 1ère approche : Comparateur de chaine de caractère
 
-_"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. Elle est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre."_
+_"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. "_
 Lowercase/Uppercase
 ```python
     >>> from Levenshtein import distance
     >>> distance("La vie d'adèle", "La.vie.d'adele.french")
+    >>> #           ^   ^    ^  ^
     10
 ```
-Taux minimum pour validation : 80%.
+Taux minimum pour validation : ~80%.
+
+Note: 
+
+La distance levenstein est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre.
 
 ##^ 2ème approche : Utilisation de duckduckgo
 
@@ -145,11 +150,13 @@ On utilise une solution faite maison qui reprend l'idée d'un MessageBroker (AMQ
 <div style="text-align:center">
 <img src="./img/event-loop-2.png"  height="550px"/></div>
 
-Note: On fait tourner un event loop dans le GUI (pour passer les données à l'arrière plan).
+Note: 
 
-Note: On fait tourner un Event loop dans un thread à part pour processer les événements toute les .25s (pour le pas surgargé le thread principale QT!)
+On fait tourner un event loop dans le GUI (pour passer les données à l'arrière plan).
 
-Note: Tout ça a cause du GIL
+On fait tourner un Event loop dans un thread à part pour processer les événements toute les .25s (pour le pas surgargé le thread principale QT!)
+
+Tout ça a cause du GIL
 
 # Améliorations
 
