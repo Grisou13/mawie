@@ -21,6 +21,7 @@ revealOptions:
   - Q/A -->
 <div style="display:inline-block;float:left;width:40%">
   <ul>
+    <li>Technologies</li>
     <li>BDD & Modèles</li>
     <li>Composants</li>
     <ul>
@@ -59,6 +60,8 @@ On a développé l'application pour qu'elle soit orienté événement (comme une
 
  Note: données du dump de la librairie imdbpie
 
+##^ Active Alchemy
+<img src="./src/lol-sqlite.png"/>
 
 # Composants
 
@@ -107,18 +110,19 @@ for elem in res:
 
 # Explorer
 
-- Qu'est-ce que c'est
 - Namespace : mawie.explorer
-- Utilise des Apis (duckduckgo, et imdb)
+
+Parsing du répertoire &&  
+recherche d'informations sur les films
 
 
 Note:
 Utilise le système d'événements pour communiquer
 
-##^ 1ère approche : Comparateur de chaine de caractère
+##^ Parsing de fichiers films : 1ère approche
 
-_"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. "_
-Lowercase/Uppercase
+<div style="font-size:30px;"> _"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. "_</div><br>
+
 ```python
     >>> from Levenshtein import distance
     >>> distance("La vie d'adèle", "La.vie.d'adele.french")
@@ -128,15 +132,68 @@ Lowercase/Uppercase
 Taux minimum pour validation : ~80%.
 
 Note:
-
 La distance Levenstein est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre.
 
-##^ 2ème approche : Utilisation de duckduckgo
+##^ Parsing de fichiers films : 2ère approche
 
-Dans un deuxième temps on a développé une solution plus simple. On recherche le nom du film donnée par Guessit sur duckduckgo.
-Cela permet de le traduire, et d'avoir beaucoup plus souvent des résultat de recherche cohérent (dépendant du film).
-Après avoir récupéré le contenu imdb, on fait un test de semblance entre le nom Guessit, et le nom retiré IMDB pour vérifier que l'on ait bien trouvé le bon film, puis on l'inspre dans la base de donnée.
+```python
+with guessit
+>>> print(guessit("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3"))
 
+MatchesDict([('title', 'La Vie D Adele'),('year', 2013),
+('language', <Language [fr]>)
+```
+
+Note:
+
+with PTN lib
+>>> parsed = PTN.parse("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T")
+>>> print(parsed)
+{'title': 'La Vie D Adele', 'group': '2T', 'codec': 'XviD', 'language': 'FRENCH', 'year': 2013, 'quality': 'BRRip', 'audio': 'AC3'}
+
+with guessit
+>>> parsed = guessit("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T")
+>>> print(parsed)
+MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language [fr]>), ('format', 'BluRay'), ('audio_codec', 'AC3'), ('video_codec', 'XviD'), ('release_group', '2T'), ('type', 'movie')])
+
+and if we mix up both
+>>> parsed = PTN.parse("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T")
+>>> secondParsed = guessit("La.Vie.D.Adele.2013.FRENCH.BRRip.AC3.XviD-2T", {"T": parsed["title"]})
+>>> pritn(secondParsed)
+MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language [fr]>), ('format', 'BluRay'), ('audio_codec', 'AC3'), ('video_codec', 'XviD'), ('release_group', '2T'), ('type', 'movie')])
+
+##^ IMDB informations
+
+```html
+<h2 class="result__title">
+  <a rel="nofollow" class="result__a"
+  href="http://www.imdb.com/title/tt0076759/">
+  <b>Star</b> <b>Wars</b>: Episode IV - A New Hope (1977)
+  - <b>IMDb</b></a>
+</h2>
+```
+
+Classe Google It  
+
+```python
+>>> GoogleIt = GoogleIt()
+>>> res = GoogleIt.getMovieID(MovieTitle="La guerre des étoiles")
+>>> print(res)
+"tt0076759"
+
+>>> res = GoogleIt.getMovieInfo(movieId = "tt0137523")
+>>> print(r.title)
+"Fight Club"
+>>> print(r.plots)
+"Don't speak about it"
+```
+
+Note:
+On peut faire un getMovieInfo avec titre, mais retourne une liste de films contenant ce titre.
+Utiliser getMoveieID retourn un ID ou rien.
+
+
+```
 # Updator
 
 - Namespace : mawie
@@ -281,6 +338,9 @@ Utiliser une queue de message de retour pour ne pas occuper la queue d'événeme
 
 # Question
 ```python
-import sys
-sys.stdout.write("Questions ? ")
+import random
+questions = input("questions?")
+presenter = ["Eric","Ilias","Thomas"]
+for i in range(questions):
+    presenter.answer(random.choice(questions))
 ```
