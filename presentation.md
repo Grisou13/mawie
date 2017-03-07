@@ -8,28 +8,27 @@ revealOptions:
 
 # Table des matières
 <!--
-- Technologies
 - BDD & Modèles
 - Composants
+  - Gui
   - Explorer
   - Search
   - Updator
-  - Gui
   - Event handling
-- Bugs restants
-- Améliorations
-- Conclusion
-- Q/A -->
+  - Bugs restants
+  - Améliorations
+  - Conclusion
+  - Q/A -->
 <div style="display:inline-block;float:left;width:40%">
   <ul>
     <li>Technologies</li>
     <li>BDD & Modèles</li>
     <li>Composants</li>
     <ul>
+      <li>Gui</li>
       <li>Explorer</li>
       <li>Search</li>
       <li>Updator</li>
-      <li>Gui</li>
       <li>Event handling</li>
     </ul>
   </ul>
@@ -120,7 +119,7 @@ recherche d'informations sur les films
 Note:
 Utilise le système d'événements pour communiquer
 
-##^ Parsing de fichiers films : 1ère approche
+##^ Parsing des fichiers films : 1ère approche
 
 <div style="font-size:30px;"> _"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. "_</div><br>
 
@@ -135,7 +134,7 @@ Taux minimum pour validation : ~80%.
 Note:
 La distance Levenstein est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre.
 
-##^ Parsing de fichiers films : 2ère approche
+##^ Parsing des fichiers films : 2ère approche
 
 ```python
 with guessit
@@ -163,7 +162,7 @@ and if we mix up both
 >>> pritn(secondParsed)
 MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language [fr]>), ('format', 'BluRay'), ('audio_codec', 'AC3'), ('video_codec', 'XviD'), ('release_group', '2T'), ('type', 'movie')])
 
-##^ IMDB informations
+##^ Informations relatives aux films
 
 ```html
 <h2 class="result__title">
