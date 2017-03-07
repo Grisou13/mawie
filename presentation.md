@@ -164,7 +164,7 @@ and if we mix up both
 >>> pritn(secondParsed)
 MatchesDict([('title', 'La Vie D Adele'), ('year', 2013), ('language', <Language [fr]>), ('format', 'BluRay'), ('audio_codec', 'AC3'), ('video_codec', 'XviD'), ('release_group', '2T'), ('type', 'movie')])
 
-##^ Informations relatives aux films
+##^ Info. relatives aux films
 
 ```html
 <h2 class="result__title">
