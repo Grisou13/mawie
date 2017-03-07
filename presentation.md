@@ -7,6 +7,9 @@ revealOptions:
 > Par Ilias, Thomas et Eric
 
 # Tbl des matières
+
+<div style="width:40%; margin-right: 20px;display:inline-block">
+
 - Technologies
 - BDD & Modèles
 - Composants
@@ -15,19 +18,28 @@ revealOptions:
   - Search
   - Updator
   - Event handling
+
+</div>
+<div style="width:40%; margin-left: 20px;display:inline-block">
+
 - Bugs restants
 - Améliorations
 - Conclusion
 - Q/A
+
+</div>
 
 # Technologies
  - Python3
  - SqlAclhemy (ActiveAlchemy)
  - sqlite3
  - PyQt5
- - Tkinter (déprecié)
 
- On a développé l'application pour qu'elle soit orienté événement (comme une application Android).
+Note:
+
+Tkinter (déprécié - semaine 5-6)
+
+On a développé l'application pour qu'elle soit orienté événement (comme une application Android).
 
 # BDD & Modèles
 
@@ -35,7 +47,7 @@ revealOptions:
 
  Note: données du dump de la librairie imdbpie
 
- 
+
 # Composants
 
 <img src="./img/composants.png"/>
@@ -46,8 +58,8 @@ Recherche sur les 2 modèles, ou autre.
 - Namepsace : mawie.research
 
 - Recherche Simple
-- Recherche Avancé sur les modèles par defaults
-- Recherche Avancé
+- Recherche Avancée
+- Recherche Avancée (2)
 
 ##^ Recherche simple
 ```python
@@ -60,7 +72,7 @@ Recherche sur les 2 modèles, ou autre.
     print(elem.title)
 ```
 
-##^ Recherche Avancé
+##^ Recherche Avancée
 ```python
 ... imports
 searchable = Research()
@@ -70,7 +82,7 @@ for elem in res:
     print(elem.title)
 ```
 
-##^ Recherche Avancé (2)
+##^ Recherche Avancée (2)
 
 ```python
 ... imports
@@ -87,6 +99,10 @@ for elem in res:
 - Namespace : mawie.explorer
 - Utilise des Apis (duckduckgo, et imdb)
 
+
+Note:
+Utilise le système d'événements pour communiquer
+
 ##^ 1ère approche : Comparateur de chaine de caractère
 
 _"La distance de Levenshtein est une distance mathématique donnant une mesure de la similarité entre deux chaînes de caractères. "_
@@ -101,27 +117,33 @@ Taux minimum pour validation : ~80%.
 
 Note:
 
-La distance levenstein est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre.
+La distance Levenstein est égale au nombre minimal de caractères qu'il faut supprimer, insérer ou remplacer pour passer d’une chaîne à l’autre.
 
 ##^ 2ème approche : Utilisation de duckduckgo
 
-Dans un dexuipme temps on a développé une solution plus simple. On recherche le nom du film donnée par Guessit sur duckduckgo.
+Dans un deuxième temps on a développé une solution plus simple. On recherche le nom du film donnée par Guessit sur duckduckgo.
 Cela permet de le traduire, et d'avoir beaucoup plus souvent des résultat de recherche cohérent (dépendant du film).
 Après avoir récupéré le contenu imdb, on fait un test de semblance entre le nom Guessit, et le nom retiré IMDB pour vérifier que l'on ait bien trouvé le bon film, puis on l'inspre dans la base de donnée.
 
 # Updator
 
-Execute une tache périodiquement.
+- Namespace : mawie
+
+Exécute une tâche périodiquement.
+
+Met à jour la liste de film.
 
 
 
 # Gui
 
+- Namespace : mawie.gui
+
 ## Les différentes fenêtres
 
 <img src="./img/guiSchema.png" /></div>
 
-##^ ajouter un dossier
+##^ Ajout de nouveaux films
 
 <img src="./img/addFolder.png"/>
 
@@ -133,7 +155,7 @@ Execute une tache périodiquement.
 
 <img src="./img/film.png"/>
 
-##^ Lire le film
+##^ Visionnage d'un film
 
 <img src="./img/player.png"/>
 
@@ -145,17 +167,21 @@ Execute une tache périodiquement.
 
 <img src="./img/settings.png"/>
 
-# Gestion d'événement
+# Gestion d'événements
 
 <img src="img/pexels-photo-186537.jpeg" />
 
 Note:
 
-Tous les composants de l'application communique selon
+Permet d'etre completement asynchrone (comme sur android)
+
+Utiliser pour que les widgets QT communique ensemble
+Utiliser pour que les service d'arrière plan communique ensemble
+Utiliser pour que le Gui et l'arrière plan communique
 
 ##^ Entre composants QT
 
-On utilise les singaux Qt, et ensuite on communique les données à l'arrière plan avec le système d'événement.
+On utilise les signaux Qt, et ensuite on communique les données à l'arrière plan avec le système d'événements.
 
 ##^ Entre service d'arrière plan
 
@@ -170,7 +196,7 @@ On fait tourner un event loop dans le GUI (pour passer les données à l'arrièr
 
 On fait tourner un Event loop dans un thread à part pour processer les événements toute les .25s (pour le pas surgargé le thread principale QT!)
 
-Tout ça a cause du GIL
+Tout ça à cause du GIL
 
 # Améliorations
 
@@ -192,11 +218,11 @@ Tout ça a cause du GIL
 - Ajouter la possibilité de donner un nom de film
 pour les fichiers qui n’ont pas été parsés
 
-- Indiquer le film comme «viewed» lorsqu’on a -cliquer sur le bouton «play film»
+- Indiquer le film comme «viewed» lorsqu’on a cliqué sur le bouton «play film»
 
 ##^ Explorer
 
-- Permettre d'utiliser le module synchronement
+- Permettre d'utiliser le module indépendamment du système d'événements
 ```python
 ... imports
 e = Explorer()
@@ -204,21 +230,21 @@ e.parseDirectory("path/to/my/super/movie/dir")
 ```
 - Gérer la perte de connexion à internet
 - Gérer des sources différentes pour la recherche d'information
-- Inclure l'utilisateur lors du parsing dans le cas ou un fichier n'est pas trouver
+- Inclure l'utilisateur lors du parsing dans le cas où un fichier n'est pas trouvé
 
 ##^ Recherche
 
-- Mettre en cache les requetes
+- Mettre en cache les requêtes
 
 ##^ Updator
 
-- Ajouter d'autre taches à faire
-- Permettre à des class d'enregistrer de nouvelle tache a faire
-- Permettre à l'utilisateur de séléctionner les taches à exéctuer
+- Ajouter d'autres tâches à exécuter
+- Permettre à des class d'enregistrer de nouvelle tâche à faire
+- Permettre à l'utilisateur de séléctionner les tâches à exécuter
 
 ##^ Système d'événements
 
-- Ajouter une Queue pour les message en retour
+- Ajouter une queue pour les messages de retour
 
 - Permettre de dispatcher un événement à un object particulier
 
@@ -230,15 +256,16 @@ Utiliser une queue de message de retour pour ne pas occuper la queue d'événeme
 
 - Gui
 - Explorer
-- Research
 - Système d'événement
 
 ##^ Gui
 - La fenêtre dépasse si l’écran est trop petit
-- Pas de gestion des formats non pris en charge par le lecteur media personnalisé
-- Sous Linux, le fichier ne se montre pas dans l’explorer
+- Pas de gestion des formats non pris en charge par le lecteur média personnalisé
+- Problème de l'affichage du film sous Linux
+
 
 # Conclusion
+
 
 # Question
 ```python
