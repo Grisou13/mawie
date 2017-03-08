@@ -27,10 +27,10 @@ revealOptions:
     <li>BDD & Modèles</li>
     <li>Composants</li>
     <ul>
-      <li>Explorer</li>
-      <li>Search</li>
-      <li>Updator</li>
       <li>Gui</li>
+      <li>Search</li>
+      <li>Explorer</li>
+      <li>Updator</li>
       <li>Event handling</li>
     </ul>
   </ul>
@@ -46,7 +46,7 @@ revealOptions:
 
 # Technologies
  - Python3
- - SqlAclhemy (ActiveAlchemy)
+ - SqlAlchemy (ActiveAlchemy)
  - sqlite3
  - PyQt5
 
@@ -68,6 +68,39 @@ On a développé l'application pour qu'elle soit orienté événement (comme une
 # Composants
 
 <img src="./img/composants.png"/>
+
+# Gui
+
+- Namespace : mawie.gui
+
+## Navigation
+
+<img src="./img/guiSchema.png" /></div>
+
+##^ Ajout de nouveaux films
+
+<img src="./img/addFolder.png"/>
+
+##^ Affichage du contenu d'une recherche
+
+<img src="./img/list.png"/>
+
+##^ Affichage des informations d'un film
+
+<img src="./img/film.png"/>
+
+##^ Visionnage d'un film
+
+<img src="./img/player.png"/>
+
+##^ Recherche avancée
+
+<img src="./img/asearch.png"/>
+
+##^ Settings
+
+<img src="./img/settings.png"/>
+
 
 # Search
 Recherche sur les 2 modèles, ou autre.
@@ -205,39 +238,6 @@ Exécute une tâche périodiquement.
 Met à jour la liste de film.
 
 
-
-# Gui
-
-- Namespace : mawie.gui
-
-## Navigation
-
-<img src="./img/guiSchema.png" /></div>
-
-##^ Ajout de nouveaux films
-
-<img src="./img/addFolder.png"/>
-
-##^ Affichage du contenu d'une recherche
-
-<img src="./img/list.png"/>
-
-##^ Affichage des informations d'un film
-
-<img src="./img/film.png"/>
-
-##^ Visionnage d'un film
-
-<img src="./img/player.png"/>
-
-##^ Recherche avancée
-
-<img src="./img/asearch.png"/>
-
-##^ Settings
-
-<img src="./img/settings.png"/>
-
 # Gestion d'événements
 
 <img src="img/pexels-photo-186537.jpeg" />
@@ -308,7 +308,7 @@ e.parseDirectory("path/to/my/super/movie/dir")
 ```
 - Gérer la perte de connexion à internet
 - Gérer des sources différentes pour la recherche d'information
-- Inclure l'utilisateur lors du parsing dans le cas où un fichier n'est pas trouvé
+- Inclure l'utilisateur lors du parsing dans le cas où un fichier/film n'est pas trouvé
 
 ##^ Recherche
 
@@ -317,19 +317,16 @@ e.parseDirectory("path/to/my/super/movie/dir")
 ##^ Updator
 
 - Ajouter d'autres tâches à exécuter
-- Permettre à des class d'enregistrer de nouvelle tâche à faire
+- Permettre à des classes d'enregistrer de nouvelles tâches à faire
 - Permettre à l'utilisateur de séléctionner les tâches à exécuter
 
 ##^ Gui
 
-- Améliorer l’ergonomie
-
-- Rendre plus responsive
+- Meilleur responsivité
 
 - Faire une fenêtre adaptée pour les séries
 
-- Ajouter la possibilité de donner un nom de film
-pour les fichiers qui n’ont pas été parsés
+- Changer/Ajouter URL (imdb) d'un film
 
 - Indiquer le film comme «viewed» lorsqu’on a cliqué sur le bouton «play film»
 
@@ -337,7 +334,7 @@ pour les fichiers qui n’ont pas été parsés
 
 - Ajouter une queue pour les messages de retour
 
-- Permettre de dispatcher un événement à un object particulier
+- Permettre de dispatcher un événement à un objet particulier
 
 Note:
 
@@ -351,14 +348,17 @@ Utiliser une queue de message de retour pour ne pas occuper la queue d'événeme
 
 ##^ Gui
 - La fenêtre dépasse si l’écran est trop petit
-- Pas de gestion des formats non pris en charge par le lecteur média personnalisé
+- Pas de gestion des formats vidéos non pris en charge par le lecteur média personnalisé
 - Problème de l'affichage du film sous Linux
 
+##^ Explorer
+
+- Aucune exactitude de l'id trouvé d'un film
 
 # Conclusion
 
 
-# Question
+# Questions
 ```python
 import random
 questions = input("questions?")
