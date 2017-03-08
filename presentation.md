@@ -107,9 +107,8 @@ Recherche sur les 2 modèles, ou autre.
 
 - Namepsace : mawie.research
 
-- Recherche Simple
-- Recherche Avancée
-- Recherche Avancée (2)
+- Recherche Simple &&
+ Avancée
 
 ##^ Recherche simple
 ```python
@@ -288,17 +287,26 @@ On fait tourner un Event loop dans un thread à part pour processer les événem
 
 Tout ça à cause du GIL
 
+# Bugs restants
+
+- Gui
+- Explorer
+
+##^ Bugs Gui
+- La fenêtre dépasse si l’écran est trop petit
+- Pas de gestion des formats vidéos non pris en charge par le lecteur média personnalisé
+- Problème de l'affichage du film sous Linux
+
+##^ Bugs Explorer
+
+- Aucune exactitude de l'id trouvé d'un film
+
 # Améliorations
 
-- Explorer
-- Recherche
-- Updator
-- Gui
-- Système d'événements
 - Implémenter complétement le cli
+- Exécutable (bundle)
 
-
-##^ Explorer
+##^ Améliorations Explorer
 
 - Permettre d'utiliser le module indépendamment du système d'événements
 ```python
@@ -310,17 +318,17 @@ e.parseDirectory("path/to/my/super/movie/dir")
 - Gérer des sources différentes pour la recherche d'information
 - Inclure l'utilisateur lors du parsing dans le cas où un fichier/film n'est pas trouvé
 
-##^ Recherche
+##^ Améliorations Recherche
 
 - Mettre en cache les requêtes
 
-##^ Updator
+##^ Améliorations Updator
 
 - Ajouter d'autres tâches à exécuter
 - Permettre à des classes d'enregistrer de nouvelles tâches à faire
 - Permettre à l'utilisateur de séléctionner les tâches à exécuter
 
-##^ Gui
+##^ Améliorations Gui
 
 - Meilleur responsivité
 
@@ -330,7 +338,7 @@ e.parseDirectory("path/to/my/super/movie/dir")
 
 - Indiquer le film comme «viewed» lorsqu’on a cliqué sur le bouton «play film»
 
-##^ Système d'événements
+##^ Améliorations Système d'événements
 
 - Ajouter une queue pour les messages de retour
 
@@ -340,23 +348,17 @@ Note:
 
 Utiliser une queue de message de retour pour ne pas occuper la queue d'événement principale
 
-# Bugs restants
 
-- Gui
-- Explorer
-- Système d'événement
-
-##^ Gui
-- La fenêtre dépasse si l’écran est trop petit
-- Pas de gestion des formats vidéos non pris en charge par le lecteur média personnalisé
-- Problème de l'affichage du film sous Linux
-
-##^ Explorer
-
-- Aucune exactitude de l'id trouvé d'un film
 
 # Conclusion
 
+Note:
+- Bonne communication
+- Beaucoup de changement en cours
+- Vision globale du projets
+- Si a refaire :
+    - Merge plus souvent
+    - Organisation merge et commit
 
 # Questions
 ```python
