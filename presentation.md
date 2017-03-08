@@ -73,6 +73,11 @@ On a développé l'application pour qu'elle soit orienté événement (comme une
 
 - Namespace : mawie.gui
 
+Note:
+
+Tout bootstrapper à la main.
+Pas d'IDE pour créer les fenêtres
+
 ## Navigation
 
 <img src="./img/guiSchema.png" /></div>
@@ -254,23 +259,9 @@ Utiliser pour que le Gui et l'arrière plan communique
 ```
 from PyQt5 import QtGui, QtCore
 
-class Window(QtGui.QWidget):
-    def __init__(self):
-        QtGui.QWidget.__init__(self)
-        self.button = QtGui.QPushButton('Test', self)
-        self.button.clicked.connect(self.handleButton)
-        layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(self.button)
+button = QtGui.QPushButton('Test', QtGui.QMainWindow)
+button.clicked.connect(lambda e: print("clicked :D"))
 
-    def handleButton(self):
-        print ('Hello World')
-
-if __name__ == '__main__':
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())
 ```
 
 ##^ Entre service d'arrière plan
