@@ -19,6 +19,6 @@ six==1.9.0
 SQLAlchemy==1.0.12
 timestring==1.6.2
 TorrentMediaSearcher==1.0.3
-urllib3==1.18
+urllib3==1.26.5
 
 BeautifulSoup4
